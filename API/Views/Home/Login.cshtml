@@ -1,0 +1,37 @@
+﻿@{
+    Layout = "_LoginLayout";
+}
+
+<div class="section">
+    <h2 class="text-danger poppins-semibold">Login</h2>
+    <p class="poppins-regular mb-5" style="color: #4E4E4E;" >Enter your email & password</p>
+    <p class="poppins-light mb-1">User Name</p>
+    <div class="input-group mb-3">
+        <span style="background-color: #db4b73; width: 0.7vw; border-radius: 3px;"></span>
+        <div class="form-floating position-relative">
+          <img src="~/images/user.png" alt="" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw">
+          <input type="text" class="form-control" placeholder="">
+          <label>&nbsp; &nbsp; &nbsp; &nbsp;Type here...</label>
+        </div>
+    </div>
+    <p class="poppins-light mb-1">Password</p>
+    <img src="images/people.png" alt="" style="z-index: -3; position: absolute; margin-top: 16px; margin-left: 6vw;">
+    <div class="input-group mb-3">
+        <span style="background-color: #db4b73; width: 0.7vw; border-radius: 3px;"></span>
+        <div class="form-floating position-relative">
+            <span>
+                <img src="images/password.png" alt="" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw">
+            </span>
+          <input type="text" class="form-control" placeholder="">
+          <label>&nbsp; &nbsp; &nbsp; &nbsp;Type here...</label>
+        </div>
+    </div>
+    <p class="mb-4 text-end" style="color: #1F1F1F; opacity: 50%;">
+        Forgot Password
+    </p>
+    <div class="mb-2 itemCenter">
+        <button class="btn-block loginButtonSize" type="submit" style="background-color: #393185; color: white">
+            <a asp-action="Enrollment" asp-controller="Home" class="text-decoration-none text-white">Login</a>
+        </button>
+    </div>
+</div>
