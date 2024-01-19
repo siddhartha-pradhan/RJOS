@@ -11,4 +11,6 @@ public class Subject : BaseEntity<int>
     public string Name { get; set; } = default!;
     
     public int Sequence { get; set; }
+
+    public virtual List<SubjectTopicResource> SubjectTopicResources { get; set; }
 }

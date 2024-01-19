@@ -23,4 +23,5 @@ public class SubjectTopicResource : BaseEntity<int>
     
     [ForeignKey("TopicId")]
     public virtual SubjectTopic SubjectTopic { get; set; } = default!;
+
 }

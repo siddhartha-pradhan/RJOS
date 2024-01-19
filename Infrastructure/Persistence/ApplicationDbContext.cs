@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
 using Model.Models;
 
@@ -24,5 +25,11 @@ public class ApplicationDbContext : DbContext
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         
         base.OnModelCreating(builder);
+
+        builder.Entity<SubjectTopicResource>()
+           .HasOne(str => str.Subject)
+           .WithMany(s => s.SubjectTopicResources)
+           .HasForeignKey(str => str.SubjectId)
+           .OnDelete(DeleteBehavior.NoAction);
     }
 }
