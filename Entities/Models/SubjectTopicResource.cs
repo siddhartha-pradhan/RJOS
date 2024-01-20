@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.AccessControl;
 using Model.Base;
+using ResourceType = Common.Constants.ResourceType;
 
 namespace Model.Models;
 

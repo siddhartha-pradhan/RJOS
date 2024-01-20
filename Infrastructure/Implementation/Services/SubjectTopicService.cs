@@ -3,89 +3,88 @@ using Application.DTOs.SubjectTopic;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Model.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Data.Implementation.Services
+namespace Data.Implementation.Services;
+
+public class SubjectTopicService : ISubjectTopicService
 {
-    public class SubjectTopicService : ISubjectTopicService
+    private readonly IGenericRepository _genericRepository;
+    
+    public SubjectTopicService(IGenericRepository genericRepository)
     {
-        private readonly IGenericRepository _genericRepository;
-        public SubjectTopicService(IGenericRepository genericRepository)
+        _genericRepository = genericRepository;
+    }
+
+
+    public async Task AddSubjectTopics(SubjectTopicRequestDTO subjectTopic)
+    {
+        var addSubjectTopic = new SubjectTopic()
         {
-            _genericRepository = genericRepository;
+            ClassId = subjectTopic.ClassId,
+            Name = subjectTopic.Name,
+            SubjectId = subjectTopic.SubjectId,
+            Description = subjectTopic.Description,
+            CreatedBy = 1,
+        };
+
+        await _genericRepository.InsertAsync(addSubjectTopic);
+    }
+
+    public async Task DeleteSubjectTopics(int subjectTopicId)
+    {
+        var subjectTopic = await _genericRepository.GetByIdAsync<SubjectTopic>(subjectTopicId);
+        
+        if (subjectTopic != null)
+        {
+            subjectTopic.IsDeleted = true;
+            
+            await _genericRepository.UpdateAsync(subjectTopic);
         }
+    }
 
+    public async Task<List<SubjectTopicResponseDTO>> GetAllSubjectTopics()
+    {
+        var subjectTopicList = await _genericRepository.GetAsync<SubjectTopic>(x => x.IsActive && !x.IsDeleted);
 
-        public async Task AddSubjectTopics(SubjectTopicRequestDTO subjectTopicRequestDTO)
-        {
-            var addSubjectTopic = new SubjectTopic()
+        return subjectTopicList.Select(item => new SubjectTopicResponseDTO()
             {
-                ClassId = subjectTopicRequestDTO.ClassId,
-                Name = subjectTopicRequestDTO.Name,
-                SubjectId = subjectTopicRequestDTO.SubjectId,
-                Description = subjectTopicRequestDTO.Description,
-                CreatedBy = 1,
-            };
+                Id = item.Id,
+                Description = item.Description,
+                SubjectId = item.SubjectId,
+                Name = item.Name,
+                ClassId = item.ClassId,
+            })
+            .ToList();
+    }
 
-            await _genericRepository.InsertAsync(addSubjectTopic);
-        }
+    public async Task<SubjectTopicResponseDTO> GetSubjectTopicsById(int subjectTopicId)
+    {
+        var subjectTopic = await _genericRepository.GetByIdAsync<SubjectTopic>(subjectTopicId);
 
-        public async Task DeleteSubjectTopics(int subjectTopicId)
+        var result = new SubjectTopicResponseDTO()
         {
-            var findSubjectTopicById = await _genericRepository.GetByIdAsync<SubjectTopic>(subjectTopicId);
-            if (findSubjectTopicById != null)
-            {
-                await _genericRepository.DeleteAsync(findSubjectTopicById);
-            }
-        }
+            Id = subjectTopic.Id,
+            Description = subjectTopic.Description,
+            SubjectId = subjectTopic.SubjectId,
+            Name = subjectTopic.Name,
+            ClassId = subjectTopic.ClassId,
+        };
+        
+        return result;
+    }
 
-        public async Task<List<SubjectTopicResponseDTO>> GetAllSubjectTopics()
+    public async Task UpdateSubjectTopics(SubjectTopicResponseDTO subjectTopic)
+    {
+        var existingSubjectTopicDetails = await _genericRepository.GetByIdAsync<SubjectTopic>(subjectTopic.Id);
+
+        if (existingSubjectTopicDetails != null)
         {
-            var subjectTopicList = await _genericRepository.GetAsync<SubjectTopic>();
-            var result = new List<SubjectTopicResponseDTO>();
+            existingSubjectTopicDetails.SubjectId = subjectTopic.SubjectId;
+            existingSubjectTopicDetails.ClassId = subjectTopic.ClassId;
+            existingSubjectTopicDetails.Name = subjectTopic.Name;
+            existingSubjectTopicDetails.Description = subjectTopic.Description;
 
-            foreach (var item in subjectTopicList)
-            {
-                var subjectTopicResponse = new SubjectTopicResponseDTO()
-                {
-                    Id = item.Id,
-                    Description = item.Description,
-                    SubjectId = item.SubjectId,
-                    Name = item.Name,
-                    ClassId = item.ClassId,
-                };
-
-                result.Add(subjectTopicResponse);
-            }
-
-            return result;
-        }
-
-        public async Task<SubjectTopic> GetSubjectTopicsByID(int subjectTopicId)
-        {
-            var subjectTopic = await _genericRepository.GetByIdAsync<SubjectTopic>(subjectTopicId);
-
-            return subjectTopic;
-        }
-
-        public async Task UpdateSubjectTopics(SubjectTopicResponseDTO subjectTopicResponseDTO)
-        {
-            var existingSubjectTopicDetails = await _genericRepository.GetByIdAsync<SubjectTopic>(subjectTopicResponseDTO);
-
-            if (existingSubjectTopicDetails != null)
-            {
-                existingSubjectTopicDetails.SubjectId = subjectTopicResponseDTO.SubjectId;
-                existingSubjectTopicDetails.ClassId = subjectTopicResponseDTO.ClassId;
-                existingSubjectTopicDetails.Name = subjectTopicResponseDTO.Name;
-                existingSubjectTopicDetails.Description = subjectTopicResponseDTO.Description;
-
-
-                await _genericRepository.UpdateAsync(existingSubjectTopicDetails);
-            }
+            await _genericRepository.UpdateAsync(existingSubjectTopicDetails);
         }
     }
 }

@@ -1,20 +1,17 @@
-﻿using Application.DTOs.Subject;
+﻿using Model.Models;
 using Application.DTOs.SubjectTopicResource;
-using Model.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Application.Interfaces.Services
+namespace Application.Interfaces.Services;
+
+public interface ISubjectTopicResourceService
 {
-    public interface ISubjectTopicResourceService
-    {
-        Task<List<SubjectTopicResourceResponseDTO>> GetAllSubjectTopicResource();
-        Task AddSubjectTopicResource(SubjectTopicResourceRequestDTO subjectTopicResourceRequest);
-        Task UpdateSubjectTopicResource(SubjectTopicResourceResponseDTO subjectTopicResourceResponse);
-        Task DeleteSubjectTopicResource(int subjectTopicResourceResponseId);
-        Task<SubjectTopicResource> GetSubjectTopicResourceById(int subjectTopicResourceResponseId);
-    }
+    Task<List<SubjectTopicResourceResponseDTO>> GetAllSubjectTopicResource();
+    
+    Task AddSubjectTopicResource(SubjectTopicResourceRequestDTO subjectTopicResourceRequest);
+    
+    Task UpdateSubjectTopicResource(SubjectTopicResourceResponseDTO subjectTopicResourceResponse);
+    
+    Task DeleteSubjectTopicResource(int subjectTopicResourceResponseId);
+    
+    Task<SubjectTopicResourceResponseDTO> GetSubjectTopicResourceById(int subjectTopicResourceResponseId);
 }

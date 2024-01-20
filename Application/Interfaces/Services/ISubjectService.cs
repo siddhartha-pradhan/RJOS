@@ -7,14 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.Services
+namespace Application.Interfaces.Services;
+
+public interface ISubjectService
 {
-    public interface ISubjectService
-    {
-        Task<List<SubjectResponseDTO>> GetAllSubjects();
-        Task AddSubjects(SubjectRequestDTO subjectRequestDTO);
-        Task UpdateSubject(SubjectResponseDTO subjectResponseDTO);
-        Task DeleteSubject(int subjectId);
-        Task<Subject> GetSubjectById(int subjectId);
-    }
+    Task<List<SubjectResponseDTO>> GetAllSubjects();
+    
+    Task AddSubject(SubjectRequestDTO subject);
+    
+    Task UpdateSubject(SubjectResponseDTO subject);
+    
+    Task DeleteSubject(int subjectId);
+    
+    Task<SubjectResponseDTO> GetSubjectById(int subjectId);
 }

@@ -6,9 +6,13 @@ namespace Application.Interfaces.Services
     public interface IStudentService
     {
         Task<List<StudentResponseDTO>> GetAllStudents();
+        
         Task AddStudent(StudentRequestDTO studentRequest);
+        
         Task UpdateStudent(StudentResponseDTO studentRequest);  
+        
         Task DeleteStudent(int studentId);  
-        Task<Student> GetStudentByID(int studentId);  
+        
+        Task<StudentResponseDTO> GetStudentById(int studentId);  
     }
 }

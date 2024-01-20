@@ -10,6 +10,7 @@ namespace Application.DTOs.Subject
     public class SubjectResponseDTO
     {
         public int Id { get; set; }
+        
         public int ClassId { get; set; }
 
         public int LanguageId { get; set; }
