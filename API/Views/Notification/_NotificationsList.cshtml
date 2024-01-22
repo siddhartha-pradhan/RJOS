@@ -1,0 +1,165 @@
+﻿@model List<Application.DTOs.Notification.NotificationResponseDTO>
+
+<div class="card">
+    <div class="card-body">
+        <div class="text-end">
+            <button type="button" class="btn w-b btn-outline-danger btn-sm btn-rounded" onclick="onAddUpdateNotification(0)">
+                Add New Notification
+            </button>
+        </div>
+        <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
+            <thead>
+            <tr>
+                <th style="width:5%">#</th>
+                <th>Header</th>
+                <th>Description</th>
+                <th>Download File</th>
+                <th>Notified On</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (Model.Any())
+            {
+                foreach (var notification in Model)
+                {
+                    <tr>
+                        <td>
+                            <span>@(Model.ToList().IndexOf(notification) +1)</span>
+                        </td>
+                        <td>
+                            @Html.Raw(notification.Title)
+                        </td>
+                        <td>
+                            @Html.Raw(notification.Description)
+                        </td>
+                        <td>
+                            @if (notification.UploadedFileUrl != null)
+                            {
+                                <a asp-controller="Notification" asp-action="DownloadDocument" asp-route-uploadFileName="@notification.UploadedFileName" asp-route-fileName="@notification.UploadedFileUrl" class="btn btn-sm btn-outline-danger btn-rounded">
+                                    <i class="fa-solid fa-download"></i>
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            @notification.CreatedOn.ToString("dd-MM-yyyy HH:mm:ss")
+                        </td>
+                        <td>
+                            <span onclick="onAddUpdateNotification(@notification.Id)">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    let quill = null;
+    let editor = null;
+    
+    function onAddUpdateNotification(index){
+        if (!quill || !editor){
+            quill = new Quill('.editor_header', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ font: [] }, { size: [] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ color: [] }, { background: [] }],
+                        [{ script: "super" }, { script: "sub" }],
+                        [{ header: [!1, 1, 2, 3, 4, 5, 6] }],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        ["direction", { align: [] }],
+                        ["clean"]
+                    ],
+                    clipboard: {
+                        matchVisual: false, 
+                    },
+                },
+            });
+        
+            quill.on('text-change', function (delta, oldDelta, source) {
+                let content = quill.root.innerHTML;
+                let inputField = "#notification-header";
+                $(inputField).val(content);
+            });
+            
+            editor = new Quill('.editor_description', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ font: [] }, { size: [] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ color: [] }, { background: [] }],
+                        [{ script: "super" }, { script: "sub" }],
+                        [{ header: [!1, 1, 2, 3, 4, 5, 6] }],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        ["direction", { align: [] }],
+                        ["clean"]
+                    ],
+                    clipboard: {
+                        matchVisual: false, 
+                    },
+                },
+            });
+        
+            editor.on('text-change', function (delta, oldDelta, source) {
+                let content = editor.root.innerHTML;
+                let inputField = "#notification-description";
+                $(inputField).val(content);
+            });
+        }
+        
+        if (index === 0){
+            $('#Id').val('');
+            $('#notification-header').val('');
+            $('#notification-description').val('');
+            $('#fileInput').val('');
+            quill.setText("");
+            editor.setText("");
+            
+            $('#add-notification').modal('show');
+        }
+        else {
+            $.ajax({
+                type: 'GET',
+                url: '/Notification/GetNotificationById',
+                data: { notificationId: index },
+                contentType: 'application/json',
+                dataType: "JSON",
+                success: function(result) {
+                    $('#Id').val(result.data.id);
+                    $('#fileInput').val('');
+                    $('#notification-header').val(result.data.title);
+                    $('#notification-description').val(result.data.description);
+                    if (result.data.title !== undefined) {
+                        quill.clipboard.dangerouslyPasteHTML(result.data.title);
+                    } else {
+                        quill.setText(""); 
+                    }
+                    if (result.data.description !== undefined) {
+                        editor.clipboard.dangerouslyPasteHTML(result.data.description);
+                    } else {
+                        editor.setText(""); 
+                    }
+                    $('#add-notification').modal('show');
+                },
+                error: function(xhr, status, error) {           
+                    var errorMessage = eval("(" + xhr.responseText + ")");
+                    console.log(errorMessage);
+                }
+            });
+        }
+    }
+    
+    function onSuccessNotification(data){
+         console.log(data.htmlData);
+         $('#add-notification').modal('hide');
+         $('#notification-list').html(data.htmlData);
+     }
+</script>

@@ -66,7 +66,7 @@ public class ExceptionMiddleware
                 problem = new ResponseDTO<object>
                 {
                     Status = "Internal Server Error",
-                    Message = "",
+                    Message = ex.Message,
                     StatusCode = statusCode,
                     Result = nameof(HttpStatusCode.InternalServerError),
                 };

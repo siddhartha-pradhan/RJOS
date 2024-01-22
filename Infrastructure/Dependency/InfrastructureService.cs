@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Data.Implementation.Repositories;
 using Microsoft.Extensions.Configuration;
 using Application.Interfaces.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 using Application.Interfaces.Services;
 using Data.Implementation.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Data.Dependency;
 
@@ -21,11 +21,9 @@ public static class InfrastructureService
 
         services.AddTransient<IGenericRepository, GenericRepository>();
 
-        services.AddTransient<IStudentService, StudentServices>();
-        services.AddTransient<ISubjectService, SubjectService>();
-        services.AddTransient<ISubjectTopicService, SubjectTopicService>();
-        services.AddTransient<ISubjectTopicResourceService, SubjectTopicResourceService>();
-
+        services.AddTransient<IContentService, ContentService>();
+        
+        services.AddTransient<INotificationService, NotificationService>();
 
         return services;
     }

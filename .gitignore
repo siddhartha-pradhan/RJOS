@@ -255,12 +255,12 @@ appsettings*.json
 !appsettings.example.json
 build/
 Logs/
-wwwroot/images/*
-!wwwroot/images/.gitkeep
+wwwroot/documents/*
+!wwwroot/documents/.gitkeep
 package.json
 global.json
 mono*.blob
-APollo.Web.Host/Properties/launchSettings.json
+launchSettings.json
 
 # CI/CD
 .DS_Store
@@ -268,3 +268,14 @@ APollo.Web.Host/Properties/launchSettings.json
 <<<<<<< HEAD
 .ci/preview.sh
 .ci
+
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.svg
+
+*.docx
+*.xlsx
+*.pdf

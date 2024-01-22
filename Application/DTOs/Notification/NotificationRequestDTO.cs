@@ -1,0 +1,18 @@
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Application.DTOs.Notification;
+
+public class NotificationRequestDTO
+{
+    public int Id { get; set; }
+    
+    public string Title { get; set; } = null!;
+
+    public string Description { get; set; } = null!;
+
+    public string? UploadedFileName { get; set; } = null!;
+
+    public string? UploadedFileUrl { get; set; } = null!;
+
+    public IFormFile? UploadedFile { get; set; } = null!;
+}

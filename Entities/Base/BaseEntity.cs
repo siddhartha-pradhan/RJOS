@@ -9,13 +9,11 @@ public class BaseEntity<TPrimaryKey>
     
     public bool IsActive { get; set; } = true;
     
-    public bool IsDeleted { get; set; } = false;
-
     public int CreatedBy { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedOn { get; set; } = DateTime.Now;
 
-    public int? LastModifiedBy { get; set; }
+    public int? LastUpdatedBy { get; set; }
 
-    public DateTime? LastModifiedAt { get; set; }
+    public DateTime? LastUpdatedOn { get; set; }
 }
