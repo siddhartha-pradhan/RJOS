@@ -14,7 +14,8 @@
                 <th>Header</th>
                 <th>Description</th>
                 <th>Download File</th>
-                <th>Notified On</th>
+                <th>Valid Till</th>
+                <th>Created On</th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -40,6 +41,9 @@
                                     <i class="fa-solid fa-download"></i>
                                 </a>
                             }
+                        </td>
+                        <td>
+                            @notification.ValidTill.ToString("dd-MM-yyyy")
                         </td>
                         <td>
                             @notification.CreatedOn.ToString("dd-MM-yyyy HH:mm:ss")
@@ -120,6 +124,7 @@
             $('#notification-header').val('');
             $('#notification-description').val('');
             $('#fileInput').val('');
+            $('#validTill').val('');
             quill.setText("");
             editor.setText("");
             
@@ -133,8 +138,10 @@
                 contentType: 'application/json',
                 dataType: "JSON",
                 success: function(result) {
+                    let datePart = result.data.validTill.split('T')[0]; 
                     $('#Id').val(result.data.id);
                     $('#fileInput').val('');
+                    $('#validTill').val(datePart);
                     $('#notification-header').val(result.data.title);
                     $('#notification-description').val(result.data.description);
                     if (result.data.title !== undefined) {
@@ -158,7 +165,6 @@
     }
     
     function onSuccessNotification(data){
-         console.log(data.htmlData);
          $('#add-notification').modal('hide');
          $('#notification-list').html(data.htmlData);
      }

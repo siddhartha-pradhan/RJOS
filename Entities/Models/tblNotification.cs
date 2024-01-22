@@ -21,6 +21,8 @@ public partial class tblNotification
 
     public DateTime CreatedOn { get; set; }
 
+    public DateTime ValidTill { get; set; }
+
     public int? LastUpdatedBy { get; set; }
 
     public DateTime? LastUpdatedOn { get; set; }

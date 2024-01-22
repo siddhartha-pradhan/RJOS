@@ -24,11 +24,30 @@ public class NotificationService : INotificationService
             Description = x.Description,
             UploadedFileName = x.UploadedFileName,
             UploadedFileUrl = x.UploadedFileUrl,
+            ValidTill = x.ValidTill,
             IsActive = x.IsActive,
             CreatedOn = x.CreatedOn,
         }).ToList();
     }
 
+    public async Task<List<NotificationResponseDTO>> GetAllValidNotifications()
+    {
+        var notifications = await _genericRepository.GetAsync<tblNotification>(x => 
+            x.IsActive && x.ValidTill >= DateTime.Now);
+        
+        return notifications.Select(x => new NotificationResponseDTO
+        {
+            Id = x.Id,
+            Title = x.Header,
+            Description = x.Description,
+            UploadedFileName = x.UploadedFileName,
+            UploadedFileUrl = x.UploadedFileUrl,
+            ValidTill = x.ValidTill,
+            IsActive = x.IsActive,
+            CreatedOn = x.CreatedOn,
+        }).ToList();
+    }
+    
     public async Task<NotificationResponseDTO> GetNotificationById(int notificationId)
     {
         var notification = await _genericRepository.GetByIdAsync<tblNotification>(notificationId);
@@ -40,6 +59,7 @@ public class NotificationService : INotificationService
                 Id = notification.Id,
                 Title = notification.Header,
                 Description = notification.Description,
+                ValidTill = notification.ValidTill
             };
         }
 
@@ -52,6 +72,7 @@ public class NotificationService : INotificationService
         {
             Header = notification.Title,
             Description = notification.Description,
+            ValidTill = notification.ValidTill,
             UploadedFileName = notification.UploadedFileName,
             UploadedFileUrl = notification.UploadedFileUrl,
             IsActive = true,
@@ -70,6 +91,10 @@ public class NotificationService : INotificationService
         {
             notificationModel.Header = notification.Title;
             notificationModel.Description = notification.Description;
+            notificationModel.ValidTill = notification.ValidTill;
+
+            notificationModel.LastUpdatedBy = 1;
+            notificationModel.LastUpdatedOn = DateTime.Now;
             
             if (notification.UploadedFileUrl != null)
             {

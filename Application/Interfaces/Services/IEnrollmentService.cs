@@ -1,6 +1,10 @@
-﻿namespace Application.Interfaces.Services;
+﻿using Application.DTOs.Enrollment;
+
+namespace Application.Interfaces.Services;
 
 public interface IEnrollmentService
 {
-    Task UpdateEnrollmentStatus();
+    Task<EnrollmentResponseDTO> GetEnrollmentStatus(int enrollmentId);
+    
+    Task InsertEnrollments(List<EnrollmentRequestDTO> enrollmentDetails);
 }

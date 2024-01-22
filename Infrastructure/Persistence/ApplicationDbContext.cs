@@ -28,7 +28,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_Content");
 
-            entity.ToTable("tblContent");
+            entity.ToTable("tblContents");
 
             entity.Property(e => e.ChapterName).HasMaxLength(200);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
@@ -71,7 +71,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_Subject");
 
-            entity.ToTable("tblSubject");
+            entity.ToTable("tblSubjects");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");

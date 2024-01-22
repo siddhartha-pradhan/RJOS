@@ -9,10 +9,12 @@ public class NotificationRequestDTO
     public string Title { get; set; } = null!;
 
     public string Description { get; set; } = null!;
-
+    
     public string? UploadedFileName { get; set; } = null!;
 
     public string? UploadedFileUrl { get; set; } = null!;
 
     public IFormFile? UploadedFile { get; set; } = null!;
+    
+    public DateTime ValidTill { get; set; }
 }

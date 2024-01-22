@@ -21,8 +21,12 @@
                         <div id="editor_description" class="editor_description note-editor mb-2" style="height: 250px;"></div>
                     </div>
                     <div class="mb-3">
+                        <label asp-for="@Model.ValidTill" class="form-label mb-2">Valid Till</label>
+                        <input type="date" asp-for="@Model.ValidTill" id="validTill" class="form-control"/>
+                    </div>
+                    <div class="mb-3">
                         <label asp-for="@Model.UploadedFileUrl" class="form-label mb-2">Uploaded File</label>
-                        <input type="file" asp-for="@Model.UploadedFile" class="form-control"/>
+                        <input type="file" asp-for="@Model.UploadedFile" id="fileInput" class="form-control"/>
                     </div>
                 </div>
                 <div class="modal-footer">
