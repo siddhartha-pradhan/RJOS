@@ -5,13 +5,16 @@ namespace Data.Persistence;
 
 public partial class ApplicationDbContext : DbContext
 {
+    private readonly IConfiguration _configuration;
+    
     public ApplicationDbContext()
     {
     }
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
         : base(options)
     {
+        _configuration = configuration;
     }
 
     public virtual DbSet<tblContent> tblContents { get; set; }
@@ -82,5 +85,19 @@ public partial class ApplicationDbContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (optionsBuilder.IsConfigured) return;
+        
+        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            
+        optionsBuilder.UseSqlServer(connectionString, builder =>
+        {
+            builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+        });
+
+        base.OnConfiguring(optionsBuilder);
+    }
+    
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

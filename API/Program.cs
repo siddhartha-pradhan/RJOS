@@ -11,6 +11,8 @@ services.AddInfrastructureService(configuration);
 
 services.AddControllersWithViews();
 
+services.AddCors();
+
 services.AddRazorPages();
 
 var app = builder.Build();
@@ -36,6 +38,13 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.MapControllers();
+
+app.UseCors(policyBuilder =>
+{
+    policyBuilder.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+});
 
 app.MapControllerRoute(
     name: "default",
