@@ -33,7 +33,7 @@ public class NotificationService : INotificationService
     public async Task<List<NotificationResponseDTO>> GetAllValidNotifications()
     {
         var notifications = await _genericRepository.GetAsync<tblNotification>(x => 
-            x.IsActive && x.ValidTill >= DateTime.Now);
+            x.IsActive && x.ValidTill <= DateTime.Now);
         
         return notifications.Select(x => new NotificationResponseDTO
         {
