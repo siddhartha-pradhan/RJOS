@@ -19,6 +19,8 @@ public partial class ApplicationDbContext : DbContext
     }
 
     public virtual DbSet<tblContent> tblContents { get; set; }
+    
+    public virtual DbSet<tblEbook> tblEbooks { get; set; }
 
     public virtual DbSet<tblEnrollmentStatus> tblEnrollmentStatus { get; set; }
 
@@ -50,6 +52,23 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_Content_SubjectId");
         });
 
+        modelBuilder.Entity<tblEbook>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Ebook");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.FileName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.NameOfBook)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Volume)
+                .HasMaxLength(20)
+                .IsUnicode(false);
+        });
+        
         modelBuilder.Entity<tblEnrollmentStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_EnrollmentStatus");

@@ -22,7 +22,7 @@ public static class InfrastructureService
         services.AddTransient<IGenericRepository, GenericRepository>();
 
         services.AddTransient<IContentService, ContentService>();
-        
+        services.AddTransient<IEBookService, EBookService>();
         services.AddTransient<IEnrollmentService, EnrollmentService>();
         services.AddTransient<INotificationService, NotificationService>();
         services.AddTransient<IUserService, UserService>();
