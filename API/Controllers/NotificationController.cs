@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Notification;
+using Application.DTOs.Notification;
 using Application.Interfaces.Services;
 using Common.Constants;
 using Common.Utilities;
@@ -38,6 +38,10 @@ public class NotificationController : BaseController<NotificationController>
     [HttpPost]
     public async Task<IActionResult> Upsert(NotificationRequestDTO notification)
     {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        
+        notification.UserId = userId ?? 1;
+
         if (string.IsNullOrEmpty(notification.Title))
         {
             return Json(new

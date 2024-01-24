@@ -12,6 +12,8 @@ services.AddInfrastructureService(configuration);
 
 services.AddControllersWithViews();
 
+services.AddSession(); 
+
 services.AddCors();
 
 services.AddRazorPages();
@@ -48,6 +50,8 @@ app.UseResponseCompression();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseSession(); 
 
 app.MapRazorPages();
 
