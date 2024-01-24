@@ -1,23 +1,53 @@
 ﻿@model List<Application.DTOs.Notification.NotificationResponseDTO>
 
+<style>
+    #basic-datatable th,
+    #basic-datatable td {
+        white-space: normal; 
+        word-wrap: break-word; 
+    }
+
+    #basic-datatable th:nth-child(2), 
+    #basic-datatable td:nth-child(2) {
+        max-width: 150px;
+    }
+
+    #basic-datatable th:nth-child(3), 
+    #basic-datatable td:nth-child(3) {
+        max-width: 300px;
+    }
+</style>
+
 <div class="card">
     <div class="card-body">
-        <div class="text-end">
-            <button type="button" class="btn w-b btn-outline-danger btn-sm btn-rounded" onclick="onAddUpdateNotification(0)">
-                Add New Notification
-            </button>
+        <div class="row mb-2">
+            <div class="col-6">
+                <div class="text-start">
+                    <div class="page-title-box">
+                        <h4 class="page-title">Notifications</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                 <div class="text-end">
+                    <button type="button" class="btn w-b btn-outline-pink btn-sm btn-rounded" style="border: #DB4B73 1px solid;" onclick="onAddUpdateNotification(0)">
+                        Add New Notification
+                    </button>
+                </div>
+            </div>
         </div>
+       
         <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
             <thead>
-            <tr>
-                <th style="width:5%">#</th>
-                <th>Header</th>
-                <th>Description</th>
-                <th>Download File</th>
-                <th>Valid Till</th>
-                <th>Created On</th>
-                <th>Action</th>
-            </tr>
+                <tr>
+                    <th style="width:5%">#</th>
+                    <th style="width:30%">Header</th>
+                    <th style="width:30%">Description</th>
+                    <th style="width:10%">Download File</th>
+                    <th style="width:10%">Valid Till</th>
+                    <th style="width:10%">Created On</th>
+                    <th style="width:5%">Action</th>
+                </tr>
             </thead>
             <tbody>
             @if (Model.Any())
@@ -26,7 +56,7 @@
                 {
                     <tr>
                         <td>
-                            <span>@(Model.ToList().IndexOf(notification) +1)</span>
+                            <span>@(Model.ToList().IndexOf(notification) + 1).</span>
                         </td>
                         <td>
                             @Html.Raw(notification.Title)
@@ -34,10 +64,10 @@
                         <td>
                             @Html.Raw(notification.Description)
                         </td>
-                        <td>
+                        <td class="text-center">
                             @if (notification.UploadedFileUrl != null)
                             {
-                                <a asp-controller="Notification" asp-action="DownloadDocument" asp-route-uploadFileName="@notification.UploadedFileName" asp-route-fileName="@notification.UploadedFileUrl" class="btn btn-sm btn-outline-danger btn-rounded">
+                                <a asp-controller="Notification" asp-action="DownloadDocument" asp-route-uploadFileName="@notification.UploadedFileName" asp-route-fileName="@notification.UploadedFileUrl" class="btn btn-sm btn-outline-pink btn-rounded">
                                     <i class="fa-solid fa-download"></i>
                                 </a>
                             }
@@ -46,7 +76,7 @@
                             @notification.ValidTill.ToString("dd-MM-yyyy")
                         </td>
                         <td>
-                            @notification.CreatedOn.ToString("dd-MM-yyyy HH:mm:ss")
+                            @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
                         </td>
                         <td>
                             <span onclick="onAddUpdateNotification(@notification.Id)">
@@ -163,8 +193,22 @@
             });
         }
     }
+    toastr.options = {
+        "closeButton": true
+    };
     
     function onSuccessNotification(data){
+        if (data.errorType === 1) {
+            toastr.warning("Please insert all the required fields.");
+        }
+        
+        if (data.action === 1){
+            toastr.success("Notification successfully updated.");
+        }
+        else {
+            toastr.success("Notification successfully saved.");
+        }
+        
          $('#add-notification').modal('hide');
          $('#notification-list').html(data.htmlData);
      }

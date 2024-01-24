@@ -38,6 +38,16 @@ public class NotificationController : BaseController<NotificationController>
     [HttpPost]
     public async Task<IActionResult> Upsert(NotificationRequestDTO notification)
     {
+        if (string.IsNullOrEmpty(notification.Title))
+        {
+            return Json(new
+            {
+                errorType = 1
+            });
+        }
+
+        var action = 0;
+        
         if (notification.UploadedFile != null)
         {
             var notificationDocumentPath = DocumentUploadFilePath.NotificationDocumentFilePath;
@@ -50,10 +60,12 @@ public class NotificationController : BaseController<NotificationController>
 
         if(notification.Id != 0)
         {
+            action = 1;
             await _notificationService.UpdateNotification(notification);
         }
         else
         {
+            action = 2;
             await _notificationService.InsertNotification(notification);
         }
         
@@ -61,6 +73,7 @@ public class NotificationController : BaseController<NotificationController>
 
         return Json(new
         {
+            action = action,
             htmlData = ConvertViewToString("_NotificationsList", result, true)
         });
     }
