@@ -41,7 +41,7 @@ public class EnrollmentService : IEnrollmentService
             {
                 existentEnrollment.Status = enrollment.Status;
                 existentEnrollment.Reason = enrollment.Reason;
-                existentEnrollment.LastUpdatedBy = 1;
+                existentEnrollment.LastUpdatedBy = enrollment.UserId;
                 existentEnrollment.LastUpdatedOn = DateTime.Now;
 
                 await _repository.UpdateAsync(existentEnrollment);
@@ -53,7 +53,7 @@ public class EnrollmentService : IEnrollmentService
                     EnrollmentId = enrollment.EnrollmentId,
                     Status = enrollment.Status,
                     Reason = enrollment.Reason,
-                    CreatedBy = 1,
+                    CreatedBy = enrollment.UserId,
                     CreatedOn = DateTime.Now,
                     IsActive = true,
                 };

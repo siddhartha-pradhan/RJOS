@@ -25,6 +25,7 @@ public static class InfrastructureService
         
         services.AddTransient<IEnrollmentService, EnrollmentService>();
         services.AddTransient<INotificationService, NotificationService>();
+        services.AddTransient<IUserService, UserService>();
 
         return services;
     }

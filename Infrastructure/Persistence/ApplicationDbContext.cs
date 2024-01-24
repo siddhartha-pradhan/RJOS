@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Data.Persistence;
@@ -24,6 +25,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<tblNotification> tblNotifications { get; set; }
 
     public virtual DbSet<tblSubject> tblSubjects { get; set; }
+
+    public virtual DbSet<tblUser> tblUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -80,6 +83,16 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Title).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<tblUser>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Users");
+
+            entity.ToTable("tblUsers");
+
+            entity.Property(e => e.UserName).HasMaxLength(50);
+            entity.Property(e => e.Password).HasMaxLength(500);
         });
 
         OnModelCreatingPartial(modelBuilder);

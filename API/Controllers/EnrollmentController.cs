@@ -1,6 +1,9 @@
 ﻿using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Application.DTOs.Enrollment;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
 
 namespace RJOS.Controllers;
 
@@ -39,6 +42,7 @@ public class EnrollmentController : Controller
     [HttpPost]
     public async Task<IActionResult> UploadEnrollmentExcel(IFormFile? excelFile)
     {
+       
         if (excelFile == null || excelFile.Length == 0)
         {
             return Json(new
@@ -106,7 +110,22 @@ public class EnrollmentController : Controller
             });
         }
 
-        await _enrollmentService.InsertEnrollments(enrollmentDetails);
+        var userId = HttpContext.Session.GetInt32("UserId");
+        var enrollmentList = new List<EnrollmentRequestDTO>();
+
+        foreach (var item in enrollmentDetails)
+        {
+            var enrollment = new EnrollmentRequestDTO
+            {
+                EnrollmentId = item.EnrollmentId,
+                Reason = item.Reason,
+                Status = item.Status,
+                UserId = userId ?? 1
+            };
+            enrollmentList.Add(enrollment); 
+        }
+        
+        await _enrollmentService.InsertEnrollments(enrollmentList);
 
         return Json(new
         {

@@ -38,6 +38,9 @@ public class NotificationController : BaseController<NotificationController>
     [HttpPost]
     public async Task<IActionResult> Upsert(NotificationRequestDTO notification)
     {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        notification.UserId = userId ?? 1;
+
         if (notification.UploadedFile != null)
         {
             var notificationDocumentPath = DocumentUploadFilePath.NotificationDocumentFilePath;

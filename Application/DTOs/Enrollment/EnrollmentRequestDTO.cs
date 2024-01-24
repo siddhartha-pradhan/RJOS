@@ -3,6 +3,8 @@
 public class EnrollmentRequestDTO
 {
     public int EnrollmentId { get; set; }
+
+    public int UserId { get; set; } 
     
     public bool Status { get; set; }
     

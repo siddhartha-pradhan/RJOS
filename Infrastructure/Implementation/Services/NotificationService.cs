@@ -76,7 +76,7 @@ public class NotificationService : INotificationService
             UploadedFileName = notification.UploadedFileName,
             UploadedFileUrl = notification.UploadedFileUrl,
             IsActive = true,
-            CreatedBy = 1,
+            CreatedBy = notification.UserId,
             CreatedOn = DateTime.Now
         };
 
@@ -93,7 +93,7 @@ public class NotificationService : INotificationService
             notificationModel.Description = notification.Description;
             notificationModel.ValidTill = notification.ValidTill;
 
-            notificationModel.LastUpdatedBy = 1;
+            notificationModel.LastUpdatedBy = notification.UserId;
             notificationModel.LastUpdatedOn = DateTime.Now;
             
             if (notification.UploadedFileUrl != null)
