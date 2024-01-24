@@ -87,13 +87,11 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (optionsBuilder.IsConfigured) return;
-        
         var connectionString = _configuration.GetConnectionString("DefaultConnection");
             
         optionsBuilder.UseSqlServer(connectionString, builder =>
         {
-            builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+            builder.EnableRetryOnFailure();
         });
 
         base.OnConfiguring(optionsBuilder);

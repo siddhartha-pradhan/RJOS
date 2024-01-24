@@ -1,4 +1,5 @@
 using Data.Dependency;
+using Microsoft.AspNetCore.ResponseCompression;
 using RJOS.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,17 @@ services.AddCors();
 
 services.AddRazorPages();
 
+services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
+services.AddResponseCompression(options =>
+{
+    options.Providers.Add<GzipCompressionProvider>();
+    options.EnableForHttps = true;
+});
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -30,6 +42,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseResponseCompression();
 
 app.UseAuthentication();
 
