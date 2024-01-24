@@ -1,4 +1,5 @@
-﻿<style>
+﻿
+<style>
     .input-group-text {
         cursor: pointer;
     }
@@ -44,15 +45,19 @@
         $(".file-name-span").text(fileName);
     }
 
+    toastr.options = {
+        "closeButton": true
+    };
+
     function OnEnrollmentUpload(data){
         $("#excelFileInput").val("");
         $(".file-name-span").text("");
-        if (data.errorType === 1){
-            alert(data.errorMessage);
-        }
-        else if (data.errorType === 0){
-            alert(data.successMessage);
-        }
+        if (data.errorType === 1) {
+            toastr.warning(data.errorMessage);
+    }
+    else if (data.errorType === 0){
+            toastr.success(data.successMessage);
+    }
         return false;
     }
 </script>
