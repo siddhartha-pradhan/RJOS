@@ -13,13 +13,12 @@ public class QuestionService : IQuestionService
         _genericRepository = genericRepository;
     }
 
-    public async Task<List<QuestionResponseDTO>> GetAllQuestions(int? classId, int? subjectId)
+    public async Task<List<QuestionResponseDTO>> GetAllQuestions(int classId, int subjectId)
     {
         var result = new List<QuestionResponseDTO>();
         
         var questions = await _genericRepository.GetAsync<tblQuestion>(x =>
-            (classId.HasValue || x.Class == classId) && 
-            (subjectId.HasValue || x.SubjectId == subjectId));
+            x.Class == classId && x.SubjectId == subjectId);
 
         foreach (var question in questions)
         {

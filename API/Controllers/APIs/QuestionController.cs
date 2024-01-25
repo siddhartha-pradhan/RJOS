@@ -17,8 +17,8 @@ public class QuestionController : Controller
         _questionService = questionService;
     }
     
-    [HttpGet("get-all-questions")]
-    public async Task<IActionResult> GetAllQuestions(int? classId, int? subjectId)
+    [HttpGet("get-all-questions/{classId:int}/{subjectId:int}")]
+    public async Task<IActionResult> GetAllQuestions(int classId, int subjectId)
     {
         var result = await _questionService.GetAllQuestions(classId, subjectId);
 

@@ -19,6 +19,8 @@ services.AddCors();
 
 services.AddRazorPages();
 
+services.AddSwaggerGen();
+
 services.Configure<GzipCompressionProviderOptions>(options =>
 {
     options.Level = System.IO.Compression.CompressionLevel.Fastest;
@@ -57,6 +59,10 @@ app.UseSession();
 app.MapRazorPages();
 
 app.MapControllers();
+
+app.UseSwagger();
+
+app.UseSwaggerUI();
 
 app.UseCors(policyBuilder =>
 {
