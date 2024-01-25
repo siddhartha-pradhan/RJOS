@@ -7,7 +7,9 @@ public partial class tblCommon
 {
     public int Id { get; set; }
 
-    public bool Flag { get; set; }
+    public int CommonId { get; set; }
+
+    public int Flag { get; set; }
 
     public string? Value { get; set; }
 

@@ -4,6 +4,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script type="text/javascript">
         toastr.success('@TempData["Success"]');
+        toastr.options = {
+            "closeButton": true
+        };
     </script>
 }
 
@@ -13,6 +16,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script type="text/javascript">
         toastr.info('@TempData["Info"]');
+        toastr.options = {
+            "closeButton": true
+        };
     </script>
 }
 
@@ -21,7 +27,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script type="text/javascript">
-        toastr.error('@TempData["Delete"]');
+        toastr.error('@TempData["Error"]');
+        toastr.options = {
+            "closeButton": true
+        };
     </script>
 }
 
@@ -30,6 +39,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script type="text/javascript">
-        toastr.warning('@TempData["Error"]');
+        toastr.warning('@TempData["Warning"]');
+        toastr.options = {
+            "closeButton": true
+        };
     </script>
 }

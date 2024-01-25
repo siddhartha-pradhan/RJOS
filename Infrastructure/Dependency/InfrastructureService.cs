@@ -27,6 +27,8 @@ public static class InfrastructureService
         services.AddTransient<IEBookService, EBookService>();
         services.AddTransient<IEnrollmentService, EnrollmentService>();
         services.AddTransient<INotificationService, NotificationService>();
+        services.AddTransient<IQuestionService, QuestionService>();
+        services.AddTransient<IStudentService, StudentService>();
         services.AddTransient<IUserService, UserService>();
 
         return services;

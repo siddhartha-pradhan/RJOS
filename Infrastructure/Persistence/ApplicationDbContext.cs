@@ -45,16 +45,14 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK_Common");
 
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Flag).HasDefaultValue(true);
+            entity.Property(e => e.Flag).HasDefaultValue(1);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Score).HasColumnType("decimal(18, 0)");
         });
-        
+
         modelBuilder.Entity<tblContent>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Content");
-
-            entity.ToTable("tblContents");
 
             entity.Property(e => e.ChapterName).HasMaxLength(200);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
@@ -86,7 +84,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false);
         });
-        
+
         modelBuilder.Entity<tblEnrollmentStatus>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_EnrollmentStatus");
@@ -109,13 +107,13 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UploadedFileName).HasMaxLength(200);
             entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
         });
-        
+
         modelBuilder.Entity<tblQuestion>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Question");
 
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
-            entity.Property(e => e.Flag).HasDefaultValue(true);
+            entity.Property(e => e.Flag).HasDefaultValue(1);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsMandatory).HasDefaultValue(true);
         });
@@ -137,12 +135,10 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
-        
+
         modelBuilder.Entity<tblSubject>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Subject");
-
-            entity.ToTable("tblSubjects");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
@@ -154,10 +150,12 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_Users");
 
-            entity.ToTable("tblUsers");
-
-            entity.Property(e => e.UserName).HasMaxLength(50);
-            entity.Property(e => e.Password).HasMaxLength(500);
+            entity.Property(e => e.Password)
+                .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.UserName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -21,7 +21,7 @@ public partial class tblQuestion
 
     public string? Question { get; set; }
 
-    public bool Flag { get; set; }
+    public int Flag { get; set; }
 
     public bool IsActive { get; set; }
 
