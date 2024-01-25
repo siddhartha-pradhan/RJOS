@@ -18,13 +18,21 @@ public partial class ApplicationDbContext : DbContext
         _configuration = configuration;
     }
 
+    public virtual DbSet<tblCommon> tblCommons { get; set; }
+
     public virtual DbSet<tblContent> tblContents { get; set; }
-    
+
     public virtual DbSet<tblEbook> tblEbooks { get; set; }
 
-    public virtual DbSet<tblEnrollmentStatus> tblEnrollmentStatus { get; set; }
+    public virtual DbSet<tblEnrollmentStatus> tblEnrollmentStatuses { get; set; }
 
     public virtual DbSet<tblNotification> tblNotifications { get; set; }
+
+    public virtual DbSet<tblQuestion> tblQuestions { get; set; }
+
+    public virtual DbSet<tblStudentResponse> tblStudentResponses { get; set; }
+
+    public virtual DbSet<tblStudentScore> tblStudentScores { get; set; }
 
     public virtual DbSet<tblSubject> tblSubjects { get; set; }
 
@@ -32,6 +40,16 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<tblCommon>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Common");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Flag).HasDefaultValue(true);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Score).HasColumnType("decimal(18, 0)");
+        });
+        
         modelBuilder.Entity<tblContent>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Content");
@@ -90,6 +108,34 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.UploadedFileName).HasMaxLength(200);
             entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
+        });
+        
+        modelBuilder.Entity<tblQuestion>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Question");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Flag).HasDefaultValue(true);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsMandatory).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<tblStudentResponse>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_StudentResponse");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<tblStudentScore>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_StudentScore");
+
+            entity.ToTable("tblStudentScore");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
         
         modelBuilder.Entity<tblSubject>(entity =>

@@ -34,12 +34,18 @@ public class HomeController : Controller
         
         var isPasswordValidate = await _userService.IsUserAuthenticated(userRequest);
 
-        if (!isPasswordValidate) return RedirectToAction("Login");
+        if (!isPasswordValidate)
+        {
+            TempData["Warning"] = "Invalid username or password.";
+            return RedirectToAction("Login");
+        }
         
         var userId = await _userService.GetUserId(userRequest);
 
         HttpContext.Session.SetInt32("UserId", userId);
                 
+        TempData["Success"] = "Successfully authenticated.";
+
         return RedirectToAction("Index", "Notification");
     }
 
@@ -54,6 +60,8 @@ public class HomeController : Controller
     {
         if (changePassword.NewPassword != changePassword.ConfirmNewPassword)
         {
+            TempData["Warning"] = "Enter the same password for your new and your confirmed password.";
+
             return View(changePassword);
         }
         
@@ -63,8 +71,12 @@ public class HomeController : Controller
 
         if (isPasswordChanged)
         {
+            TempData["Success"] = "Password successfully changed.";
+
             return View();
         }
+
+        TempData["Warning"] = "Please insert your correct current state of password before changing it.";
 
         return View(changePassword);
     }

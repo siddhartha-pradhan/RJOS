@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace Data;
 
-public partial class tblEbook
+public partial class tblCommon
 {
     public int Id { get; set; }
 
-    public int CodeNo { get; set; }
+    public bool Flag { get; set; }
 
-    public string NameOfBook { get; set; } = null!;
+    public string? Value { get; set; }
 
-    public string Volume { get; set; } = null!;
+    public int? LanguageId { get; set; }
 
-    public string? FileName { get; set; }
+    public decimal? Score { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -24,6 +24,4 @@ public partial class tblEbook
     public int? LastUpdatedBy { get; set; }
 
     public DateTime? LastUpdatedOn { get; set; }
-
-    public int Class { get; set; }
 }
