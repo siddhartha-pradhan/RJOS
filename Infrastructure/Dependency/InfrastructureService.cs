@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Data.Implementation.Services;
+using Data.Persistence.Seed;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Data.Dependency;
@@ -22,6 +23,7 @@ public static class InfrastructureService
         services.AddTransient<IGenericRepository, GenericRepository>();
 
         services.AddTransient<IContentService, ContentService>();
+        services.AddTransient<IDbInitializerService, DbInitializerService>();
         services.AddTransient<IEBookService, EBookService>();
         services.AddTransient<IEnrollmentService, EnrollmentService>();
         services.AddTransient<INotificationService, NotificationService>();

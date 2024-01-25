@@ -8,21 +8,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+namespace Common.Utilities;
 
-namespace Common.Utilities
+public class Authentication : ActionFilterAttribute
 {
-    public class Authentication : ActionFilterAttribute
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
     {
-        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        if (filterContext.HttpContext.Session.GetInt32("UserId") == null)
         {
-            if (filterContext.HttpContext.Session.GetString("UserName") == null)
-            {
-                filterContext.Result = new RedirectToRouteResult(
+            filterContext.Result = new RedirectToRouteResult(
                 new RouteValueDictionary {
                     { "Controller", "Home" },
                     { "Action", "Login" }
                 });
-            }
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Application.DTOs.Enrollment;
+using Common.Utilities;
 using DocumentFormat.OpenXml.Vml.Spreadsheet;
 
 namespace RJOS.Controllers;
@@ -16,6 +17,7 @@ public class EnrollmentController : Controller
         _enrollmentService = enrollmentService;
     }
 
+    [Authentication]
     public IActionResult Index()
     {
         return View();

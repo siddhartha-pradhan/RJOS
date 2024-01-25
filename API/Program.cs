@@ -1,3 +1,4 @@
+using Application.Interfaces.Services;
 using Data.Dependency;
 using Microsoft.AspNetCore.ResponseCompression;
 using RJOS.Middlewares;
@@ -67,5 +68,12 @@ app.UseCors(policyBuilder =>
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Login}/{id?}");
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializerService>();
+    
+    await dbInitializer.Initialize();
+}
 
 app.Run();

@@ -17,6 +17,7 @@ public class NotificationController : BaseController<NotificationController>
         _webHostEnvironment = webHostEnvironment;
     }
 
+    [Authentication]
     public async Task<IActionResult> Index()
     {
         var result = await _notificationService.GetAllNotifications();
