@@ -77,9 +77,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
-            entity.Property(e => e.NameOfBook)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.NameOfBook).HasMaxLength(150);
             entity.Property(e => e.Volume)
                 .HasMaxLength(20)
                 .IsUnicode(false);

@@ -9,7 +9,7 @@ public partial class tblEbook
 
     public int CodeNo { get; set; }
 
-    public string NameOfBook { get; set; } = null!;
+    public string? NameOfBook { get; set; }
 
     public string Volume { get; set; } = null!;
 
