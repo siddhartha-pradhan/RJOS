@@ -182,4 +182,55 @@ public class NotificationService : INotificationService
             await _genericRepository.UpdateAsync(notification);
         }
     }
+    
+    public async Task NotifyNotification(string registrationToken)
+    {
+        // Server Key from FCM Console
+        var serverKey = $"key={_configuration["FCM:SERVER_KEY"]}";
+
+        // Sender ID from FCM Console
+        var senderId = $"id={_configuration["FCM:SENDER_ID"]}";
+
+        var tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
+    
+        tRequest.Method = "post";
+    
+        tRequest.Headers.Add($"Authorization: {serverKey}");
+    
+        tRequest.Headers.Add($"Sender: {senderId}");
+    
+        tRequest.ContentType = "application/json";
+    
+        var payload = new
+        {
+            to = registrationToken,
+            notification = new
+            {
+                title = "Header",
+                body = "Description"
+            },
+            data = new 
+            {
+                
+            }
+        };
+    
+        var postBody = JsonConvert.SerializeObject(payload);
+    
+        var byteArray = Encoding.UTF8.GetBytes(postBody);
+    
+        tRequest.ContentLength = byteArray.Length;
+
+        await using var dataStream = await tRequest.GetRequestStreamAsync();
+    
+        await dataStream.WriteAsync(byteArray, 0, byteArray.Length);
+    
+        using var tResponse = await tRequest.GetResponseAsync();
+    
+        await using var dataStreamResponse = tResponse.GetResponseStream();
+
+        using var tReader = new StreamReader(dataStreamResponse);
+    
+        await tReader.ReadToEndAsync();
+    }
 }

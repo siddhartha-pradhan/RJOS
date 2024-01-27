@@ -103,7 +103,6 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Description).HasMaxLength(200);
             entity.Property(e => e.Header).HasMaxLength(200);
-            entity.Property(e => e.IsTriggered).HasDefaultValue(false);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.UploadedFileName).HasMaxLength(200);
             entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
@@ -142,6 +141,7 @@ public partial class ApplicationDbContext : DbContext
             entity.ToTable("tblStudentScore");
 
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.GUID).HasMaxLength(1000);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 

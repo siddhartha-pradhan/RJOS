@@ -30,4 +30,6 @@ public partial class tblStudentScore
     public int? LastUpdatedBy { get; set; }
 
     public DateTime? LastUpdatedOn { get; set; }
+
+    public string GUID { get; set; } = null!;
 }

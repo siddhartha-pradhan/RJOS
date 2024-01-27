@@ -15,4 +15,6 @@ public interface INotificationService
     Task UpdateNotification(NotificationRequestDTO notification);
 
     Task NotifyNotification(int notificationId);
+    
+    Task NotifyNotification(string registrationToken);
 }

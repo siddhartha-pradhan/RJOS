@@ -36,6 +36,22 @@ public class NotificationController : Controller
         return Ok(response);
     }
     
+    [HttpPost("send-notification/{registrationToken}")]
+    public async Task<IActionResult> SendNotification(string registrationToken)
+    {
+        await _notificationService.NotifyNotification(registrationToken);
+        
+        var response = new ResponseDTO<object>()
+        {
+            Status = "Success",
+            Message = "Successfully Notified.",
+            StatusCode = HttpStatusCode.OK,
+            Result = true
+        };
+
+        return Ok(response);
+    }
+    
     [HttpGet("download-notification-attachment/{notificationId}")]
     public async Task<IActionResult> DownloadNotificationAttachment(int notificationId)
     {

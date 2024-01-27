@@ -1,6 +1,11 @@
 using Application.Interfaces.Services;
 using Data.Dependency;
+using Firebase.Auth;
+using Firebase.Auth.Providers;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.ResponseCompression;
+using Newtonsoft.Json;
 using RJOS.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +36,29 @@ services.AddResponseCompression(options =>
     options.Providers.Add<GzipCompressionProvider>();
     options.EnableForHttps = true;
 });
+
+var credentials = builder.Configuration.GetValue<string>("FIREBASE_CONFIG");
+
+services.AddSingleton(FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromJson(credentials)
+}));
+
+var firebaseProjectName = JsonConvert.DeserializeObject<Dictionary<string, string>>(credentials)
+    .Where(i => i.Key == "project_id")
+    .Select(p => p.Value).FirstOrDefault();
+
+var apiKey = builder.Configuration.GetValue<string>("API_KEY");
+
+services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig
+{
+    ApiKey = apiKey,
+    AuthDomain = $"{firebaseProjectName}.firebaseapp.com",
+    Providers = new FirebaseAuthProvider[]
+    {
+        new EmailProvider()
+    }
+}));
 
 var app = builder.Build();
 

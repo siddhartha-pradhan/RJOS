@@ -4,6 +4,8 @@ public class StudentScoreResponseDTO
 {
     public int Id { get; set; }
     
+    public string GUID { get; set; }
+    
     public int StudentId { get; set; }
 
     public int Class { get; set; }

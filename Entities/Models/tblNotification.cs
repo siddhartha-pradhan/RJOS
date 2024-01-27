@@ -15,8 +15,6 @@ public partial class tblNotification
 
     public string? UploadedFileUrl { get; set; }
 
-    public bool IsTriggered { get; set; }
-    
     public bool IsActive { get; set; }
 
     public int CreatedBy { get; set; }
@@ -28,4 +26,6 @@ public partial class tblNotification
     public DateTime? LastUpdatedOn { get; set; }
 
     public DateTime ValidTill { get; set; }
+
+    public bool IsTriggered { get; set; }
 }

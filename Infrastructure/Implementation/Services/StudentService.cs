@@ -53,10 +53,11 @@ public class StudentService : IStudentService
     {
         var result = new tblStudentScore()
         {
+            GUID = studentScore.GUID,
             StudentId = studentScore.StudentId,
             Class = studentScore.Class,
             Score = studentScore.Score,
-            SubjectId = studentScore.StudentId,
+            SubjectId = studentScore.SubjectId,
             TopicId = studentScore.TopicId,
             IsEdited = studentScore.IsEdited,
             IsUploaded = studentScore.IsUploaded,
@@ -75,6 +76,7 @@ public class StudentService : IStudentService
         return result.Select(x => new StudentScoreResponseDTO()
         {
             Id = x.Id,
+            GUID = x.GUID,
             StudentId = x.StudentId,
             Class = x.Class,
             Score = x.Score,

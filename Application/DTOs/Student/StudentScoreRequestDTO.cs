@@ -2,6 +2,8 @@
 
 public class StudentScoreRequestDTO
 {
+    public string GUID { get; set; }
+    
     public int StudentId { get; set; }
 
     public int Class { get; set; }
