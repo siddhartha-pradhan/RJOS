@@ -80,4 +80,20 @@ public class StudentController : Controller
         
         return Ok(response);
     }
+    
+    [HttpPost("insert-login-details/{studentId}/{registrationToken}")]
+    public async Task<IActionResult> InsertLoginDetails(int studentId, string registrationToken)
+    {
+        await _studentService.InsertLoginDetails(studentId, registrationToken);
+
+        var result = new ResponseDTO<object>()
+        {
+            Status = "Success",
+            Message = "Successfully Inserted",
+            StatusCode = HttpStatusCode.OK,
+            Result = true
+        };
+
+        return Ok(result);
+    }
 }

@@ -82,6 +82,17 @@ public class NotificationController : BaseController<NotificationController>
             htmlData = ConvertViewToString("_NotificationsList", result, true)
         });
     }
+
+    [HttpPost]
+    public async Task<IActionResult> TriggerNotification(int notificationId)
+    {
+        await _notificationService.NotifyNotification(notificationId);
+
+        return Json(new
+        {
+            data = "Push notification successfully triggered."
+        });
+    }
     
     public IActionResult DownloadDocument(string fileName, string uploadFileName)
     {

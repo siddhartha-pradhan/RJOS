@@ -11,4 +11,6 @@ public interface IStudentService
     Task InsertStudentScore(StudentScoreRequestDTO studentScore);
     
     Task<List<StudentScoreResponseDTO>> GetStudentScore(int studentId);
+    
+    Task InsertLoginDetails(int studentId, string registrationToken);
 }

@@ -30,6 +30,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblQuestion> tblQuestions { get; set; }
 
+    public virtual DbSet<tblStudentLoginDetail> tblStudentLoginDetails { get; set; }
+
     public virtual DbSet<tblStudentResponse> tblStudentResponses { get; set; }
 
     public virtual DbSet<tblStudentScore> tblStudentScores { get; set; }
@@ -101,6 +103,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Description).HasMaxLength(200);
             entity.Property(e => e.Header).HasMaxLength(200);
+            entity.Property(e => e.IsTriggered).HasDefaultValue(false);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.UploadedFileName).HasMaxLength(200);
             entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
@@ -114,6 +117,14 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Flag).HasDefaultValue(1);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsMandatory).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<tblStudentLoginDetail>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_StudentLoginDetails");
+
+            entity.Property(e => e.DeviceRegistrationToken).HasMaxLength(500);
+            entity.Property(e => e.LoginTime).HasDefaultValueSql("(getdate())");
         });
 
         modelBuilder.Entity<tblStudentResponse>(entity =>

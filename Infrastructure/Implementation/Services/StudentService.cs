@@ -84,4 +84,16 @@ public class StudentService : IStudentService
             IsUploaded = x.IsUploaded,
         }).ToList();
     }
+    
+    public async Task InsertLoginDetails(int studentId, string registrationToken)
+    {
+        var loginDetails = new tblStudentLoginDetail()
+        {
+            StudentId = studentId,
+            LoginTime = DateTime.Now,
+            DeviceRegistrationToken = registrationToken
+        };
+
+        await _genericRepository.InsertAsync(loginDetails);
+    }
 }

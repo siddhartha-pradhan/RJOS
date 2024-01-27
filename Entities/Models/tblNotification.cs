@@ -15,6 +15,8 @@ public partial class tblNotification
 
     public string? UploadedFileUrl { get; set; }
 
+    public bool IsTriggered { get; set; }
+    
     public bool IsActive { get; set; }
 
     public int CreatedBy { get; set; }

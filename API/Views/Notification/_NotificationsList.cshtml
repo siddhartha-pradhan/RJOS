@@ -79,9 +79,12 @@
                             @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
                         </td>
                         <td>
-                            <span onclick="onAddUpdateNotification(@notification.Id)">
+                            <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateNotification(@notification.Id)">
                                 <i class="fa-regular fa-pen-to-square"></i>
-                            </span>
+                            </a>
+                            <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="triggerNotification(@notification.Id)">
+                                <i class="fa-solid fa-check-double"></i>
+                            </a>
                         </td>
                     </tr>
                 }
@@ -212,5 +215,24 @@
         
          $('#add-notification').modal('hide');
          $('#notification-list').html(data.htmlData);
-     }
+    }
+    
+    function triggerNotification(index) {
+        console.log(index);
+        $.ajax({
+            type: 'POST',
+            url: '/Notification/TriggerNotification',
+            data: { notificationId: index },
+            contentType: 'application/x-www-form-urlencoded',
+            dataType: "JSON",
+            success: function(result) {
+                toastr.success(result.data);
+            },
+            error: function(xhr, status, error) {           
+                let errorMessage = eval("(" + xhr.responseText + ")");
+                toastr.warning(errorMessage);
+            }
+        });
+    }
+
 </script>

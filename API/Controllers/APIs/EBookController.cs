@@ -38,7 +38,7 @@ public class EBookController : Controller
     }
     
     [HttpGet("download-ebook/{fileUrl}")]
-    public async Task<IActionResult> GetAllEbooks(string fileUrl)
+    public async Task<IActionResult> DownloadEbook(string fileUrl)
     {
         var wwwRootPath = _webHostEnvironment.WebRootPath;
         
@@ -68,6 +68,7 @@ public class EBookController : Controller
         if (!provider.TryGetContentType(path, out var contentType)) {
             contentType = "application/octet-stream";
         }
+        
         return contentType;
     }
 }

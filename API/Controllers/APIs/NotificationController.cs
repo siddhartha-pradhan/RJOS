@@ -3,6 +3,7 @@ using Application.DTOs.Base;
 using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Notification;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace RJOS.Controllers.APIs;
 
@@ -11,10 +12,12 @@ namespace RJOS.Controllers.APIs;
 public class NotificationController : Controller
 {
     private readonly INotificationService _notificationService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public NotificationController(INotificationService notificationService)
+    public NotificationController(INotificationService notificationService, IWebHostEnvironment webHostEnvironment)
     {
         _notificationService = notificationService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     [HttpGet("get-valid-notifications")]
@@ -31,5 +34,44 @@ public class NotificationController : Controller
         };
 
         return Ok(response);
+    }
+    
+    [HttpGet("download-notification-attachment/{notificationId}")]
+    public async Task<IActionResult> DownloadNotificationAttachment(int notificationId)
+    {
+        var notification = await _notificationService.GetNotificationById(notificationId);
+        
+        if(string.IsNullOrEmpty(notification.UploadedFileUrl)) return NotFound();
+        
+        var wwwRootPath = _webHostEnvironment.WebRootPath;
+        
+        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
+
+        var notificationsFolderPath = Path.Combine(documentsFolderPath, "notifications");
+        
+        var filePath = Path.Combine(notificationsFolderPath, notification.UploadedFileUrl);
+        
+        if (!System.IO.File.Exists(filePath)) return NotFound();
+        
+        var memory = new MemoryStream();
+        
+        await using(var stream = new FileStream(filePath, FileMode.Open)) 
+        {
+            await stream.CopyToAsync(memory);
+        }
+        
+        memory.Position = 0;
+        
+        return File(memory, GetContentType(filePath), notification.UploadedFileName);
+    }
+    
+    private static string GetContentType(string path) {
+        var provider = new FileExtensionContentTypeProvider();
+        
+        if (!provider.TryGetContentType(path, out var contentType)) {
+            contentType = "application/octet-stream";
+        }
+        
+        return contentType;
     }
 }

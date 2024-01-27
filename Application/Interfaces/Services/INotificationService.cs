@@ -13,4 +13,6 @@ public interface INotificationService
     Task InsertNotification(NotificationRequestDTO notification);
 
     Task UpdateNotification(NotificationRequestDTO notification);
+
+    Task NotifyNotification(int notificationId);
 }

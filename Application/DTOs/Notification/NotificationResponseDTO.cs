@@ -14,6 +14,8 @@ public class NotificationResponseDTO
 
     public bool IsActive { get; set; }
 
+    public bool IsTriggered { get; set; }
+
     public DateTime CreatedOn { get; set; }
     
     public DateTime ValidTill { get; set; }
