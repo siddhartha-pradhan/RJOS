@@ -199,10 +199,6 @@
                         editor.setText(""); 
                     }
                     $('#add-notification').modal('show');
-                },
-                error: function(xhr, status, error) {           
-                    var errorMessage = eval("(" + xhr.responseText + ")");
-                    console.log(errorMessage);
                 }
             });
         }
@@ -229,7 +225,6 @@
     }
     
     function triggerNotification(index) {
-        console.log(index);
         $.ajax({
             type: 'POST',
             url: '/Notification/TriggerNotification',
@@ -238,7 +233,7 @@
             dataType: "JSON",
             success: function(result) {
                 toastr.success(result.data);
-                $('#notification-list').html(data.htmlData);
+                $('#notification-list').html(result.htmlData);
             },
             error: function(xhr, status, error) {           
                 let errorMessage = eval("(" + xhr.responseText + ")");
