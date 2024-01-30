@@ -1,78 +1,72 @@
-﻿using Application.DTOs.NewsAndAlert;
-using Application.Interfaces.Services;
-using Common.Utilities;
+﻿using Common.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Application.DTOs.NewsAndAlert;
+using Application.Interfaces.Services;
 
-namespace RJOS.Controllers
+namespace RJOS.Controllers;
+
+public class NewsAndAlertController : BaseController<NewsAndAlertController>
 {
-    public class NewsAndAlertController : BaseController<NewsAndAlertController>
+    private readonly INewsAndAlertService _newsAndAlertService;
+
+    public NewsAndAlertController(INewsAndAlertService newsAndAlertService)
     {
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly INewsAndAlertService _newsAndAlertService;
+        _newsAndAlertService = newsAndAlertService;
+    }
 
-        public NewsAndAlertController(INewsAndAlertService newsAndAlertService, IWebHostEnvironment webHostEnvironment)
+    [Authentication]
+    public async Task<IActionResult> Index()
+    {
+        var result = await _newsAndAlertService.GetAllNewsAndAlert();
+
+        return View(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetNewsAndAlertById(int newsAndAlertId)
+    {
+        var newsAndAlert = await _newsAndAlertService.GetNewsAndAlertById(newsAndAlertId);
+
+        return Json(new
         {
-            _newsAndAlertService = newsAndAlertService;
-            _webHostEnvironment = webHostEnvironment;
-        }
+            data = newsAndAlert
+        });
+    }
 
-        [Authentication]
-        public async Task<IActionResult> Index()
+    [HttpPost]
+    public async Task<IActionResult> Upsert(NewsAndAlertRequestDTO newsAndAlert)
+    {
+        var userId = HttpContext.Session.GetInt32("UserId");
+
+        newsAndAlert.UserId = userId ?? 1;
+
+        if (string.IsNullOrEmpty(newsAndAlert.Header))
         {
-            var result = await _newsAndAlertService.GetAllNewsAndAlert();
-
-            return View(result);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetNewsAndAlertById(int newsAndAlertId)
-        {
-            var newsAndAlert = await _newsAndAlertService.GetNewsAndAlertById(newsAndAlertId);
-
             return Json(new
             {
-                data = newsAndAlert
+                errorType = 1
             });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Upsert(NewsAndAlerRequestDTO newsAndAlert)
+        var action = 0;
+
+        if (newsAndAlert.Id != 0)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-
-            newsAndAlert.UserId = userId ?? 1;
-
-            if (string.IsNullOrEmpty(newsAndAlert.Header))
-            {
-                return Json(new
-                {
-                    errorType = 1
-                });
-            }
-
-            var action = 0;
-
-            if (newsAndAlert.Id != 0)
-            {
-                action = 1;
-                await _newsAndAlertService.UpdateNewsAndAlert(newsAndAlert);
-            }
-            else
-            {
-                action = 2;
-                await _newsAndAlertService.InsertNewsAndAlert(newsAndAlert);
-            }
-
-            var result = await _newsAndAlertService.GetAllNewsAndAlert();
-
-            return Json(new
-            {
-                action = action,
-                htmlData = ConvertViewToString("_NewsAndAlertList", result, true)
-            });
+            action = 1;
+            await _newsAndAlertService.UpdateNewsAndAlert(newsAndAlert);
+        }
+        else
+        {
+            action = 2;
+            await _newsAndAlertService.InsertNewsAndAlert(newsAndAlert);
         }
 
+        var result = await _newsAndAlertService.GetAllNewsAndAlert();
 
-
+        return Json(new
+        {
+            action = action,
+            htmlData = ConvertViewToString("_NewsAndAlertList", result, true)
+        });
     }
 }
