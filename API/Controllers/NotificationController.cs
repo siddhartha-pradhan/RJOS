@@ -88,9 +88,12 @@ public class NotificationController : BaseController<NotificationController>
     {
         await _notificationService.NotifyNotification(notificationId);
 
+        var notifications = await _notificationService.GetAllNotifications();
+        
         return Json(new
         {
-            data = "Push notification successfully triggered."
+            data = "Push notification successfully triggered.",
+            htmlData = ConvertViewToString("_NotificationsList", notifications, true)
         });
     }
     

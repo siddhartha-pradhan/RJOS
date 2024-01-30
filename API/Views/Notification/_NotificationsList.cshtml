@@ -36,15 +36,16 @@
                 </div>
             </div>
         </div>
-       
+        
         <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
             <thead>
                 <tr>
                     <th style="width:5%">#</th>
-                    <th style="width:30%">Header</th>
-                    <th style="width:30%">Description</th>
+                    <th style="width:25%">Header</th>
+                    <th style="width:25%">Description</th>
                     <th style="width:10%">Download File</th>
                     <th style="width:10%">Valid Till</th>
+                    <th style="width:10%">Is Triggered</th>
                     <th style="width:10%">Created On</th>
                     <th style="width:5%">Action</th>
                 </tr>
@@ -74,6 +75,16 @@
                         </td>
                         <td>
                             @notification.ValidTill.ToString("dd-MM-yyyy")
+                        </td>
+                        <td>
+                            @if (notification.IsTriggered)
+                            {
+                                <h6><span class="badge bg-success">Yes</span></h6>
+                            }
+                            else
+                            {
+                                <h6><span class="badge bg-warning">No</span></h6>
+                            }
                         </td>
                         <td>
                             @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
@@ -227,6 +238,7 @@
             dataType: "JSON",
             success: function(result) {
                 toastr.success(result.data);
+                $('#notification-list').html(data.htmlData);
             },
             error: function(xhr, status, error) {           
                 let errorMessage = eval("(" + xhr.responseText + ")");

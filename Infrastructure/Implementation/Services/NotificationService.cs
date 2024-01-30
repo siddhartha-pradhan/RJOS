@@ -31,9 +31,9 @@ public class NotificationService : INotificationService
             UploadedFileName = x.UploadedFileName,
             UploadedFileUrl = x.UploadedFileUrl,
             ValidTill = x.ValidTill,
+            IsTriggered = x.IsTriggered,
             IsActive = x.IsActive,
-            CreatedOn = x.CreatedOn,
-            IsTriggered = x.IsTriggered
+            CreatedOn = x.CreatedOn
         }).ToList();
     }
 
@@ -119,6 +119,12 @@ public class NotificationService : INotificationService
     {
         var notification = await _genericRepository.GetByIdAsync<tblNotification>(notificationId);
 
+        if(notification == null) return;
+        
+        notification.IsTriggered = true;
+
+        await _genericRepository.UpdateAsync(notification);
+        
         var latestLoginDetails = (await _genericRepository
             .GetAsync<tblStudentLoginDetail>())
             .GroupBy(s => s.StudentId)
@@ -176,10 +182,6 @@ public class NotificationService : INotificationService
             using var tReader = new StreamReader(dataStreamResponse);
         
             await tReader.ReadToEndAsync();
-
-            notification.IsTriggered = true;
-
-            await _genericRepository.UpdateAsync(notification);
         }
     }
     
