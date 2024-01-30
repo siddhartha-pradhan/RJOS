@@ -35,7 +35,23 @@ public class NotificationController : Controller
 
         return Ok(response);
     }
-    
+
+    [HttpPost("get-valid-notifications")]
+    public async Task<IActionResult> PostUserNotifications()
+    {
+        var result = await _notificationService.GetAllValidNotifications();
+
+        var response = new ResponseDTO<List<NotificationResponseDTO>>()
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
+
     [HttpPost("send-notification/{registrationToken}")]
     public async Task<IActionResult> SendNotification(string registrationToken)
     {
@@ -102,7 +118,58 @@ public class NotificationController : Controller
         
         return File(memory, GetContentType(filePath), notification.UploadedFileName);
     }
-    
+
+    [HttpPost("download-notification-attachment/{notificationId}")]
+    public async Task<IActionResult> PostDownloadNotificationAttachment(int notificationId)
+    {
+        var notification = await _notificationService.GetNotificationById(notificationId);
+
+        if (string.IsNullOrEmpty(notification.UploadedFileUrl))
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(notFound);
+        }
+
+        var wwwRootPath = _webHostEnvironment.WebRootPath;
+
+        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
+
+        var notificationsFolderPath = Path.Combine(documentsFolderPath, "notifications");
+
+        var filePath = Path.Combine(notificationsFolderPath, notification.UploadedFileUrl);
+
+        if (!System.IO.File.Exists(filePath))
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(notFound);
+        }
+
+        var memory = new MemoryStream();
+
+        await using (var stream = new FileStream(filePath, FileMode.Open))
+        {
+            await stream.CopyToAsync(memory);
+        }
+
+        memory.Position = 0;
+
+        return File(memory, GetContentType(filePath), notification.UploadedFileName);
+    }
+
     private static string GetContentType(string path) {
         var provider = new FileExtensionContentTypeProvider();
         

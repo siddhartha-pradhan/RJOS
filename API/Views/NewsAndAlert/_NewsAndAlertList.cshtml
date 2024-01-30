@@ -1,0 +1,201 @@
+﻿@model List<Application.DTOs.NewsAndAlert.NewsAndAlertResponseDTO>
+
+<style>
+    #basic-datatable th,
+    #basic-datatable td {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+        #basic-datatable th:nth-child(2),
+        #basic-datatable td:nth-child(2) {
+            max-width: 150px;
+        }
+
+        #basic-datatable th:nth-child(3),
+        #basic-datatable td:nth-child(3) {
+            max-width: 300px;
+        }
+</style>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="col-6">
+                <div class="text-start">
+                    <div class="page-title-box">
+                        <h4 class="page-title">News And Alerts</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-end">
+                    <button type="button" class="btn w-b btn-outline-pink btn-sm btn-rounded" style="border: #DB4B73 1px solid;" onclick="onAddUpdateNewsAndAlert(0)">
+                        Add New News And Alert
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
+            <thead>
+                <tr>
+                    <th style="width:5%">#</th>
+                    <th style="width:20%">Header</th>
+                    <th style="width:20%">Description</th>
+                    <th style="width:15%">Valid Till</th>
+                    <th style="width:15%">Created On</th>
+                    <th style="width:5%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var notification in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span>@(Model.ToList().IndexOf(notification) + 1).</span>
+                            </td>
+                            <td>
+                                @Html.Raw(notification.Header)
+                            </td>
+                            <td>
+                                @Html.Raw(notification.Description)
+                            </td>
+                            <td>
+                                @notification.ValidTill.ToString("dd-MM-yyyy")
+                            </td>
+                            <td>
+                                @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateNewsAndAlert(@notification.Id)">
+                                    <i class="fa-regular fa-pen-to-square"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    let quill = null;
+    let editor = null;
+
+    function onAddUpdateNewsAndAlert(index) {
+        if (!quill || !editor) {
+            quill = new Quill('.editor_header', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ font: [] }, { size: [] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ color: [] }, { background: [] }],
+                        [{ script: "super" }, { script: "sub" }],
+                        [{ header: [!1, 1, 2, 3, 4, 5, 6] }],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        ["direction", { align: [] }],
+                        ["clean"]
+                    ],
+                    clipboard: {
+                        matchVisual: false,
+                    },
+                },
+            });
+
+            quill.on('text-change', function (delta, oldDelta, source) {
+                let content = quill.root.innerHTML;
+                let inputField = "#newsAndAlert-header";
+                $(inputField).val(content);
+            });
+
+            editor = new Quill('.editor_description', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ font: [] }, { size: [] }],
+                        ["bold", "italic", "underline", "strike"],
+                        [{ color: [] }, { background: [] }],
+                        [{ script: "super" }, { script: "sub" }],
+                        [{ header: [!1, 1, 2, 3, 4, 5, 6] }],
+                        [{ list: "ordered" }, { list: "bullet" }],
+                        ["direction", { align: [] }],
+                        ["clean"]
+                    ],
+                    clipboard: {
+                        matchVisual: false,
+                    },
+                },
+            });
+
+            editor.on('text-change', function (delta, oldDelta, source) {
+                let content = editor.root.innerHTML;
+                let inputField = "#newsAndAlert-description";
+                $(inputField).val(content);
+            });
+        }
+
+        if (index === 0) {
+            $('#Id').val('');
+            $('#newsAndAlert-header').val('');
+            $('#newsAndAlert-description').val('');
+            $('#validTill').val('');
+            quill.setText("");
+            editor.setText("");
+
+            $('#add-newsAndAlert').modal('show');
+        }
+        else {
+            $.ajax({
+                type: 'GET',
+                url: '/NewsAndAlert/GetNewsAndAlertById',
+                data: { newsAndAlertId: index },
+                contentType: 'application/json',
+                dataType: "JSON",
+                success: function (result) {
+                    let datePart = result.data.validTill.split('T')[0];
+                    $('#Id').val(result.data.id);
+                    $('#validTill').val(datePart);
+                    $('#newsAndAlert-header').val(result.data.header);
+                    $('#newsAndAlert-description').val(result.data.description);
+                    if (result.data.header !== undefined) {
+                        quill.clipboard.dangerouslyPasteHTML(result.data.header);
+                    } else {
+                        quill.setText("");
+                    }
+                    if (result.data.description !== undefined) {
+                        editor.clipboard.dangerouslyPasteHTML(result.data.description);
+                    } else {
+                        editor.setText("");
+                    }
+                    $('#add-newsAndAlert').modal('show');
+                }
+            });
+        }
+    }
+
+    toastr.options = {
+        "closeButton": true
+    };
+
+    function onSuccessNotification(data) {
+        if (data.errorType === 1) {
+            toastr.warning("Please insert all the required fields.");
+        }
+
+        if (data.action === 1) {
+            toastr.success("News And alerts successfully updated.");
+        }
+        else {
+            toastr.success("News And alerts successfully saved.");
+        }
+
+        $('#add-newsAndAlert').modal('hide');
+        $('#newsAndAlert-list').html(data.htmlData);
+    }
+</script>

@@ -32,4 +32,20 @@ public class QuestionController : Controller
         
         return Ok(response);
     }
+
+    [HttpPost("get-all-questions/{classId:int}/{subjectId:int}")]
+    public async Task<IActionResult> PostAllQuestions(int classId, int subjectId)
+    {
+        var result = await _questionService.GetAllQuestions(classId, subjectId);
+
+        var response = new ResponseDTO<List<QuestionResponseDTO>>
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
 }

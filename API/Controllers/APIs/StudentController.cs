@@ -48,7 +48,23 @@ public class StudentController : Controller
         
         return Ok(response);
     }
-    
+
+    [HttpPost("get-student-responses/{studentId:int}")]
+    public async Task<IActionResult> PostStudentResponses(int studentId)
+    {
+        var result = await _studentService.GetStudentResponses(studentId);
+
+        var response = new ResponseDTO<List<StudentResponsesResponseDTO>>
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
+
     [HttpPost("insert-student-scores")]
     public async Task<IActionResult> InsertStudentScores(StudentScoreRequestDTO studentScore)
     {
@@ -80,7 +96,23 @@ public class StudentController : Controller
         
         return Ok(response);
     }
-    
+
+    [HttpPost("get-student-scores/{studentId:int}")]
+    public async Task<IActionResult> PostStudentScore(int studentId)
+    {
+        var result = await _studentService.GetStudentScore(studentId);
+
+        var response = new ResponseDTO<List<StudentScoreResponseDTO>>
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
+
     [HttpPost("insert-login-details/{studentId}/{registrationToken}")]
     public async Task<IActionResult> InsertLoginDetails(int studentId, string registrationToken)
     {

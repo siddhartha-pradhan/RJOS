@@ -30,4 +30,20 @@ public class ContentController : Controller
 
         return Ok(response);
     }
+
+    [HttpPost("get-content/{classId:int}/{subjectId:int}")]
+    public async Task<IActionResult> PostContents(int classId, int subjectId)
+    {
+        var result = await _contentService.GetAllContents(classId, subjectId);
+
+        var response = new ResponseDTO<List<ContentResponseDTO>>()
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
 }

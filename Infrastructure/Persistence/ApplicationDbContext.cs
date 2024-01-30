@@ -39,8 +39,9 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<tblSubject> tblSubjects { get; set; }
 
     public virtual DbSet<tblUser> tblUsers { get; set; }
+    public virtual DbSet<tblNewsAndAlert> tblNewsAndAlerts { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<tblCommon>(entity =>
         {
