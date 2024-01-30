@@ -48,7 +48,15 @@ public class EBookController : Controller
         
         var filePath = Path.Combine(ebooksFolderPath, fileUrl);
         
-        if (!System.IO.File.Exists(filePath)) return NotFound();
+        var notFound = new ResponseDTO<object>()
+        {
+            Status = "Not Found",
+            Message = "EBook Not Found.",
+            StatusCode = HttpStatusCode.NotFound,
+            Result = false
+        };
+        
+        if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
         
         var memory = new MemoryStream();
         

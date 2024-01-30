@@ -1,20 +1,21 @@
-using Application.Interfaces.Services;
-using Data.Dependency;
 using Firebase.Auth;
-using Firebase.Auth.Providers;
 using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
-using Microsoft.AspNetCore.ResponseCompression;
+using Data.Dependency;
 using Newtonsoft.Json;
 using RJOS.Middlewares;
+using Google.Apis.Auth.OAuth2;
+using Firebase.Auth.Providers;
+using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
+using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 
 var configuration = builder.Configuration;
-
-services.AddInfrastructureService(configuration);
 
 services.AddControllersWithViews();
 
@@ -25,6 +26,40 @@ services.AddCors();
 services.AddRazorPages();
 
 services.AddSwaggerGen();
+
+// services.AddSwaggerGen(c =>
+// {
+//     c.SwaggerDoc("v1", new OpenApiInfo
+//     {
+//         Title = "RSOS", 
+//         Version = "v1"
+//     });
+//     
+//     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme ()
+//     {
+//         Name = "Authorization",
+//         Type = SecuritySchemeType.ApiKey,
+//         Scheme = JwtBearerDefaults.AuthenticationScheme,
+//         BearerFormat = "JWT",
+//         In = ParameterLocation.Header,
+//         Description = "Enter 'Bearer' followed by a space and then your valid JWT token."
+//     });
+//     
+//     c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//     {
+//         {
+//             new OpenApiSecurityScheme
+//             {
+//                 Reference = new OpenApiReference
+//                 {
+//                     Type = ReferenceType.SecurityScheme,
+//                     Id = "Bearer"
+//                 }
+//             },
+//             Array.Empty<string>()
+//         }
+//     });
+// });
 
 services.Configure<GzipCompressionProviderOptions>(options =>
 {
@@ -60,13 +95,28 @@ services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig
     }
 }));
 
+// services
+//     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//     .AddJwtBearer(options =>
+//     {
+//         options.Authority = $"https://securetoken.google.com/{firebaseProjectName}";
+//         options.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             ValidateIssuer = true,
+//             ValidIssuer = $"https://securetoken.google.com/{firebaseProjectName}",
+//             ValidateAudience = true,
+//             ValidAudience = firebaseProjectName,
+//             ValidateLifetime = true
+//         };
+//     });
+
+services.AddInfrastructureService(configuration);
+
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+app.UseExceptionHandler("/Home/Error");
+
+app.UseHsts();
 
 app.UseHttpsRedirection();
 

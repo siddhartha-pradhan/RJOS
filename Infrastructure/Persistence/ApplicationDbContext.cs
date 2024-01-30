@@ -40,7 +40,7 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblUser> tblUsers { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<tblCommon>(entity =>
         {
@@ -94,6 +94,16 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Reason).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<tblNewsAndAlert>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_NewsAndAlerts");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.Header).HasMaxLength(200);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<tblNotification>(entity =>

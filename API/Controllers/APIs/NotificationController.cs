@@ -56,8 +56,19 @@ public class NotificationController : Controller
     public async Task<IActionResult> DownloadNotificationAttachment(int notificationId)
     {
         var notification = await _notificationService.GetNotificationById(notificationId);
-        
-        if(string.IsNullOrEmpty(notification.UploadedFileUrl)) return NotFound();
+
+        if (string.IsNullOrEmpty(notification.UploadedFileUrl))
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+            
+            return NotFound(notFound);
+        }
         
         var wwwRootPath = _webHostEnvironment.WebRootPath;
         
@@ -66,8 +77,19 @@ public class NotificationController : Controller
         var notificationsFolderPath = Path.Combine(documentsFolderPath, "notifications");
         
         var filePath = Path.Combine(notificationsFolderPath, notification.UploadedFileUrl);
-        
-        if (!System.IO.File.Exists(filePath)) return NotFound();
+
+        if (!System.IO.File.Exists(filePath))
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+            
+            return NotFound(notFound);
+        }
         
         var memory = new MemoryStream();
         
