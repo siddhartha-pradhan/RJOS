@@ -19,5 +19,7 @@ public partial class tblSubject
 
     public DateTime? LastUpdatedOn { get; set; }
 
-    public virtual ICollection<tblContent> tblContents { get; set; } = new List<tblContent>();
+    public int? SubjectCode { get; set; }
+
+    public string? TitleInHindi { get; set; }
 }

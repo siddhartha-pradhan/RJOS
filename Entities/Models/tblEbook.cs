@@ -26,4 +26,6 @@ public partial class tblEbook
     public DateTime? LastUpdatedOn { get; set; }
 
     public int Class { get; set; }
+
+    public int? Sequence { get; set; }
 }

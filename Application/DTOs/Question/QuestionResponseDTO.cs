@@ -2,6 +2,13 @@
 
 public class QuestionResponseDTO
 {
+    public List<Question> Questions { get; set; }
+
+    public List<Common> Commons { get; set; }
+}
+
+public class Question
+{
     public int Id { get; set; }
 
     public int QuestionTypeId { get; set; }
@@ -12,28 +19,28 @@ public class QuestionResponseDTO
 
     public int TopicId { get; set; }
 
-    public bool IsMandatory { get; set; }
+    public int IsMandatory { get; set; }
 
     public int? Sequence { get; set; }
 
-    public string? Question { get; set; }
+    public string? QuestionValue { get; set; }
 
     public int Flag { get; set; }
-    
-    public List<QuestionCommonResponseDTO> Commons { get; set; }
 }
 
-public class QuestionCommonResponseDTO
+public class Common
 {
     public int Id { get; set; }
 
-    public int CommonId { get; set; }
-
     public int Flag { get; set; }
+
+    public int CommonId { get; set; }
 
     public string? Value { get; set; }
 
     public int? LanguageId { get; set; }
+
+    public int CorrectAnswer { get; set; }
 
     public decimal? Score { get; set; }
 }

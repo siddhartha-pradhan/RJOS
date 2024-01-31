@@ -13,44 +13,42 @@ public class QuestionService : IQuestionService
         _genericRepository = genericRepository;
     }
 
-    public async Task<List<QuestionResponseDTO>> GetAllQuestions(int classId, int subjectId)
+    public async Task<QuestionResponseDTO> GetAllQuestions(int classId, int subjectId)
     {
-        var result = new List<QuestionResponseDTO>();
+        var result = new QuestionResponseDTO();
         
         var questions = await _genericRepository.GetAsync<tblQuestion>(x =>
             x.Class == classId && x.SubjectId == subjectId);
 
-        foreach (var question in questions)
+        result.Questions = questions.Select(x => new Question
         {
-            var commons = await _genericRepository.GetAsync<tblCommon>(x => 
-                x.Flag == question.Id);
+            Id = x.Id,
+            QuestionTypeId = x.QuestionTypeId,
+            Class = x.Class,
+            SubjectId = x.SubjectId,
+            TopicId = x.TopicId,
+            IsMandatory = x.IsMandatory ? 1 : 0,
+            Sequence = x.Sequence,
+            QuestionValue = x.Question,
+            Flag = x.Flag,
+        }).ToList();
 
-            var commonResult = commons.Select(common => new QuestionCommonResponseDTO()
-                {
-                    Id = common.Id,
-                    CommonId = common.CommonId,
-                    Flag = common.Flag,
-                    Value = common.Value,
-                    LanguageId = common.LanguageId,
-                    Score = common.Score
-                }).ToList();
-            
-            var questionResponse = new QuestionResponseDTO
-            {
-                Id = question.Id,
-                QuestionTypeId = question.QuestionTypeId,
-                Class = question.Class,
-                SubjectId = question.SubjectId,
-                TopicId = question.TopicId,
-                IsMandatory = question.IsMandatory,
-                Sequence = question.Sequence,
-                Question = question.Question,
-                Flag = question.Flag,
-                Commons = commonResult
-            };
-            result.Add(questionResponse);
-        }
+        var flags = questions.Select(x => x.Flag);
 
+        var commons = await _genericRepository.GetAsync<tblCommon>(x => 
+            flags.Contains(x.Flag));
+        
+        result.Commons = commons.Select(x => new Application.DTOs.Question.Common
+        {
+            Id = x.Id,
+            Flag = x.Flag,
+            CommonId = x.CommonId,
+            Value = x.Value,
+            LanguageId = x.LanguageId,
+            Score = x.Score,
+            CorrectAnswer = x.CorrectAnswer ?? 0,
+        }).ToList();
+        
         return result;
     }
 }

@@ -22,7 +22,7 @@ public class QuestionController : Controller
     {
         var result = await _questionService.GetAllQuestions(classId, subjectId);
 
-        var response = new ResponseDTO<List<QuestionResponseDTO>>
+        var response = new ResponseDTO<QuestionResponseDTO>
         {
             Status = "Success",
             Message = "Successfully Retrieved",
@@ -38,7 +38,7 @@ public class QuestionController : Controller
     {
         var result = await _questionService.GetAllQuestions(classId, subjectId);
 
-        var response = new ResponseDTO<List<QuestionResponseDTO>>
+        var response = new ResponseDTO<QuestionResponseDTO>
         {
             Status = "Success",
             Message = "Successfully Retrieved",

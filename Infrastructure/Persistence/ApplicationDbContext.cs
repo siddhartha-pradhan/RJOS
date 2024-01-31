@@ -47,6 +47,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK_Common");
 
+            entity.Property(e => e.CorrectAnswer).HasDefaultValue(0);
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Flag).HasDefaultValue(1);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -64,11 +65,6 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.PartName).HasMaxLength(200);
             entity.Property(e => e.YouTubeLink).IsUnicode(false);
-
-            entity.HasOne(d => d.Subject).WithMany(p => p.tblContents)
-                .HasForeignKey(d => d.SubjectId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Content_SubjectId");
         });
 
         modelBuilder.Entity<tblEbook>(entity =>
@@ -164,6 +160,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.TitleInHindi).HasMaxLength(200);
         });
 
         modelBuilder.Entity<tblUser>(entity =>

@@ -37,5 +37,5 @@ public partial class tblContent
 
     public DateTime? LastUpdatedOn { get; set; }
 
-    public virtual tblSubject Subject { get; set; } = null!;
+    public int? Sequence { get; set; }
 }
