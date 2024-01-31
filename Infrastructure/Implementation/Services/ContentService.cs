@@ -19,13 +19,13 @@ public class ContentService : IContentService
         
         var content = await _genericRepository.GetAsync<tblContent>(x => x.Class == classId && x.SubjectId == subjectId);
 
-        var result = content.Select(x => new ContentResponseDTO()
+        var result = content.OrderBy(x => x.Sequence).Select(x => new ContentResponseDTO()
         {
             Id = x.Id,
             Class = x.Class,
             SubjectId = x.SubjectId,
-            SubjectName = subject.Title,
-            Faculty = x.Faculty,
+            SubjectName = subject?.Title ?? "",
+            Faculty = x.Faculty ?? "",
             ChapterName = x.ChapterName,
             Description = x.Description,
             PartName = x.PartName,

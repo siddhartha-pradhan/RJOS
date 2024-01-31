@@ -1,16 +1,14 @@
 ﻿namespace Application.DTOs.Student;
 
-public class StudentResponseDTO
+public class StudentRequestDTO
 {
-    public List<StudentResponsesResponseDTO> StudentResponses { get; set; } = null!;
+    public List<StudentResponseRequestDTO> StudentResponse { get; set; }
 
-    public List<StudentScoreResponseDTO> StudentScores { get; set; } = null!;
+    public StudentScoreRequestDTO StudentScore { get; set; }
 }
 
-public class StudentResponsesResponseDTO
+public class StudentResponseRequestDTO
 {
-    public int Id { get; set; }
-    
     public string? GUID { get; set; }
 
     public string? QuizGUID { get; set; }
@@ -24,12 +22,12 @@ public class StudentResponsesResponseDTO
     public bool IsEdited { get; set; } = false;
 
     public bool IsUploaded { get; set; } = true;
+    
+    public int CreatedBy { get; set; }
 }
 
-public class StudentScoreResponseDTO
+public class StudentScoreRequestDTO
 {
-    public int Id { get; set; }
-    
     public string GUID { get; set; }
     
     public int StudentId { get; set; }
@@ -45,4 +43,6 @@ public class StudentScoreResponseDTO
     public bool IsEdited { get; set; } = false;
 
     public bool IsUploaded { get; set; } = true;
+    
+    public int CreatedBy { get; set; }
 }

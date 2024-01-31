@@ -20,14 +20,14 @@ public class EBookService : IEBookService
             (!subjectCode.HasValue || x.CodeNo == subjectCode) &&
             (string.IsNullOrEmpty(volume) || x.Volume == volume));
 
-        return ebooks.Select(x => new EBookResponseDTO()
+        return ebooks.OrderBy(x => x.Sequence).Select(x => new EBookResponseDTO()
         {
             Id = x.Id,
             Code = x.CodeNo,
             Class = x.Class,
             Volume = x.Volume,
             FileName = x.FileName ?? "No PDF",
-            NameOfBook = x.NameOfBook
+            NameOfBook = x.NameOfBook ?? ""
         }).ToList();
     }
 }

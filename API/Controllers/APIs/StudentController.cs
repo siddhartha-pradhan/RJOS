@@ -16,29 +16,13 @@ public class StudentController : Controller
     {
         _studentService = studentService;
     }
-
-    [HttpPost("insert-student-response")]
-    public async Task<IActionResult> InsertStudentResponse(StudentResponsesRequestDTO studentResponse)
-    {
-        await _studentService.InsertStudentResponse(studentResponse);
-
-        var result = new ResponseDTO<object>()
-        {
-            Status = "Success",
-            Message = "Successfully Inserted",
-            StatusCode = HttpStatusCode.OK,
-            Result = true
-        };
-
-        return Ok(result);
-    }
-
+    
     [HttpGet("get-student-responses/{studentId:int}")]
     public async Task<IActionResult> GetStudentResponses(int studentId)
     {
-        var result = await _studentService.GetStudentResponses(studentId);
+        var result = await _studentService.GetStudentRecords(studentId);
         
-        var response = new ResponseDTO<List<StudentResponsesResponseDTO>>
+        var response = new ResponseDTO<StudentResponseDTO>
         {
             Status = "Success",
             Message = "Successfully Retrieved",
@@ -48,27 +32,29 @@ public class StudentController : Controller
         
         return Ok(response);
     }
-
+    
     [HttpPost("get-student-responses/{studentId:int}")]
-    public async Task<IActionResult> PostStudentResponses(int studentId)
+    public async Task<IActionResult> GetStudentResponsesResult(int studentId)
     {
-        var result = await _studentService.GetStudentResponses(studentId);
-
-        var response = new ResponseDTO<List<StudentResponsesResponseDTO>>
+        var result = await _studentService.GetStudentRecords(studentId);
+        
+        var response = new ResponseDTO<StudentResponseDTO>
         {
             Status = "Success",
             Message = "Successfully Retrieved",
             StatusCode = HttpStatusCode.OK,
             Result = result
         };
-
+        
         return Ok(response);
     }
 
-    [HttpPost("insert-student-scores")]
-    public async Task<IActionResult> InsertStudentScores(StudentScoreRequestDTO studentScore)
+    [HttpPost("insert-student-records")]
+    public async Task<IActionResult> InsertStudentResponse(StudentRequestDTO studentResponse)
     {
-        await _studentService.InsertStudentScore(studentScore);
+        await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
+
+        await _studentService.InsertStudentScore(studentResponse.StudentScore);
 
         var result = new ResponseDTO<object>()
         {
@@ -81,38 +67,6 @@ public class StudentController : Controller
         return Ok(result);
     }
     
-    [HttpGet("get-student-scores/{studentId:int}")]
-    public async Task<IActionResult> GetStudentScore(int studentId)
-    {
-        var result = await _studentService.GetStudentScore(studentId);
-        
-        var response = new ResponseDTO<List<StudentScoreResponseDTO>>
-        {
-            Status = "Success",
-            Message = "Successfully Retrieved",
-            StatusCode = HttpStatusCode.OK,
-            Result = result
-        };
-        
-        return Ok(response);
-    }
-
-    [HttpPost("get-student-scores/{studentId:int}")]
-    public async Task<IActionResult> PostStudentScore(int studentId)
-    {
-        var result = await _studentService.GetStudentScore(studentId);
-
-        var response = new ResponseDTO<List<StudentScoreResponseDTO>>
-        {
-            Status = "Success",
-            Message = "Successfully Retrieved",
-            StatusCode = HttpStatusCode.OK,
-            Result = result
-        };
-
-        return Ok(response);
-    }
-
     [HttpPost("insert-login-details/{studentId}/{registrationToken}")]
     public async Task<IActionResult> InsertLoginDetails(int studentId, string registrationToken)
     {

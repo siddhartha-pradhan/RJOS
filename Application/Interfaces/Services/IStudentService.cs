@@ -4,13 +4,11 @@ namespace Application.Interfaces.Services;
 
 public interface IStudentService
 {
-    Task InsertStudentResponse(StudentResponsesRequestDTO studentResponse);
+    Task<StudentResponseDTO> GetStudentRecords(int studentId);
     
-    Task<List<StudentResponsesResponseDTO>> GetStudentResponses(int studentId);
+    Task InsertStudentResponse(List<StudentResponseRequestDTO> studentResponse);
     
     Task InsertStudentScore(StudentScoreRequestDTO studentScore);
-    
-    Task<List<StudentScoreResponseDTO>> GetStudentScore(int studentId);
     
     Task InsertLoginDetails(int studentId, string registrationToken);
 }

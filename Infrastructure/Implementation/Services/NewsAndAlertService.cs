@@ -31,7 +31,7 @@ public class NewsAndAlertService : INewsAndAlertService
     public async Task<List<NewsAndAlertResponseDTO>> GetAllValidNewsAndAlert()
     {
         var newsAndAlert = await _genericRepository.GetAsync<tblNewsAndAlert>(x =>
-            x.IsActive && x.ValidTill >= DateTime.Now);
+            x.IsActive && x.ValidTill.Date >= DateTime.Now.Date);
 
         return newsAndAlert.Select(x => new NewsAndAlertResponseDTO
         {
