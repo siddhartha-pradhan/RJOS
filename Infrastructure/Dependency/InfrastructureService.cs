@@ -32,6 +32,7 @@ public static class InfrastructureService
         services.AddTransient<IStudentService, StudentService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
+        services.AddTransient<ISubjectService, SubjectService>();
 
         return services;
     }

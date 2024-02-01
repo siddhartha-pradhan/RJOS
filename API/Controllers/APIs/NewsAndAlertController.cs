@@ -1,6 +1,5 @@
 ﻿using Application.DTOs.Base;
 using Application.DTOs.NewsAndAlert;
-using Application.DTOs.Notification;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
