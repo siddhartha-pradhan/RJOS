@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RJOS.Controllers.APIs;
 
-[Authorize]
 [ApiController]
 [Route("api/students")]
 public class StudentController : Controller

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RJOS.Controllers.APIs;
 
-[Authorize]
 [ApiController]
 [Route("api/questions")]
 public class QuestionController : Controller
@@ -36,9 +35,9 @@ public class QuestionController : Controller
     }
 
     [HttpPost("get-all-questions/")]
-    public async Task<IActionResult> PostAllQuestions(int? classId, int? subjectId)
+    public async Task<IActionResult> PostAllQuestions(QuestionRequestDTO question)
     {
-        var result = await _questionService.GetAllQuestions(classId, subjectId);
+        var result = await _questionService.GetAllQuestions(question.ClassId, question.SubjectId);
 
         var response = new ResponseDTO<QuestionResponseDTO>
         {

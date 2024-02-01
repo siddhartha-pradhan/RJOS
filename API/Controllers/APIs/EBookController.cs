@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.StaticFiles;
 
 namespace RJOS.Controllers.APIs;
 
-[Authorize]
 [ApiController]
 [Route("api/ebooks")]
 public class EBookController : Controller

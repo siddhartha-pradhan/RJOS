@@ -22,6 +22,7 @@ public static class InfrastructureService
 
         services.AddTransient<IGenericRepository, GenericRepository>();
 
+        services.AddTransient<IAuthenticationService, AuthenticationService>();
         services.AddTransient<IConfigurationService, ConfigurationService>();
         services.AddTransient<IContentService, ContentService>();
         services.AddTransient<IDbInitializerService, DbInitializerService>();
@@ -32,7 +33,6 @@ public static class InfrastructureService
         services.AddTransient<IStudentService, StudentService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
-        services.AddTransient<IAuthenticationService, AuthenticationService>();
 
         return services;
     }

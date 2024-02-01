@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace RJOS.Controllers.APIs;
 
-[Authorize]
 [ApiController]
 [Route("api/enrollments")]
 public class EnrollmentController : Controller

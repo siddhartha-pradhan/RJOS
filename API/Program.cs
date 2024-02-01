@@ -1,3 +1,4 @@
+using System.Text;
 using Firebase.Auth;
 using FirebaseAdmin;
 using Data.Dependency;
@@ -8,10 +9,8 @@ using Firebase.Auth.Providers;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.AspNetCore.Authorization;
-using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,22 +95,6 @@ services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig
         new EmailProvider()
     }
 }));
-
-//services
-//    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//    .AddJwtBearer(options =>
-//    {
-//        options.Audience = "RSOS";
-//        options.Authority = "http://localhost:7183"; //idp address
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuer = true,
-//            ValidIssuer = "RSOS.API",
-//            ValidateAudience = true,
-//            ValidAudience = "RSOS",
-//            ValidateLifetime = true
-//        };
-//    });
 
 services
     .AddAuthentication(options =>

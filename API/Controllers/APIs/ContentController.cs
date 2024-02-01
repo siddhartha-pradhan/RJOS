@@ -1,11 +1,9 @@
 ﻿using System.Net;
 using Application.DTOs.Base;
+using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Content;
 using Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
 [ApiController]
 [Route("api/contents")]
 public class ContentController : Controller

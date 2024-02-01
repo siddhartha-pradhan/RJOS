@@ -31,11 +31,8 @@ public class AuthenticationService : IAuthenticationService
 
         var rsosUrl = _configuration["RSOS_URL"];
 
-        var apiUrl = $"{rsosUrl}api_student_login?ssoid={authenticationRequest.SSOID}&dob={authenticationRequest.DateOfBirth}&token={rsosToken}";
+        var baseUrl = $"{rsosUrl}/api_student_login";
 
-        string baseUrl = $"{rsosUrl}api_student_login";
-
-        // Query parameters
         var queryParams = new System.Collections.Specialized.NameValueCollection
         {
             { "ssoid", authenticationRequest.SSOID },
@@ -43,12 +40,11 @@ public class AuthenticationService : IAuthenticationService
             { "token", rsosToken }
         };
 
-        // Construct the full URL with query parameters
         var uriBuilder = new UriBuilder(baseUrl);
+        
         uriBuilder.Query = string.Join("&", Array.ConvertAll(queryParams.AllKeys,
                                         key => $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(queryParams[key])}"));
 
-        // Content for POST request
         var postData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
 
         var response = await httpClient.PostAsync(uriBuilder.Uri, postData);
@@ -59,28 +55,27 @@ public class AuthenticationService : IAuthenticationService
 
             var apiResponse = JsonConvert.DeserializeObject<LoginResponseDTO>(responseData);
 
-            if (apiResponse.Status)
+            if (apiResponse is { Status: true })
             {
-                var studentloginData = apiResponse.Data.Student;
+                var studentLoginData = apiResponse.Data.Student;
 
-                var studentEntity = new tblStudentLoginDetail
-                {
-                    LoginTime = DateTime.Now,
-                    SSOID = studentloginData.SsoId,
-                    DeviceRegistrationToken = authenticationRequest.DeviceRegistrationToken
-                };
-
-                await _genericRepository.InsertAsync<tblStudentLoginDetail>(studentEntity);
-
+                // var studentEntity = new tblStudentLoginDetail
+                // {
+                //     LoginTime = DateTime.Now,
+                //     SSOID = studentLoginData.SsoId,
+                //     DeviceRegistrationToken = authenticationRequest.DeviceRegistrationToken
+                // };
+                //
+                // await _genericRepository.InsertAsync(studentEntity);
 
                 var authenticationResponse = new AuthenticationResponseDTO
                 {
-                    Id = studentloginData.Id,
-                    Enrollment = studentloginData.Enrollment,
-                    Name = studentloginData.Name,
-                    DateOfBirth = studentloginData.Dob,
-                    SSOID = studentloginData.SsoId,
-                    JWT = GenerateJwtToken(studentloginData)
+                    Id = studentLoginData.Id,
+                    Enrollment = studentLoginData.Enrollment,
+                    Name = studentLoginData.Name,
+                    DateOfBirth = studentLoginData.Dob,
+                    SSOID = studentLoginData.SsoId,
+                    JWT = GenerateJwtToken(studentLoginData)
                 };
 
                 return authenticationResponse;
