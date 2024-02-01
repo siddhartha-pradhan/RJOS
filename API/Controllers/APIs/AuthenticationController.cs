@@ -42,7 +42,7 @@ namespace RJOS.Controllers.APIs
             {
                 StatusCode = HttpStatusCode.OK,
                 Result = response,
-                Message = "Firebase Configuration Successfully Retrieved",
+                Message = "Successfully Logged In",
                 Status = "Success."
             };
 

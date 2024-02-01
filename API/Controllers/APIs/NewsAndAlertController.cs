@@ -2,11 +2,13 @@
 using Application.DTOs.NewsAndAlert;
 using Application.DTOs.Notification;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace RJOS.Controllers.APIs;
 
+[Authorize]
 [ApiController]
 [Route("api/news-and-alerts")]
 

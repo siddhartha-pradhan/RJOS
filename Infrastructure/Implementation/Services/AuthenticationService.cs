@@ -16,23 +16,42 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly IGenericRepository _genericRepository;
     private readonly IConfiguration _configuration;
-    private readonly HttpClient _httpClient;
 
-    public AuthenticationService(IGenericRepository genericRepository, IConfiguration configuration, HttpClient httpClient)
+    public AuthenticationService(IGenericRepository genericRepository, IConfiguration configuration)
     {
         _genericRepository = genericRepository;
         _configuration = configuration;
-        _httpClient = httpClient;
     }
 
     public async Task<AuthenticationResponseDTO> Authenticate(AuthenticationRequestDTO authenticationRequest)
     {
+        var httpClient = new HttpClient();
+
         var rsosToken = _configuration["RSOS_Token"];
+
         var rsosUrl = _configuration["RSOS_URL"];
 
         var apiUrl = $"{rsosUrl}api_student_login?ssoid={authenticationRequest.SSOID}&dob={authenticationRequest.DateOfBirth}&token={rsosToken}";
 
-        var response = await _httpClient.GetAsync(apiUrl);
+        string baseUrl = $"{rsosUrl}api_student_login";
+
+        // Query parameters
+        var queryParams = new System.Collections.Specialized.NameValueCollection
+        {
+            { "ssoid", authenticationRequest.SSOID },
+            { "dob", authenticationRequest.DateOfBirth },
+            { "token", rsosToken }
+        };
+
+        // Construct the full URL with query parameters
+        var uriBuilder = new UriBuilder(baseUrl);
+        uriBuilder.Query = string.Join("&", Array.ConvertAll(queryParams.AllKeys,
+                                        key => $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(queryParams[key])}"));
+
+        // Content for POST request
+        var postData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+
+        var response = await httpClient.PostAsync(uriBuilder.Uri, postData);
 
         if (response.IsSuccessStatusCode)
         {

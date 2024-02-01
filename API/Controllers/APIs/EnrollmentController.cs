@@ -3,9 +3,11 @@ using Application.DTOs.Base;
 using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Enrollment;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RJOS.Controllers.APIs;
 
+[Authorize]
 [ApiController]
 [Route("api/enrollments")]
 public class EnrollmentController : Controller

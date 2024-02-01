@@ -2,10 +2,12 @@
 using Application.DTOs.Base;
 using Application.DTOs.Question;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RJOS.Controllers.APIs;
 
+[Authorize]
 [ApiController]
 [Route("api/questions")]
 public class QuestionController : Controller

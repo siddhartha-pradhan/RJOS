@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Notification;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RJOS.Controllers.APIs;
 
+[Authorize]
 [ApiController]
 [Route("api/notifications")]
 public class NotificationController : Controller
@@ -36,6 +38,7 @@ public class NotificationController : Controller
         return Ok(response);
     }
 
+    
     [HttpPost("get-valid-notifications")]
     public async Task<IActionResult> PostUserNotifications()
     {

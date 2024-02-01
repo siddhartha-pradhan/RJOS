@@ -3,11 +3,13 @@ using Application.DTOs.Base;
 using Application.DTOs.Content;
 using Application.DTOs.EBook;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace RJOS.Controllers.APIs;
 
+[Authorize]
 [ApiController]
 [Route("api/ebooks")]
 public class EBookController : Controller
