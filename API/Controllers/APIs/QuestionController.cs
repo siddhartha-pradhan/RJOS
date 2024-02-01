@@ -35,7 +35,7 @@ public class QuestionController : Controller
     }
 
     [HttpPost("get-all-questions/")]
-    public async Task<IActionResult> PostAllQuestions(QuestionRequestDTO question)
+    public async Task<IActionResult> PostAllQuestions([FromForm] QuestionRequestDTO question)
     {
         var result = await _questionService.GetAllQuestions(question.ClassId, question.SubjectId);
 
