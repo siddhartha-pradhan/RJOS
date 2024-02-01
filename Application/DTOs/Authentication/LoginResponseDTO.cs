@@ -11,6 +11,11 @@ public class LoginResponseDTO
 
 public class StudentDataDTO
 {
+    public StudentInfoDTO Student { get; set; }
+}
+
+public class StudentInfoDTO
+{
     public int Id { get; set; }
     
     public string Enrollment { get; set; }
