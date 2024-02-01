@@ -6,5 +6,5 @@ public class AuthenticationRequestDTO
     
     public string DateOfBirth { get; set; }
     
-    public string DeviceRegistrationToken { get; set; }
+    public string? DeviceRegistrationToken { get; set; }
 }

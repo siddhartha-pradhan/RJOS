@@ -2,6 +2,7 @@
 using Application.DTOs.Base;
 using Application.DTOs.Question;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RJOS.Controllers.APIs;
@@ -34,9 +35,9 @@ public class QuestionController : Controller
     }
 
     [HttpPost("get-all-questions/")]
-    public async Task<IActionResult> PostAllQuestions(int? classId, int? subjectId)
+    public async Task<IActionResult> PostAllQuestions([FromForm] QuestionRequestDTO question)
     {
-        var result = await _questionService.GetAllQuestions(classId, subjectId);
+        var result = await _questionService.GetAllQuestions(question.ClassId, question.SubjectId);
 
         var response = new ResponseDTO<QuestionResponseDTO>
         {

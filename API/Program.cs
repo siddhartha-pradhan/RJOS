@@ -1,3 +1,4 @@
+using System.Text;
 using Firebase.Auth;
 using FirebaseAdmin;
 using Data.Dependency;
@@ -8,8 +9,8 @@ using Firebase.Auth.Providers;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,7 @@ var configuration = builder.Configuration;
 
 services.AddControllersWithViews();
 
-services.AddSession(); 
+services.AddSession();
 
 services.AddCors();
 
@@ -27,39 +28,39 @@ services.AddRazorPages();
 
 services.AddSwaggerGen();
 
-// services.AddSwaggerGen(c =>
-// {
-//     c.SwaggerDoc("v1", new OpenApiInfo
-//     {
-//         Title = "RSOS", 
-//         Version = "v1"
-//     });
-//     
-//     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme ()
-//     {
-//         Name = "Authorization",
-//         Type = SecuritySchemeType.ApiKey,
-//         Scheme = JwtBearerDefaults.AuthenticationScheme,
-//         BearerFormat = "JWT",
-//         In = ParameterLocation.Header,
-//         Description = "Enter 'Bearer' followed by a space and then your valid JWT token."
-//     });
-//     
-//     c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//     {
-//         {
-//             new OpenApiSecurityScheme
-//             {
-//                 Reference = new OpenApiReference
-//                 {
-//                     Type = ReferenceType.SecurityScheme,
-//                     Id = "Bearer"
-//                 }
-//             },
-//             Array.Empty<string>()
-//         }
-//     });
-// });
+services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "RSOS",
+        Version = "v1"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' followed by a space and then your valid JWT token."
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+         {
+             new OpenApiSecurityScheme
+             {
+                 Reference = new OpenApiReference
+                 {
+                     Type = ReferenceType.SecurityScheme,
+                     Id = "Bearer"
+                 }
+             },
+             Array.Empty<string>()
+         }
+    });
+});
 
 services.Configure<GzipCompressionProviderOptions>(options =>
 {
@@ -95,20 +96,30 @@ services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig
     }
 }));
 
-// services
-//     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddJwtBearer(options =>
-//     {
-//         options.Authority = $"https://securetoken.google.com/{firebaseProjectName}";
-//         options.TokenValidationParameters = new TokenValidationParameters
-//         {
-//             ValidateIssuer = true,
-//             ValidIssuer = RSOS.API,
-//             ValidateAudience = true,
-//             ValidAudience = RSOS,
-//             ValidateLifetime = true
-//         };
-//     });
+services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidAudience = configuration["JWT:Audience"],
+            ValidIssuer = configuration["JWT:Issuer"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"] ?? "")),
+        };
+    });
+
+services.AddAuthorization();
 
 services.AddInfrastructureService(configuration);
 
@@ -132,7 +143,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseSession(); 
+app.UseSession();
 
 app.MapRazorPages();
 
@@ -156,7 +167,7 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializerService>();
-    
+
     await dbInitializer.Initialize();
 }
 

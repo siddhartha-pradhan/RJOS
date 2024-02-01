@@ -2,6 +2,7 @@
 using Application.DTOs.Base;
 using Application.DTOs.Student;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RJOS.Controllers.APIs;

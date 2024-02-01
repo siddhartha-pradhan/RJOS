@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using Application.DTOs.Base;
+using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.Content;
 using Application.Interfaces.Services;
-using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/contents")]
