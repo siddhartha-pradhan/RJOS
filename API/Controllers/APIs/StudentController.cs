@@ -33,7 +33,7 @@ public class StudentController : Controller
         return Ok(response);
     }
     
-    [HttpPost("get-student-responses/{studentId:int}")]
+    [HttpPost("get-student-responses")]
     public async Task<IActionResult> GetStudentResponsesResult(int studentId)
     {
         var result = await _studentService.GetStudentRecords(studentId);
@@ -67,10 +67,23 @@ public class StudentController : Controller
         return Ok(result);
     }
     
-    [HttpPost("insert-login-details/{studentId}/{registrationToken}")]
-    public async Task<IActionResult> InsertLoginDetails(int studentId, string registrationToken)
+    [HttpPost("insert-login-details")]
+    public async Task<IActionResult> InsertLoginDetails(int? studentId, string registrationToken)
     {
-        await _studentService.InsertLoginDetails(studentId, registrationToken);
+        if (!studentId.HasValue || string.IsNullOrEmpty(registrationToken))
+        {
+            var badRequest = new ResponseDTO<object>()
+            {
+                Status = "Bad Request",
+                StatusCode = HttpStatusCode.BadRequest,
+                Message = "Invalid Request (missing either student identifier or registration token)",
+                Result = false
+            };
+
+            return BadRequest(badRequest);
+        }
+        
+        await _studentService.InsertLoginDetails((int)studentId!, registrationToken);
 
         var result = new ResponseDTO<object>()
         {

@@ -86,7 +86,7 @@ public class EBookController : Controller
         return File(memory, GetContentType(filePath), fileUrl);
     }
 
-    [HttpPost("download-ebook/{fileUrl}")]
+    [HttpPost("download-ebook")]
     public async Task<IActionResult> PostDownloadEbook(string fileUrl)
     {
         var wwwRootPath = _webHostEnvironment.WebRootPath;

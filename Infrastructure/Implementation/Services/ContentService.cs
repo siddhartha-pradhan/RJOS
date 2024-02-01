@@ -13,11 +13,13 @@ public class ContentService : IContentService
         _genericRepository = genericRepository;
     }
 
-    public async Task<List<ContentResponseDTO>> GetAllContents(int classId, int subjectId)
+    public async Task<List<ContentResponseDTO>> GetAllContents(int? classId, int? subjectId)
     {
-        var subject = await _genericRepository.GetByIdAsync<tblSubject>(subjectId);
+        var subject = subjectId.HasValue ? await _genericRepository.GetByIdAsync<tblSubject>(subjectId) : new tblSubject();
         
-        var content = await _genericRepository.GetAsync<tblContent>(x => x.Class == classId && x.SubjectId == subjectId);
+        var content = await _genericRepository.GetAsync<tblContent>(x => 
+            (!classId.HasValue || x.Class == classId) && 
+            (!subjectId.HasValue || x.SubjectId == subjectId));
 
         var result = content.OrderBy(x => x.Sequence).Select(x => new ContentResponseDTO()
         {

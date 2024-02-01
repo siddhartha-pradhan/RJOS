@@ -33,8 +33,8 @@ public class QuestionController : Controller
         return Ok(response);
     }
 
-    [HttpPost("get-all-questions/{classId:int}/{subjectId:int}")]
-    public async Task<IActionResult> PostAllQuestions(int classId, int subjectId)
+    [HttpPost("get-all-questions/")]
+    public async Task<IActionResult> PostAllQuestions(int? classId, int? subjectId)
     {
         var result = await _questionService.GetAllQuestions(classId, subjectId);
 

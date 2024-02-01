@@ -31,8 +31,8 @@ public class ContentController : Controller
         return Ok(response);
     }
 
-    [HttpPost("get-content/{classId:int}/{subjectId:int}")]
-    public async Task<IActionResult> PostContents(int classId, int subjectId)
+    [HttpPost("get-content")]
+    public async Task<IActionResult> PostContents(int? classId, int? subjectId)
     {
         var result = await _contentService.GetAllContents(classId, subjectId);
 

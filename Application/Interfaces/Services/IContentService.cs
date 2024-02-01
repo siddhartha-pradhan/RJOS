@@ -4,5 +4,5 @@ namespace Application.Interfaces.Services;
 
 public interface IContentService
 {
-    Task<List<ContentResponseDTO>> GetAllContents(int classId, int subjectId);
+    Task<List<ContentResponseDTO>> GetAllContents(int? classId, int? subjectId);
 }

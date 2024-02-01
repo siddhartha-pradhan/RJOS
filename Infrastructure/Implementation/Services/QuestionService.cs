@@ -13,14 +13,17 @@ public class QuestionService : IQuestionService
         _genericRepository = genericRepository;
     }
 
-    public async Task<QuestionResponseDTO> GetAllQuestions(int classId, int subjectId)
+    public async Task<QuestionResponseDTO> GetAllQuestions(int? classId, int? subjectId)
     {
         var result = new QuestionResponseDTO();
         
         var questions = await _genericRepository.GetAsync<tblQuestion>(x =>
-            x.Class == classId && x.SubjectId == subjectId);
+            (!classId.HasValue || x.Class == classId) && 
+            (!subjectId.HasValue || x.SubjectId == subjectId));
 
-        result.Questions = questions.Select(x => new Question
+        var tblQuestions = questions as tblQuestion[] ?? questions.ToArray();
+        
+        result.Questions = tblQuestions.Select(x => new Question
         {
             Id = x.Id,
             QuestionTypeId = x.QuestionTypeId,
@@ -33,7 +36,7 @@ public class QuestionService : IQuestionService
             Flag = x.Flag,
         }).ToList();
 
-        var flags = questions.Select(x => x.Flag);
+        var flags = tblQuestions.Select(x => x.Flag);
 
         var commons = await _genericRepository.GetAsync<tblCommon>(x => 
             flags.Contains(x.Flag));

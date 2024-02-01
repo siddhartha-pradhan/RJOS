@@ -52,9 +52,22 @@ public class NotificationController : Controller
         return Ok(response);
     }
 
-    [HttpPost("send-notification/{registrationToken}")]
+    [HttpPost("send-notification")]
     public async Task<IActionResult> SendNotification(string registrationToken)
     {
+        if (string.IsNullOrEmpty(registrationToken))
+        {
+            var badRequest = new ResponseDTO<object>()
+            {
+                Status = "Bad Request",
+                Message = "Invalid Request (missing device's registration token).",
+                StatusCode = HttpStatusCode.BadRequest,
+                Result = true
+            };
+
+            return BadRequest(badRequest);
+        }
+        
         await _notificationService.NotifyNotification(registrationToken);
         
         var response = new ResponseDTO<object>()
@@ -119,10 +132,23 @@ public class NotificationController : Controller
         return File(memory, GetContentType(filePath), notification.UploadedFileName);
     }
 
-    [HttpPost("download-notification-attachment/{notificationId}")]
-    public async Task<IActionResult> PostDownloadNotificationAttachment(int notificationId)
+    [HttpPost("download-notification-attachment")]
+    public async Task<IActionResult> PostDownloadNotificationAttachment(int? notificationId)
     {
-        var notification = await _notificationService.GetNotificationById(notificationId);
+        if (!notificationId.HasValue)
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(notFound);
+        }
+        
+        var notification = await _notificationService.GetNotificationById((int)notificationId);
 
         if (string.IsNullOrEmpty(notification.UploadedFileUrl))
         {
