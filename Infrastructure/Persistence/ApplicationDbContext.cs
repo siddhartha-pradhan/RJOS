@@ -131,6 +131,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.DeviceRegistrationToken).HasMaxLength(500);
             entity.Property(e => e.LoginTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.SSOID).HasMaxLength(200);
         });
 
         modelBuilder.Entity<tblStudentResponse>(entity =>

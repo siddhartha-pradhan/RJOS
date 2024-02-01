@@ -107,16 +107,4 @@ public class StudentService : IStudentService
 
         await _genericRepository.InsertAsync(result);
     }
-    
-    public async Task InsertLoginDetails(int studentId, string registrationToken)
-    {
-        var loginDetails = new tblStudentLoginDetail()
-        {
-            StudentId = studentId,
-            LoginTime = DateTime.Now,
-            DeviceRegistrationToken = registrationToken
-        };
-
-        await _genericRepository.InsertAsync(loginDetails);
-    }
 }

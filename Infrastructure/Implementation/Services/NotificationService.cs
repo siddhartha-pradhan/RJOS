@@ -127,7 +127,7 @@ public class NotificationService : INotificationService
         
         var latestLoginDetails = (await _genericRepository
             .GetAsync<tblStudentLoginDetail>())
-            .GroupBy(s => s.StudentId)
+            .GroupBy(s => s.SSOID)
             .Select(g => g.OrderByDescending(s => s.LoginTime).First())
             .ToList();
 

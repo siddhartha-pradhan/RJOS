@@ -9,6 +9,4 @@ public interface IStudentService
     Task InsertStudentResponse(List<StudentResponseRequestDTO> studentResponse);
     
     Task InsertStudentScore(StudentScoreRequestDTO studentScore);
-    
-    Task InsertLoginDetails(int studentId, string registrationToken);
 }
