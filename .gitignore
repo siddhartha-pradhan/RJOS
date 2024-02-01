@@ -251,7 +251,8 @@ paket-files/
 .idea/
 *.sln.iml
 
-appsettings*.json
+!appsettings.json
+appsettings.Development.json
 !appsettings.example.json
 build/
 Logs/

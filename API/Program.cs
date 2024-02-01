@@ -103,9 +103,9 @@ services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig
 //         options.TokenValidationParameters = new TokenValidationParameters
 //         {
 //             ValidateIssuer = true,
-//             ValidIssuer = $"https://securetoken.google.com/{firebaseProjectName}",
+//             ValidIssuer = RSOS.API,
 //             ValidateAudience = true,
-//             ValidAudience = firebaseProjectName,
+//             ValidAudience = RSOS,
 //             ValidateLifetime = true
 //         };
 //     });
