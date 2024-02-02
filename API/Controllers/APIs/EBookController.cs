@@ -39,9 +39,9 @@ public class EBookController : Controller
     }
 
     [HttpPost("get-all-ebooks")]
-    public async Task<IActionResult> PostAllEbooks(int? classId, int? subjectId, string? volume)
+    public async Task<IActionResult> PostAllEbooks([FromForm] EBookRequestDTO ebook)
     {
-        var result = await _eBookService.GetAllEBooks(classId, subjectId, volume);
+        var result = await _eBookService.GetAllEBooks(ebook.ClassId, ebook.SubjectId, ebook.Volume);
 
         var response = new ResponseDTO<List<EBookResponseDTO>>()
         {

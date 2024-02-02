@@ -32,9 +32,9 @@ public class ContentController : Controller
     }
 
     [HttpPost("get-content")]
-    public async Task<IActionResult> PostContents(int? classId, int? subjectId)
+    public async Task<IActionResult> PostContents([FromForm] ContentRequestDTO content)
     {
-        var result = await _contentService.GetAllContents(classId, subjectId);
+        var result = await _contentService.GetAllContents(content.ClassId, content.SubjectId);
 
         var response = new ResponseDTO<List<ContentResponseDTO>>()
         {
