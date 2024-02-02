@@ -153,6 +153,17 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
+        modelBuilder.Entity<tblStudentVideoTracking>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_StudentVideoTracking");
+
+            entity.ToTable("tblStudentVideoTracking");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.PercentageCompleted).HasColumnType("decimal(18, 0)");
+        });
+
         modelBuilder.Entity<tblSubject>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Subject");

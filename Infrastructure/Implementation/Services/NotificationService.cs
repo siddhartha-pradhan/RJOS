@@ -51,6 +51,7 @@ public class NotificationService : INotificationService
             UploadedFileUrl = x.UploadedFileUrl,
             ValidTill = x.ValidTill,
             IsActive = x.IsActive ? 1 : 0,
+            IsTriggered = 1,
             CreatedOn = x.CreatedOn,
         }).ToList();
     }
