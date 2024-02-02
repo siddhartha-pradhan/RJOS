@@ -8,5 +8,5 @@ public interface IStudentService
     
     Task InsertStudentResponse(List<StudentResponseRequestDTO> studentResponse);
     
-    Task InsertStudentScore(StudentScoreRequestDTO studentScore);
+    Task InsertStudentScore(List<StudentScoreRequestDTO> studentScores);
 }

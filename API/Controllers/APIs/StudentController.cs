@@ -72,7 +72,7 @@ public class StudentController : Controller
     {
         await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
 
-        await _studentService.InsertStudentScore(studentResponse.StudentScore);
+        await _studentService.InsertStudentScore(studentResponse.StudentScores);
 
         var result = new ResponseDTO<object>()
         {
@@ -91,7 +91,7 @@ public class StudentController : Controller
     {
         await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
 
-        await _studentService.InsertStudentScore(studentResponse.StudentScore);
+        await _studentService.InsertStudentScore(studentResponse.StudentScores);
 
         var result = new ResponseDTO<object>()
         {
