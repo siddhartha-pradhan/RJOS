@@ -7,6 +7,7 @@ using Application.Interfaces.Services;
 using Data.Implementation.Services;
 using Data.Persistence.Seed;
 using Microsoft.Extensions.DependencyInjection;
+using Common.Utilities;
 
 namespace Data.Dependency;
 
@@ -19,6 +20,9 @@ public static class InfrastructureService
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString,
                 b => b.MigrationsAssembly("Infrastructure")));
+
+        services.Configure<JwtSettings>(configuration.GetSection("JWT"));
+        services.Configure<RsosSettings>(configuration.GetSection("RSOS"));
 
         services.AddTransient<IGenericRepository, GenericRepository>();
 
@@ -34,6 +38,7 @@ public static class InfrastructureService
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
         services.AddTransient<ISubjectService, SubjectService>();
+        services.AddTransient<IStudentVideoTrackingService, StudentVideoResponseService>();
 
         return services;
     }
