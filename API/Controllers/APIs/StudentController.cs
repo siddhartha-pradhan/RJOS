@@ -50,8 +50,44 @@ public class StudentController : Controller
         return Ok(response);
     }
 
+    [Authorize]
+    [HttpPost("get-student-responses-authorize")]
+    public async Task<IActionResult> GetStudentResponsesResultAuthorize(int studentId)
+    {
+        var result = await _studentService.GetStudentRecords(studentId);
+
+        var response = new ResponseDTO<StudentResponseDTO>
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
+
     [HttpPost("insert-student-records")]
     public async Task<IActionResult> InsertStudentResponse(StudentRequestDTO studentResponse)
+    {
+        await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
+
+        await _studentService.InsertStudentScore(studentResponse.StudentScore);
+
+        var result = new ResponseDTO<object>()
+        {
+            Status = "Success",
+            Message = "Successfully Inserted",
+            StatusCode = HttpStatusCode.OK,
+            Result = true
+        };
+
+        return Ok(result);
+    }
+
+    [Authorize]
+    [HttpPost("insert-student-records-authorize")]
+    public async Task<IActionResult> InsertStudentResponseAuthorize(StudentRequestDTO studentResponse)
     {
         await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
 

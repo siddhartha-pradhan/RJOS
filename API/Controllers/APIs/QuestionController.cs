@@ -49,4 +49,21 @@ public class QuestionController : Controller
 
         return Ok(response);
     }
+
+    [Authorize]
+    [HttpPost("get-all-questions-authorize")]
+    public async Task<IActionResult> PostAllQuestionsAuthorize([FromForm] QuestionRequestDTO question)
+    {
+        var result = await _questionService.GetAllQuestions(question.ClassId, question.SubjectId);
+
+        var response = new ResponseDTO<QuestionResponseDTO>
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
 }

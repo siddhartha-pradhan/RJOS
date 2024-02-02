@@ -54,6 +54,23 @@ public class NotificationController : Controller
         return Ok(response);
     }
 
+    [Authorize]
+    [HttpPost("get-valid-notifications-authorize")]
+    public async Task<IActionResult> PostUserNotificationsAuthorize()
+    {
+        var result = await _notificationService.GetAllValidNotifications();
+
+        var response = new ResponseDTO<List<NotificationResponseDTO>>()
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
+
     [HttpPost("send-notification")]
     public async Task<IActionResult> SendNotification(string registrationToken)
     {
@@ -82,7 +99,37 @@ public class NotificationController : Controller
 
         return Ok(response);
     }
-    
+
+    [Authorize]
+    [HttpPost("send-notification-authorize")]
+    public async Task<IActionResult> SendNotificationAuthorize(string registrationToken)
+    {
+        if (string.IsNullOrEmpty(registrationToken))
+        {
+            var badRequest = new ResponseDTO<object>()
+            {
+                Status = "Bad Request",
+                Message = "Invalid Request (missing device's registration token).",
+                StatusCode = HttpStatusCode.BadRequest,
+                Result = true
+            };
+
+            return BadRequest(badRequest);
+        }
+
+        await _notificationService.NotifyNotification(registrationToken);
+
+        var response = new ResponseDTO<object>()
+        {
+            Status = "Success",
+            Message = "Successfully Notified.",
+            StatusCode = HttpStatusCode.OK,
+            Result = true
+        };
+
+        return Ok(response);
+    }
+
     [HttpGet("download-notification-attachment/{notificationId}")]
     public async Task<IActionResult> DownloadNotificationAttachment(int notificationId)
     {
@@ -150,6 +197,71 @@ public class NotificationController : Controller
             return NotFound(notFound);
         }
         
+        var notification = await _notificationService.GetNotificationById((int)notificationId);
+
+        if (string.IsNullOrEmpty(notification.UploadedFileUrl))
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(notFound);
+        }
+
+        var wwwRootPath = _webHostEnvironment.WebRootPath;
+
+        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
+
+        var notificationsFolderPath = Path.Combine(documentsFolderPath, "notifications");
+
+        var filePath = Path.Combine(notificationsFolderPath, notification.UploadedFileUrl);
+
+        if (!System.IO.File.Exists(filePath))
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(notFound);
+        }
+
+        var memory = new MemoryStream();
+
+        await using (var stream = new FileStream(filePath, FileMode.Open))
+        {
+            await stream.CopyToAsync(memory);
+        }
+
+        memory.Position = 0;
+
+        return File(memory, GetContentType(filePath), notification.UploadedFileName);
+    }
+
+    [Authorize]
+    [HttpPost("download-notification-attachment-authorize")]
+    public async Task<IActionResult> PostDownloadNotificationAttachmentAuthorize(int? notificationId)
+    {
+        if (!notificationId.HasValue)
+        {
+            var notFound = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Attachment Not Found.",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(notFound);
+        }
+
         var notification = await _notificationService.GetNotificationById((int)notificationId);
 
         if (string.IsNullOrEmpty(notification.UploadedFileUrl))

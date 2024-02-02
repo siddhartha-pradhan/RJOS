@@ -54,6 +54,23 @@ public class EBookController : Controller
         return Ok(response);
     }
 
+    [Authorize]
+    [HttpPost("get-all-ebooks-authorize")]
+    public async Task<IActionResult> PostAllEbooksAuthorize([FromForm] EBookRequestDTO ebook)
+    {
+        var result = await _eBookService.GetAllEBooks(ebook.ClassId, ebook.SubjectId, ebook.Volume);
+
+        var response = new ResponseDTO<List<EBookResponseDTO>>()
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
+
     [HttpGet("download-ebook/{fileUrl}")]
     public async Task<IActionResult> DownloadEbook(string fileUrl)
     {
@@ -89,6 +106,40 @@ public class EBookController : Controller
 
     [HttpPost("download-ebook")]
     public async Task<IActionResult> PostDownloadEbook(string fileUrl)
+    {
+        var wwwRootPath = _webHostEnvironment.WebRootPath;
+
+        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
+
+        var ebooksFolderPath = Path.Combine(documentsFolderPath, "ebooks");
+
+        var filePath = Path.Combine(ebooksFolderPath, fileUrl);
+
+        var notFound = new ResponseDTO<object>()
+        {
+            Status = "Not Found",
+            Message = "EBook Not Found.",
+            StatusCode = HttpStatusCode.NotFound,
+            Result = false
+        };
+
+        if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
+
+        var memory = new MemoryStream();
+
+        await using (var stream = new FileStream(filePath, FileMode.Open))
+        {
+            await stream.CopyToAsync(memory);
+        }
+
+        memory.Position = 0;
+
+        return File(memory, GetContentType(filePath), fileUrl);
+    }
+
+    [Authorize]
+    [HttpPost("download-ebook-authorize")]
+    public async Task<IActionResult> PostDownloadEbookAuthorize(string fileUrl)
     {
         var wwwRootPath = _webHostEnvironment.WebRootPath;
 

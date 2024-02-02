@@ -88,4 +88,47 @@ public class EnrollmentController : Controller
 
         return Ok(response);
     }
+
+    [Authorize]
+    [HttpPost("get-enrollment-status-authorize")]
+    public async Task<IActionResult> PostEnrollmentStatusAuthorize(int? enrollmentId)
+    {
+        if (!enrollmentId.HasValue)
+        {
+            var invalidResponse = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Invalid Enrollment Identifier",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(invalidResponse);
+        }
+
+        var result = await _enrollmentService.GetEnrollmentStatus((int)enrollmentId);
+
+        if (result.EnrollmentId == 0)
+        {
+            var invalidResponse = new ResponseDTO<object>()
+            {
+                Status = "Not Found",
+                Message = "Invalid Enrollment Identifier",
+                StatusCode = HttpStatusCode.NotFound,
+                Result = false
+            };
+
+            return NotFound(invalidResponse);
+        }
+
+        var response = new ResponseDTO<EnrollmentResponseDTO>()
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
 }

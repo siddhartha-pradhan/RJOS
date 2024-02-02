@@ -49,4 +49,21 @@ public class NewsAndAlertController : Controller
 
         return Ok(response);
     }
+
+    [Authorize]
+    [HttpPost("get-valid-news-and-alerts-authorize")]
+    public async Task<IActionResult> PostUserNewsAndAlertsAuthorize()
+    {
+        var result = await _newsAndAlertService.GetAllValidNewsAndAlert();
+
+        var response = new ResponseDTO<List<NewsAndAlertResponseDTO>>()
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
 }
