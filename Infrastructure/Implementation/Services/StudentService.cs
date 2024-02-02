@@ -59,8 +59,8 @@ public class StudentService : IStudentService
             GUID = x.GUID,
             StudentId = x.StudentId,
             QuestionId = x.QuestionId,
-            IsUploaded = x.IsUploaded,
-            IsEdited = x.IsEdited,
+            IsUploaded = x.IsUploaded == 1,
+            IsEdited = x.IsEdited == 1,
             QuestionValue = x.QuestionValue,
             QuizGUID = x.QuizGUID,
             IsActive = true,
@@ -70,41 +70,25 @@ public class StudentService : IStudentService
 
         await _genericRepository.AddMultipleEntityAsync(result);
     }
-    
-    public async Task<List<StudentResponsesResponseDTO>> GetStudentResponses(int studentId)
+
+    public async Task InsertStudentScore(List<StudentScoreRequestDTO> studentScores)
     {
-        var result = await _genericRepository.GetAsync<tblStudentResponse>(x => x.StudentId == studentId && x.IsActive);
-
-        return result.Select(x => new StudentResponsesResponseDTO()
+        foreach (var result in studentScores.Select(studentScore => new tblStudentScore()
+                 {
+                     GUID = studentScore.GUID,
+                     StudentId = studentScore.StudentId,
+                     Class = studentScore.Class,
+                     Score = studentScore.Score ?? "0",
+                     SubjectId = studentScore.SubjectId,
+                     TopicId = studentScore.TopicId,
+                     IsEdited = studentScore.IsEdited == 1,
+                     IsUploaded = studentScore.IsUploaded == 1,
+                     IsActive = true,
+                     CreatedBy = studentScore.CreatedBy,
+                     CreatedOn = DateTime.Now
+                 }))
         {
-            Id = x.Id,
-            GUID = x.GUID,
-            StudentId = x.StudentId,
-            QuestionId = x.QuestionId,
-            IsUploaded = x.IsUploaded,
-            IsEdited = x.IsEdited,
-            QuestionValue = x.QuestionValue,
-            QuizGUID = x.QuizGUID,
-        }).ToList();
-    }
-
-    public async Task InsertStudentScore(StudentScoreRequestDTO studentScore)
-    {
-        var result = new tblStudentScore()
-        {
-            GUID = studentScore.GUID,
-            StudentId = studentScore.StudentId,
-            Class = studentScore.Class,
-            Score = studentScore.Score,
-            SubjectId = studentScore.SubjectId,
-            TopicId = studentScore.TopicId,
-            IsEdited = studentScore.IsEdited,
-            IsUploaded = studentScore.IsUploaded,
-            IsActive = true,
-            CreatedBy = studentScore.CreatedBy,
-            CreatedOn = DateTime.Now
-        };
-
-        await _genericRepository.InsertAsync(result);
+            await _genericRepository.InsertAsync(result);
+        }
     }
 }
