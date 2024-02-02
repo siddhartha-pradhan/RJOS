@@ -23,7 +23,7 @@ public class NewsAndAlertService : INewsAndAlertService
             Header = x.Header,
             Description = x.Description,
             ValidTill = x.ValidTill,
-            IsActive = x.IsActive,  
+            IsActive = x.IsActive ? 1 : 0,  
             CreatedOn = x.CreatedOn
         }).ToList();
     }
@@ -39,7 +39,7 @@ public class NewsAndAlertService : INewsAndAlertService
             Header = x.Header,
             Description= x.Description,
             ValidTill= x.ValidTill,
-            IsActive = x.IsActive,
+            IsActive = x.IsActive ? 1 : 0,
             CreatedOn = x.CreatedOn,
         }).ToList();
     }

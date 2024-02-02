@@ -10,7 +10,7 @@ public class NewsAndAlertResponseDTO
 
     public DateTime ValidTill { get; set; }
 
-    public bool IsActive { get; set; }
+    public int IsActive { get; set; }
 
     public DateTime CreatedOn { get; set; }
 }

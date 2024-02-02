@@ -12,9 +12,9 @@ public class NotificationResponseDTO
 
     public string? UploadedFileUrl { get; set; }
 
-    public bool IsActive { get; set; }
+    public int IsActive { get; set; }
 
-    public bool IsTriggered { get; set; }
+    public int IsTriggered { get; set; }
 
     public DateTime CreatedOn { get; set; }
     

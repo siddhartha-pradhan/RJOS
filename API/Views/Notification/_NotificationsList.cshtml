@@ -77,7 +77,7 @@
                             @notification.ValidTill.ToString("dd-MM-yyyy")
                         </td>
                         <td>
-                            @if (notification.IsTriggered)
+                            @if (notification.IsTriggered == 1)
                             {
                                 <h6><span class="badge bg-success">Yes</span></h6>
                             }

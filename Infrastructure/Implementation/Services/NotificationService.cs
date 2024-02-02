@@ -31,8 +31,8 @@ public class NotificationService : INotificationService
             UploadedFileName = x.UploadedFileName,
             UploadedFileUrl = x.UploadedFileUrl,
             ValidTill = x.ValidTill,
-            IsTriggered = x.IsTriggered,
-            IsActive = x.IsActive,
+            IsTriggered = x.IsTriggered ? 1 : 0,
+            IsActive = x.IsActive ? 1 : 0,
             CreatedOn = x.CreatedOn
         }).ToList();
     }
@@ -50,7 +50,7 @@ public class NotificationService : INotificationService
             UploadedFileName = x.UploadedFileName,
             UploadedFileUrl = x.UploadedFileUrl,
             ValidTill = x.ValidTill,
-            IsActive = x.IsActive,
+            IsActive = x.IsActive ? 1 : 0,
             CreatedOn = x.CreatedOn,
         }).ToList();
     }
