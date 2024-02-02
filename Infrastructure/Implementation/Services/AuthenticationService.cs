@@ -2,8 +2,10 @@
 using Application.DTOs.Student;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using Common.Utilities;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,20 +18,24 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly IGenericRepository _genericRepository;
     private readonly IConfiguration _configuration;
+    private readonly JwtSettings _jwtSettings;
+    private readonly RsosSettings _rsosSettings;
 
-    public AuthenticationService(IGenericRepository genericRepository, IConfiguration configuration)
+    public AuthenticationService(IGenericRepository genericRepository, IConfiguration configuration, IOptions<JwtSettings> jwtSettings, IOptions<RsosSettings> rsosSettings)
     {
         _genericRepository = genericRepository;
         _configuration = configuration;
+        _jwtSettings = jwtSettings.Value;
+        _rsosSettings = rsosSettings.Value;   
     }
 
     public async Task<AuthenticationResponseDTO> Authenticate(AuthenticationRequestDTO authenticationRequest)
     {
         var httpClient = new HttpClient();
 
-        var rsosToken = _configuration["RSOS_Token"];
+        var rsosToken = _rsosSettings.RSOS_Token;
 
-        var rsosUrl = _configuration["RSOS_URL"];
+        var rsosUrl = _rsosSettings.RSOS_URL;
 
         var baseUrl = $"{rsosUrl}/api_student_login";
 
@@ -92,13 +98,13 @@ public class AuthenticationService : IAuthenticationService
 
     private string GenerateJwtToken(StudentInfoDTO studentInfo)
     {
-        var key = Encoding.ASCII.GetBytes(_configuration["JWT:Key"]);
+        var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
 
-        var issuer = _configuration["JWT:Issuer"];
+        var issuer = _jwtSettings.Issuer;
 
-        var audience = _configuration["JWT:Audience"];
+        var audience = _jwtSettings.Audience;
 
-        var durationInDays = Convert.ToInt32(_configuration["JWT:DurationInDays"]);
+        var durationInDays = Convert.ToInt32(_jwtSettings.DurationInDays);
 
         var authClaims = new List<Claim>
         {
