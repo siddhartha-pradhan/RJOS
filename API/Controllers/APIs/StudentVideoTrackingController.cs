@@ -68,7 +68,7 @@ public class StudentVideoTrackingController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPut("update-student-video-tracking")]
+    [HttpPost("update-student-video-tracking")]
     public async Task<IActionResult> UpdateStudentVideoTracking(StudentVideoTrackingResponseDTO studentVideoTrackingResponse)
     {
         await _studentVideoTrackingService.UpdateStudentVideoTracking(studentVideoTrackingResponse);
