@@ -21,9 +21,9 @@ public class StudentResponsesResponseDTO
 
     public string? QuestionValue { get; set; }
 
-    public bool IsEdited { get; set; } = false;
+    public int IsEdited { get; set; }
 
-    public bool IsUploaded { get; set; } = true;
+    public int IsUploaded { get; set; }
 }
 
 public class StudentScoreResponseDTO
@@ -42,7 +42,7 @@ public class StudentScoreResponseDTO
 
     public string Score { get; set; } = null!;
 
-    public bool IsEdited { get; set; } = false;
+    public int IsEdited { get; set; }
 
-    public bool IsUploaded { get; set; } = true;
+    public int IsUploaded { get; set; }
 }

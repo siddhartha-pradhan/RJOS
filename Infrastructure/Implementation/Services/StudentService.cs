@@ -27,8 +27,8 @@ public class StudentService : IStudentService
             Score = x.Score,
             SubjectId = x.StudentId,
             TopicId = x.TopicId,
-            IsEdited = x.IsEdited,
-            IsUploaded = x.IsUploaded,
+            IsEdited = x.IsEdited ? 1 : 0,
+            IsUploaded = x.IsUploaded ? 1 : 0,
         }).ToList();
         
         var responses = await _genericRepository.GetAsync<tblStudentResponse>(x => x.StudentId == studentId && x.IsActive);
@@ -39,8 +39,8 @@ public class StudentService : IStudentService
             GUID = x.GUID,
             StudentId = x.StudentId,
             QuestionId = x.QuestionId,
-            IsUploaded = x.IsUploaded,
-            IsEdited = x.IsEdited,
+            IsUploaded = x.IsUploaded ? 1 : 0,
+            IsEdited = x.IsEdited ? 1 : 0,
             QuestionValue = x.QuestionValue,
             QuizGUID = x.QuizGUID,
         }).ToList();
