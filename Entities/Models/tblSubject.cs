@@ -22,4 +22,6 @@ public partial class tblSubject
     public int? SubjectCode { get; set; }
 
     public string? TitleInHindi { get; set; }
+    
+    public int? Class { get; set; }
 }

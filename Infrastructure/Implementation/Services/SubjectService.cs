@@ -23,7 +23,8 @@ namespace Data.Implementation.Services;
                 Id = x.Id,
                 Title = x.Title,
                 SubjectCode = x.SubjectCode,
-                TitleInHindi = x.TitleInHindi, 
+                TitleInHindi = x.TitleInHindi,
+                Class = x.Class ?? 10
             }).ToList();
         }
     }
