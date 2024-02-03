@@ -14,17 +14,20 @@ namespace Data.Implementation.Services;
         {
             _genericRepository = genericRepository;
         }
-        public async Task<List<SubjectResponseDTO>> GetAllSubjects()
+        
+        public async Task<List<SubjectResponseDTO>> GetAllSubjects(int? @class)
         {
-            var subjects = await _genericRepository.GetAsync<tblSubject>(x => x.IsActive);
+            var subjects =
+                await _genericRepository.GetAsync<tblSubject>(x => 
+                        (!@class.HasValue || x.Class == @class) && x.IsActive);
 
             return subjects.Select(x => new SubjectResponseDTO
             {
                 Id = x.Id,
-                Title = x.Title,
+                Class = x.Class ?? 10,
                 SubjectCode = x.SubjectCode,
-                TitleInHindi = x.TitleInHindi,
-                Class = x.Class ?? 10
+                Title = x.Title,
+                TitleInHindi = x.TitleInHindi
             }).ToList();
         }
     }

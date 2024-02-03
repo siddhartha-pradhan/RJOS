@@ -11,6 +11,6 @@ namespace Application.Interfaces.Services
 {
     public interface ISubjectService
     {
-        Task<List<SubjectResponseDTO>> GetAllSubjects();
+        Task<List<SubjectResponseDTO>> GetAllSubjects(int? @class);
     }
 }
