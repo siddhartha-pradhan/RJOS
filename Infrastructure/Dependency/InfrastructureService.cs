@@ -21,8 +21,8 @@ public static class InfrastructureService
             options.UseSqlServer(connectionString,
                 b => b.MigrationsAssembly("Infrastructure")));
 
-        // services.Configure<JwtSettings>(configuration.GetSection("JWT"));
-        // services.Configure<RsosSettings>(configuration.GetSection("RSOS"));
+        services.Configure<JwtSettings>(configuration.GetSection("JWT"));
+        services.Configure<RsosSettings>(configuration.GetSection("RSOS"));
 
         services.AddTransient<IGenericRepository, GenericRepository>();
 

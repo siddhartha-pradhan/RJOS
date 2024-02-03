@@ -16,15 +16,11 @@ namespace Data.Implementation.Services;
 
 public class AuthenticationService : IAuthenticationService
 {
-    private readonly IGenericRepository _genericRepository;
-    private readonly IConfiguration _configuration;
     private readonly JwtSettings _jwtSettings;
     private readonly RsosSettings _rsosSettings;
 
-    public AuthenticationService(IGenericRepository genericRepository, IConfiguration configuration, IOptions<JwtSettings> jwtSettings, IOptions<RsosSettings> rsosSettings)
+    public AuthenticationService(IOptions<JwtSettings> jwtSettings, IOptions<RsosSettings> rsosSettings)
     {
-        _genericRepository = genericRepository;
-        _configuration = configuration;
         _jwtSettings = jwtSettings.Value;
         _rsosSettings = rsosSettings.Value;   
     }
@@ -33,9 +29,9 @@ public class AuthenticationService : IAuthenticationService
     {
         var httpClient = new HttpClient();
 
-        var rsosToken = _rsosSettings.RSOS_Token;
+        var rsosToken = _rsosSettings.Token;
 
-        var rsosUrl = _rsosSettings.RSOS_URL;
+        var rsosUrl = _rsosSettings.URL;
 
         var baseUrl = $"{rsosUrl}/api_student_login";
 
@@ -46,10 +42,11 @@ public class AuthenticationService : IAuthenticationService
             { "token", rsosToken }
         };
 
-        var uriBuilder = new UriBuilder(baseUrl);
-        
-        uriBuilder.Query = string.Join("&", Array.ConvertAll(queryParams.AllKeys,
-                                        key => $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(queryParams[key])}"));
+        var uriBuilder = new UriBuilder(baseUrl)
+        {
+            Query = string.Join("&", Array.ConvertAll(queryParams.AllKeys,
+                key => $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(queryParams[key])}"))
+        };
 
         var postData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
 
