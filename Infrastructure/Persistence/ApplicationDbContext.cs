@@ -26,6 +26,10 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblEnrollmentStatus> tblEnrollmentStatuses { get; set; }
 
+    public virtual DbSet<tblFAQ> tblFAQs { get; set; }
+
+    public virtual DbSet<tblNewsAndAlert> tblNewsAndAlerts { get; set; }
+
     public virtual DbSet<tblNotification> tblNotifications { get; set; }
 
     public virtual DbSet<tblQuestion> tblQuestions { get; set; }
@@ -36,10 +40,11 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblStudentScore> tblStudentScores { get; set; }
 
+    public virtual DbSet<tblStudentVideoTracking> tblStudentVideoTrackings { get; set; }
+
     public virtual DbSet<tblSubject> tblSubjects { get; set; }
 
     public virtual DbSet<tblUser> tblUsers { get; set; }
-    public virtual DbSet<tblNewsAndAlert> tblNewsAndAlerts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -91,6 +96,16 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Reason).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<tblFAQ>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_FAQ");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Title).HasMaxLength(100);
         });
 
         modelBuilder.Entity<tblNewsAndAlert>(entity =>

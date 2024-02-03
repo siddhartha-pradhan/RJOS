@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/contents")]
-public class ContentController : Controller
+public class ContentController : ControllerBase
 {
     private readonly IContentService _contentService;
 

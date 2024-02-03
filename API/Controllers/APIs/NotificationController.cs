@@ -10,7 +10,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/notifications")]
-public class NotificationController : Controller
+public class NotificationController : ControllerBase
 {
     private readonly INotificationService _notificationService;
     private readonly IWebHostEnvironment _webHostEnvironment;

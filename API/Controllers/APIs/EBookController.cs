@@ -11,7 +11,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/ebooks")]
-public class EBookController : Controller
+public class EBookController : ControllerBase
 {
     private readonly IEBookService _eBookService;
     private readonly IWebHostEnvironment _webHostEnvironment;

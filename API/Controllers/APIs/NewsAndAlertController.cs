@@ -9,7 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/news-and-alerts")]
-public class NewsAndAlertController : Controller
+public class NewsAndAlertController : ControllerBase
 {
     private readonly INewsAndAlertService _newsAndAlertService;
     

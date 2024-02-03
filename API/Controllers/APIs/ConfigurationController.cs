@@ -7,7 +7,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/configuration")]
-public class ConfigurationController : Controller
+public class ConfigurationController : ControllerBase
 {
     private readonly IConfigurationService _configuration;
 

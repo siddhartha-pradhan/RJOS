@@ -9,7 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/questions")]
-public class QuestionController : Controller
+public class QuestionController : ControllerBase
 {
     private readonly IQuestionService _questionService;
 

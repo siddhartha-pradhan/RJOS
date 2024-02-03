@@ -9,7 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/students")]
-public class StudentController : Controller
+public class StudentController : ControllerBase
 {
     private readonly IStudentService _studentService;
 

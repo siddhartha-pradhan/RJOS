@@ -9,7 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/enrollments")]
-public class EnrollmentController : Controller
+public class EnrollmentController : ControllerBase
 {
     private readonly IEnrollmentService _enrollmentService;
 

@@ -32,13 +32,14 @@ public static class InfrastructureService
         services.AddTransient<IDbInitializerService, DbInitializerService>();
         services.AddTransient<IEBookService, EBookService>();
         services.AddTransient<IEnrollmentService, EnrollmentService>();
+        services.AddTransient<IFAQService, FAQService>();
+        services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
         services.AddTransient<INotificationService, NotificationService>();
         services.AddTransient<IQuestionService, QuestionService>();
-        services.AddTransient<IStudentService, StudentService>();
-        services.AddTransient<IUserService, UserService>();
-        services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
         services.AddTransient<ISubjectService, SubjectService>();
+        services.AddTransient<IStudentService, StudentService>();
         services.AddTransient<IStudentVideoTrackingService, StudentVideoResponseService>();
+        services.AddTransient<IUserService, UserService>();
 
         return services;
     }

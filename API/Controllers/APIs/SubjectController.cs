@@ -8,8 +8,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/subjects")]
-
-public class SubjectController : Controller
+public class SubjectController : ControllerBase
 {
     private readonly ISubjectService _subjectService;
 
@@ -20,6 +19,22 @@ public class SubjectController : Controller
 
     [HttpGet("get-all-subjects")]
     public async Task<IActionResult> GetAllSubject()
+    {
+        var result =  await _subjectService.GetAllSubjects();
+
+        var response = new ResponseDTO<List<SubjectResponseDTO>>
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = result
+        };
+
+        return Ok(response);
+    }
+    
+    [HttpPost("get-all-subjects")]
+    public async Task<IActionResult> PostAllSubject()
     {
         var result =  await _subjectService.GetAllSubjects();
 
