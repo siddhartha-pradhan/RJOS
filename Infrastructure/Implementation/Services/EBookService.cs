@@ -18,7 +18,7 @@ public class EBookService : IEBookService
         var ebooks = await _genericRepository.GetAsync<tblEbook>(x =>
             (!classId.HasValue || x.Class == classId) &&
             (!subjectCode.HasValue || x.CodeNo == subjectCode) &&
-            (string.IsNullOrEmpty(volume) || x.Volume == volume));
+            (string.IsNullOrEmpty(volume) || x.Volume == volume) && x.IsActive);
 
         return ebooks.OrderBy(x => x.Sequence).Select(x => new EBookResponseDTO()
         {

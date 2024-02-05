@@ -31,42 +31,39 @@ public class StudentVideoResponseService : IStudentVideoTrackingService
         }).ToList();
     }
 
-    public async Task InsertStudentVideoTracking(StudentVideoTrackingRequestDTO studentVideoTracking)
+    public async Task UpsertStudentVideoTracking(StudentVideoTrackingRequestDTO studentVideoTracking)
     {
-        var studentVideoTrackingModel = new tblStudentVideoTracking()
+        var videoTracking = await _genericRepository.GetFirstOrDefaultAsync<tblStudentVideoTracking>(x => 
+            x.SubjectId == studentVideoTracking.SubjectId && x.Class == studentVideoTracking.Class && 
+            x.StudentId == studentVideoTracking.StudentId && x.VideoId == studentVideoTracking.VideoId);
+
+        if (videoTracking == null)
         {
-            SubjectId = studentVideoTracking.SubjectId,
-            VideoId = studentVideoTracking.VideoId,
-            StudentId = studentVideoTracking.StudentId,
-            Class = studentVideoTracking.Class,
-            IsCompleted = false,
-            PlayTimeInSeconds = studentVideoTracking.PlayTimeInSeconds,
-            PercentageCompleted = studentVideoTracking.PercentageCompleted,
-            VideoDurationInSeconds= studentVideoTracking.VideoDurationInSeconds,
-            IsActive = true,
-            CreatedBy = 1,
-            CreatedOn = DateTime.Now, 
-        };
+            var studentVideoTrackingModel = new tblStudentVideoTracking()
+            {
+                SubjectId = studentVideoTracking.SubjectId,
+                VideoId = studentVideoTracking.VideoId,
+                StudentId = studentVideoTracking.StudentId,
+                Class = studentVideoTracking.Class,
+                IsCompleted = false,
+                PlayTimeInSeconds = studentVideoTracking.PlayTimeInSeconds,
+                PercentageCompleted = studentVideoTracking.PercentageCompleted,
+                VideoDurationInSeconds = studentVideoTracking.VideoDurationInSeconds,
+                IsActive = true,
+                CreatedBy = studentVideoTracking.StudentId,
+                CreatedOn = DateTime.Now, 
+            };
 
-        await _genericRepository.InsertAsync(studentVideoTrackingModel);
-    }
-
-    public async Task UpdateStudentVideoTracking(StudentVideoTrackingResponseDTO studentVideoTrackingResponse)
-    {
-        var studentVideoTrackingModel = await _genericRepository.GetByIdAsync<tblStudentVideoTracking>(studentVideoTrackingResponse.Id);
-
-        if (studentVideoTrackingModel != null)
+            await _genericRepository.InsertAsync(studentVideoTrackingModel);
+        }
+        else
         {
-            studentVideoTrackingModel.SubjectId = studentVideoTrackingResponse.SubjectId;
-            studentVideoTrackingModel.VideoId = studentVideoTrackingResponse.VideoId;
-            studentVideoTrackingModel.StudentId = studentVideoTrackingResponse.StudentId;
-            studentVideoTrackingModel.Class = studentVideoTrackingResponse.Class;
-            studentVideoTrackingModel.PlayTimeInSeconds = studentVideoTrackingResponse.PlayTimeInSeconds;
-            studentVideoTrackingModel.PercentageCompleted = studentVideoTrackingResponse.PercentageCompleted;
-            studentVideoTrackingModel.VideoDurationInSeconds = studentVideoTrackingResponse.VideoDurationInSeconds;
-            studentVideoTrackingModel.IsCompleted = studentVideoTrackingModel.PlayTimeInSeconds == studentVideoTrackingModel.VideoDurationInSeconds;
+            videoTracking.PlayTimeInSeconds = studentVideoTracking.PlayTimeInSeconds;
+            videoTracking.PercentageCompleted = studentVideoTracking.PercentageCompleted;
+            videoTracking.VideoDurationInSeconds = studentVideoTracking.VideoDurationInSeconds;
+            videoTracking.IsCompleted = videoTracking.PlayTimeInSeconds == videoTracking.VideoDurationInSeconds;
 
-            await _genericRepository.UpdateAsync(studentVideoTrackingModel);
+            await _genericRepository.UpdateAsync(videoTracking);
         }
     }
 }

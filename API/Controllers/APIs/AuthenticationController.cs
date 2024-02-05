@@ -18,8 +18,6 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Authenticate(AuthenticationRequestDTO authenticationRequest)
     {
         var response = await _authenticationService.Authenticate(authenticationRequest);

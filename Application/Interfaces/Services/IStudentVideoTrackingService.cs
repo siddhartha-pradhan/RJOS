@@ -6,7 +6,5 @@ public interface IStudentVideoTrackingService
 {
     Task<List<StudentVideoTrackingResponseDTO>> GetStudentVideoTrackingByStudentId(int studentId);
 
-    Task InsertStudentVideoTracking(StudentVideoTrackingRequestDTO studentVideoTracking);
-
-    Task UpdateStudentVideoTracking(StudentVideoTrackingResponseDTO studentVideoTracking);
+    Task UpsertStudentVideoTracking(StudentVideoTrackingRequestDTO studentVideoTracking);
 }

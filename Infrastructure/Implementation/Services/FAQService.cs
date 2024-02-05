@@ -15,7 +15,7 @@ public class FAQService : IFAQService
 
     public async Task<List<FAQResponseDTO>> GetAllFAQs()
     {
-        var faqs = await _genericRepository.GetAsync<tblFAQ>();
+        var faqs = await _genericRepository.GetAsync<tblFAQ>(x => x.IsActive);
 
         var result = faqs.OrderBy(x => x.Sequence).Select(x => new FAQResponseDTO()
         {

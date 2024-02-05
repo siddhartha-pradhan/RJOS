@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace RJOS.Controllers.APIs;
 
-[Route("api/student-video-tracking")]
 [ApiController]
+[Route("api/student-video-tracking")]
 public class StudentVideoTrackingController : ControllerBase
 {
     private readonly IStudentVideoTrackingService _studentVideoTrackingService;
@@ -18,10 +18,10 @@ public class StudentVideoTrackingController : ControllerBase
         _studentVideoTrackingService = studentVideoTracking;
     }
 
-    [HttpPost("insert-student-video-tracking")]
-    public async Task<IActionResult> InsertStudentVideoTracking(StudentVideoTrackingRequestDTO studentVideoTrackingRequest)
+    [HttpPost("upsert-student-video-tracking")]
+    public async Task<IActionResult> UpsertStudentVideoTracking(StudentVideoTrackingRequestDTO studentVideoTrackingRequest)
     {
-        await _studentVideoTrackingService.InsertStudentVideoTracking(studentVideoTrackingRequest);
+        await _studentVideoTrackingService.UpsertStudentVideoTracking(studentVideoTrackingRequest);
 
         var result = new ResponseDTO<object>()
         {
@@ -35,10 +35,10 @@ public class StudentVideoTrackingController : ControllerBase
     }
     
     [Authorize]
-    [HttpPost("insert-student-video-tracking-authorize")]
-    public async Task<IActionResult> InsertStudentVideoTrackingAuthorize(StudentVideoTrackingRequestDTO studentVideoTrackingRequest)
+    [HttpPost("upsert-student-video-tracking-authorize")]
+    public async Task<IActionResult> UpsertStudentVideoTrackingAuthorize(StudentVideoTrackingRequestDTO studentVideoTrackingRequest)
     {
-        await _studentVideoTrackingService.InsertStudentVideoTracking(studentVideoTrackingRequest);
+        await _studentVideoTrackingService.UpsertStudentVideoTracking(studentVideoTrackingRequest);
 
         var result = new ResponseDTO<object>()
         {
@@ -95,39 +95,6 @@ public class StudentVideoTrackingController : ControllerBase
             Message = "Successfully Retrieved",
             StatusCode = HttpStatusCode.OK,
             Result = result
-        };
-
-        return Ok(response);
-    }
-
-    [HttpPost("update-student-video-tracking")]
-    public async Task<IActionResult> UpdateStudentVideoTracking(StudentVideoTrackingResponseDTO studentVideoTrackingResponse)
-    {
-        await _studentVideoTrackingService.UpdateStudentVideoTracking(studentVideoTrackingResponse);
-
-        var response = new ResponseDTO<object>
-        {
-            Status = "Success",
-            Message = "Successfully Updated",
-            StatusCode = HttpStatusCode.OK,
-            Result = true
-        };
-
-        return Ok(response);
-    }
-    
-    [Authorize]
-    [HttpPost("update-student-video-tracking-authorize")]
-    public async Task<IActionResult> UpdateStudentVideoTrackingAuthorize(StudentVideoTrackingResponseDTO studentVideoTrackingResponse)
-    {
-        await _studentVideoTrackingService.UpdateStudentVideoTracking(studentVideoTrackingResponse);
-
-        var response = new ResponseDTO<object>
-        {
-            Status = "Success",
-            Message = "Successfully Updated",
-            StatusCode = HttpStatusCode.OK,
-            Result = true
         };
 
         return Ok(response);

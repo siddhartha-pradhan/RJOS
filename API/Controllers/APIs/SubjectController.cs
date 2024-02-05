@@ -18,9 +18,9 @@ public class SubjectController : ControllerBase
     }
 
     [HttpGet("get-all-subjects")]
-    public async Task<IActionResult> GetAllSubject(int? classId)
+    public async Task<IActionResult> GetAllSubject([FromForm]SubjectRequestDTO subject)
     {
-        var result =  await _subjectService.GetAllSubjects(classId);
+        var result =  await _subjectService.GetAllSubjects(subject.ClassId);
 
         var response = new ResponseDTO<List<SubjectResponseDTO>>
         {
@@ -34,9 +34,9 @@ public class SubjectController : ControllerBase
     }
     
     [HttpPost("get-all-subjects")]
-    public async Task<IActionResult> PostAllSubject(int? classId)
+    public async Task<IActionResult> PostAllSubject([FromForm]SubjectRequestDTO subject)
     {
-        var result =  await _subjectService.GetAllSubjects(classId);
+        var result =  await _subjectService.GetAllSubjects(subject.ClassId);
 
         var response = new ResponseDTO<List<SubjectResponseDTO>>
         {
