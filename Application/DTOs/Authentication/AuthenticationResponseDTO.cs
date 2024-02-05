@@ -8,9 +8,13 @@ public class AuthenticationResponseDTO
     
     public string Name { get; set; }
     
-    public DateTime DateOfBirth { get; set; }
+    public string DateOfBirth { get; set; }
     
     public string SSOID { get; set; }
     
-    public string JWT { get; set; }
+    public string ApplicationToken { get; set; }
+
+    public string SecureRSOSToken { get; set; }
+
+    public string ValidTill { get; set; }
 }

@@ -33,7 +33,7 @@ public class AuthenticationService : IAuthenticationService
 
         var rsosUrl = _rsosSettings.URL;
 
-        var baseUrl = $"{rsosUrl}/api_student_login";
+        var baseUrl = $"{rsosUrl}/new_api_student_login";
 
         var queryParams = new System.Collections.Specialized.NameValueCollection
         {
@@ -76,9 +76,11 @@ public class AuthenticationService : IAuthenticationService
                     Id = studentLoginData.Id,
                     Enrollment = studentLoginData.Enrollment,
                     Name = studentLoginData.Name,
-                    DateOfBirth = studentLoginData.Dob,
+                    DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
                     SSOID = studentLoginData.SsoId,
-                    JWT = GenerateJwtToken(studentLoginData)
+                    ApplicationToken = GenerateJwtToken(studentLoginData),
+                    SecureRSOSToken = apiResponse.secure_token,
+                    ValidTill = apiResponse.secure_token_valid_till
                 };
 
                 return authenticationResponse;

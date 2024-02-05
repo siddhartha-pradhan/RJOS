@@ -6,6 +6,10 @@ public class LoginResponseDTO
     
     public StudentDataDTO Data { get; set; }
     
+    public string secure_token { get; set; }
+    
+    public string secure_token_valid_till { get; set; }
+    
     public object Error { get; set; }
 }
 

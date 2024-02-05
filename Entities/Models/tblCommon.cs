@@ -13,7 +13,7 @@ public partial class tblCommon
 
     public string? Value { get; set; }
 
-    public int? LanguageId { get; set; }
+    public int LanguageId { get; set; }
 
     public decimal? Score { get; set; }
 
