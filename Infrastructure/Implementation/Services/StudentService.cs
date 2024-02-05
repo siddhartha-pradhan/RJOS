@@ -130,6 +130,9 @@ public class StudentService : IStudentService
                 score.IsUploaded = studentScore.IsUploaded == 1;
                 score.LastUpdatedBy = studentScore.StudentId;
                 score.LastUpdatedOn = DateTime.Now;
+                
+                await _genericRepository.UpdateAsync(score);
+
             }
         }
     }
