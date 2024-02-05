@@ -85,8 +85,6 @@ public class GenericRepository : IGenericRepository
     {
         ArgumentNullException.ThrowIfNull(entityToUpdate);
 
-        _dbContext.Entry(entityToUpdate).State = EntityState.Modified;
-
         await _dbContext.SaveChangesAsync();
     }
 

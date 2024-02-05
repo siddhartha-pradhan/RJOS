@@ -26,7 +26,7 @@ public class StudentVideoTrackingController : ControllerBase
         var result = new ResponseDTO<object>()
         {
             Status = "Success",
-            Message = "Successfully Inserted",
+            Message = "Successfully Inserted / Updated.",
             StatusCode = HttpStatusCode.OK,
             Result = true
         };
@@ -43,7 +43,7 @@ public class StudentVideoTrackingController : ControllerBase
         var result = new ResponseDTO<object>()
         {
             Status = "Success",
-            Message = "Successfully Inserted",
+            Message = "Successfully Inserted / Updated.",
             StatusCode = HttpStatusCode.OK,
             Result = true
         };
