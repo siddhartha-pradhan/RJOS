@@ -52,43 +52,85 @@ public class StudentService : IStudentService
         };
     }
 
-    public async Task InsertStudentResponse(List<StudentResponseRequestDTO> studentResponse)
+    public async Task InsertStudentResponse(List<StudentResponseRequestDTO> studentResponses)
     {
-        var result = studentResponse.Select(x => new tblStudentResponse
+        foreach (var studentResponse in studentResponses)
         {
-            GUID = x.GUID,
-            StudentId = x.StudentId,
-            QuestionId = x.QuestionId,
-            IsUploaded = x.IsUploaded == 1,
-            IsEdited = x.IsEdited == 1,
-            QuestionValue = x.QuestionValue,
-            QuizGUID = x.QuizGUID,
-            IsActive = true,
-            CreatedBy = x.CreatedBy,
-            CreatedOn = DateTime.Now,
-        });
+            var response = await _genericRepository.GetFirstOrDefaultAsync<tblStudentResponse>(x =>
+                x.GUID == studentResponse.GUID);
 
-        await _genericRepository.AddMultipleEntityAsync(result);
+            if (response == null)
+            {
+                var studentResponseModel = new tblStudentResponse
+                {
+                    GUID = studentResponse.GUID,
+                    QuizGUID = studentResponse.QuizGUID,
+                    StudentId = studentResponse.StudentId,
+                    QuestionId = studentResponse.QuestionId,
+                    QuestionValue = studentResponse.QuestionValue,
+                    IsEdited = studentResponse.IsEdited == 1,
+                    IsUploaded = studentResponse.IsUploaded == 1,
+                    IsActive = true,
+                    CreatedBy = studentResponse.StudentId,
+                    CreatedOn = DateTime.Now,
+                };
+
+                await _genericRepository.InsertAsync(studentResponseModel);
+            }
+            else
+            {
+                response.QuizGUID = studentResponse.QuizGUID;
+                response.StudentId = studentResponse.StudentId;
+                response.QuestionId = studentResponse.QuestionId;
+                response.QuestionValue = studentResponse.QuestionValue;
+                response.IsEdited = true;
+                response.IsUploaded = studentResponse.IsUploaded == 1;
+                response.LastUpdatedBy = studentResponse.StudentId;
+                response.LastUpdatedOn = DateTime.Now;
+
+                await _genericRepository.UpdateAsync(response);
+            }
+        }
     }
 
     public async Task InsertStudentScore(List<StudentScoreRequestDTO> studentScores)
     {
-        foreach (var result in studentScores.Select(studentScore => new tblStudentScore()
-                 {
-                     GUID = studentScore.GUID,
-                     StudentId = studentScore.StudentId,
-                     Class = studentScore.Class,
-                     Score = studentScore.Score ?? "0",
-                     SubjectId = studentScore.SubjectId,
-                     TopicId = studentScore.TopicId,
-                     IsEdited = studentScore.IsEdited == 1,
-                     IsUploaded = studentScore.IsUploaded == 1,
-                     IsActive = true,
-                     CreatedBy = studentScore.CreatedBy,
-                     CreatedOn = DateTime.Now
-                 }))
+        foreach (var studentScore in studentScores)
         {
-            await _genericRepository.InsertAsync(result);
+            var score = await _genericRepository.GetFirstOrDefaultAsync<tblStudentScore>(x =>
+                x.GUID == studentScore.GUID);
+
+            if (score == null)
+            {
+                var studentScoreModel = new tblStudentScore()
+                {
+                    GUID = studentScore.GUID,
+                    StudentId = studentScore.StudentId,
+                    Class = studentScore.Class,
+                    SubjectId = studentScore.SubjectId,
+                    TopicId = studentScore.TopicId,
+                    Score = studentScore.Score ?? "0",
+                    IsEdited = studentScore.IsEdited == 1,
+                    IsUploaded = studentScore.IsUploaded == 1,
+                    IsActive = true,
+                    CreatedBy = studentScore.CreatedBy,
+                    CreatedOn = DateTime.Now
+                };
+
+                await _genericRepository.InsertAsync(studentScoreModel);
+            }
+            else
+            {
+                score.StudentId = studentScore.StudentId;
+                score.Class = studentScore.Class;
+                score.SubjectId = studentScore.SubjectId;
+                score.TopicId = studentScore.TopicId;
+                score.Score = studentScore.Score ?? "0";
+                score.IsEdited = studentScore.IsEdited == 1;
+                score.IsUploaded = studentScore.IsUploaded == 1;
+                score.LastUpdatedBy = studentScore.StudentId;
+                score.LastUpdatedOn = DateTime.Now;
+            }
         }
     }
 }
