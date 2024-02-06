@@ -132,58 +132,58 @@ public class NotificationService : INotificationService
             .Select(g => g.OrderByDescending(s => s.LoginTime).First())
             .ToList();
 
-        //foreach (var detail in latestLoginDetails)
-        //{
-        //    var userDeviceToken = detail.DeviceRegistrationToken;
+        foreach (var detail in latestLoginDetails)
+        {
+            var userDeviceToken = detail.DeviceRegistrationToken;
             
-        //    // Server Key from FCM Console
-        //    var serverKey = $"key={_configuration["FCM:SERVER_KEY"]}";
+            // Server Key from FCM Console
+            var serverKey = $"key={_configuration["FCM:SERVER_KEY"]}";
 
-        //    // Sender ID from FCM Console
-        //    var senderId = $"id={_configuration["FCM:SENDER_ID"]}";
+            // Sender ID from FCM Console
+            var senderId = $"id={_configuration["FCM:SENDER_ID"]}";
 
-        //    var tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
+            var tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
         
-        //    tRequest.Method = "post";
+            tRequest.Method = "post";
         
-        //    tRequest.Headers.Add($"Authorization: {serverKey}");
+            tRequest.Headers.Add($"Authorization: {serverKey}");
         
-        //    tRequest.Headers.Add($"Sender: {senderId}");
+            tRequest.Headers.Add($"Sender: {senderId}");
         
-        //    tRequest.ContentType = "application/json";
+            tRequest.ContentType = "application/json";
         
-        //    var payload = new
-        //    {
-        //        to = userDeviceToken,
-        //        notification = new
-        //        {
-        //            title = notification.Header,
-        //            body = notification.Description
-        //        },
-        //        data = new 
-        //        {
+            var payload = new
+            {
+                to = userDeviceToken,
+                notification = new
+                {
+                    title = notification.Header,
+                    body = notification.Description
+                },
+                data = new 
+                {
                     
-        //        }
-        //    };
+                }
+            };
         
-        //    var postBody = JsonConvert.SerializeObject(payload);
+            var postBody = JsonConvert.SerializeObject(payload);
         
-        //    var byteArray = Encoding.UTF8.GetBytes(postBody);
+            var byteArray = Encoding.UTF8.GetBytes(postBody);
         
-        //    tRequest.ContentLength = byteArray.Length;
+            tRequest.ContentLength = byteArray.Length;
 
-        //    await using var dataStream = await tRequest.GetRequestStreamAsync();
+            await using var dataStream = await tRequest.GetRequestStreamAsync();
         
-        //    await dataStream.WriteAsync(byteArray, 0, byteArray.Length);
+            await dataStream.WriteAsync(byteArray, 0, byteArray.Length);
         
-        //    using var tResponse = await tRequest.GetResponseAsync();
+            using var tResponse = await tRequest.GetResponseAsync();
         
-        //    await using var dataStreamResponse = tResponse.GetResponseStream();
+            await using var dataStreamResponse = tResponse.GetResponseStream();
 
-        //    using var tReader = new StreamReader(dataStreamResponse);
+            using var tReader = new StreamReader(dataStreamResponse);
         
-        //    await tReader.ReadToEndAsync();
-        //}
+            await tReader.ReadToEndAsync();
+        }
     }
     
     public async Task NotifyNotification(string registrationToken)

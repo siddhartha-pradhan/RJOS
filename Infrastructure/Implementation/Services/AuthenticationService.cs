@@ -18,9 +18,11 @@ public class AuthenticationService : IAuthenticationService
 {
     private readonly JwtSettings _jwtSettings;
     private readonly RsosSettings _rsosSettings;
+    private readonly IGenericRepository _genericRepository;
 
-    public AuthenticationService(IOptions<JwtSettings> jwtSettings, IOptions<RsosSettings> rsosSettings)
+    public AuthenticationService(IOptions<JwtSettings> jwtSettings, IOptions<RsosSettings> rsosSettings, IGenericRepository genericRepository)
     {
+        _genericRepository = genericRepository;
         _jwtSettings = jwtSettings.Value;
         _rsosSettings = rsosSettings.Value;   
     }
@@ -62,14 +64,14 @@ public class AuthenticationService : IAuthenticationService
             {
                 var studentLoginData = apiResponse.Data.Student;
 
-                // var studentEntity = new tblStudentLoginDetail
-                // {
-                //     LoginTime = DateTime.Now,
-                //     SSOID = studentLoginData.SsoId,
-                //     DeviceRegistrationToken = authenticationRequest.DeviceRegistrationToken
-                // };
-                //
-                // await _genericRepository.InsertAsync(studentEntity);
+                var studentEntity = new tblStudentLoginDetail
+                {
+                    LoginTime = DateTime.Now,
+                    SSOID = studentLoginData.SsoId,
+                    DeviceRegistrationToken = authenticationRequest.DeviceRegistrationToken ?? ""
+                };
+                
+                await _genericRepository.InsertAsync(studentEntity);
 
                 var authenticationResponse = new AuthenticationResponseDTO
                 {
