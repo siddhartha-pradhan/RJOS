@@ -50,7 +50,7 @@ public class QuestionService : IQuestionService
             LanguageId = x.LanguageId,
             Score = x.Score,
             CorrectAnswer = x.CorrectAnswer ?? 0,
-        }).ToList();
+        }).OrderBy(x => x.Id).ToList();
         
         return result;
     }
