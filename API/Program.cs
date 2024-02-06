@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,11 +124,21 @@ services.AddAuthorization();
 
 services.AddInfrastructureService(configuration);
 
+Log.Logger = new LoggerConfiguration()
+        .MinimumLevel.Information()
+        //.WriteTo.Console()
+        .WriteTo.File("Logs/.txt", rollingInterval: RollingInterval.Day)
+        .CreateLogger();
+
+builder.Host.UseSerilog();
+
 var app = builder.Build();
 
 app.UseExceptionHandler("/Home/Error");
 
 app.UseHsts();
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
