@@ -25,7 +25,7 @@ public class StudentService : IStudentService
             StudentId = x.StudentId,
             Class = x.Class,
             Score = x.Score,
-            SubjectId = x.StudentId,
+            SubjectId = x.SubjectId,
             TopicId = x.TopicId,
             IsEdited = x.IsEdited ? 1 : 0,
             IsUploaded = x.IsUploaded ? 1 : 0,
