@@ -17,4 +17,8 @@ public class AuthenticationResponseDTO
     public string SecureRSOSToken { get; set; }
 
     public string ValidTill { get; set; }
+
+    public string StartDate { get; set; }
+
+    public string EndDate { get; set; }
 }

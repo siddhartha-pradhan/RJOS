@@ -73,6 +73,10 @@ public class AuthenticationService : IAuthenticationService
                 
                 await _genericRepository.InsertAsync(studentEntity);
 
+                var pcpDates =  await _genericRepository.GetAsync<tblPcpDates>();
+
+                var maxPcpDate = pcpDates.MaxBy(x => x.Id);
+
                 var authenticationResponse = new AuthenticationResponseDTO
                 {
                     Id = studentLoginData.Id,
@@ -82,7 +86,9 @@ public class AuthenticationService : IAuthenticationService
                     SSOID = studentLoginData.SsoId,
                     ApplicationToken = GenerateJwtToken(studentLoginData),
                     SecureRSOSToken = apiResponse.secure_token,
-                    ValidTill = apiResponse.secure_token_valid_till
+                    ValidTill = apiResponse.secure_token_valid_till,
+                    StartDate = maxPcpDate.StartDate.ToString("yyyy-MM-dd"),
+                    EndDate = maxPcpDate.EndDate.ToString("yyyy-MM-dd")
                 };
 
                 return authenticationResponse;

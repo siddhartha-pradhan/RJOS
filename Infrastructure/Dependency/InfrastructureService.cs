@@ -40,6 +40,7 @@ public static class InfrastructureService
         services.AddTransient<IStudentService, StudentService>();
         services.AddTransient<IStudentVideoTrackingService, StudentVideoResponseService>();
         services.AddTransient<IUserService, UserService>();
+        services.AddTransient<IPcpDatesService, PcpDatesService>();
 
         return services;
     }

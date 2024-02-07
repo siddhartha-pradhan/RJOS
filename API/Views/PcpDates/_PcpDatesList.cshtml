@@ -1,0 +1,105 @@
+﻿@model List<Application.DTOs.PcpDate.PcpDatesResponseDTO>
+
+<style>
+    #basic-datatable th,
+    #basic-datatable td {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+        #basic-datatable th:nth-child(2),
+        #basic-datatable td:nth-child(2) {
+            max-width: 150px;
+        }
+
+        #basic-datatable th:nth-child(3),
+        #basic-datatable td:nth-child(3) {
+            max-width: 300px;
+        }
+</style>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="col-6">
+                <div class="text-start">
+                    <div class="page-title-box">
+                        <h4 class="page-title">PCP Dates</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-end">
+                    <button type="button" class="btn w-b btn-outline-pink btn-sm btn-rounded" style="border: #DB4B73 1px solid;" onclick="onAddPcpDates(0)">
+                        Add New PCP Dates
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
+            <thead>
+                <tr>
+                    <th style="width:5%">#</th>
+                    <th style="width:30%">Start Date</th>
+                    <th style="width:30%">End Date</th>
+                    <th style="width:15%">Created On</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var pcpDates in Model)
+                    {
+                        <tr>
+                            <td>
+                                <span>@(Model.ToList().IndexOf(pcpDates) + 1).</span>
+                            </td>
+                            <td>
+                                @Html.Raw(pcpDates.StartDate.ToString("dd-MM-yyyy"))
+                            </td>
+                            <td>
+                                @Html.Raw(pcpDates.EndDate.ToString("dd-MM-yyyy"))
+                            </td>
+                            <td>
+                                @pcpDates.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function onAddPcpDates(index) {
+        if (index === 0) {
+            $('#Id').val('');
+            $('#pcpDates-startDate').val('');
+            $('#pcpDates-endDate').val('');
+
+            $('#add-pcpDates').modal('show');
+        }
+    }
+
+    toastr.options = {
+        "closeButton": true
+    };
+
+    function onSuccessNotification(data) {
+        if (data.errorType === 1) {
+            toastr.warning("Please insert all the required fields.");
+        }
+
+        if (data.action === 1) {
+            toastr.success("PCP Dates successfully updated.");
+        }
+        else {
+            toastr.success("PCP Dates successfully saved.");
+        }
+        $('#add-pcpDates').modal('hide');
+        $('#pcpDates-list').html(data.htmlData);
+    }
+</script>

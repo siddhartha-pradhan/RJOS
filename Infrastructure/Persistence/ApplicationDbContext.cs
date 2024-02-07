@@ -1,4 +1,4 @@
-﻿
+﻿using Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -31,6 +31,8 @@ public partial class ApplicationDbContext : DbContext
     public virtual DbSet<tblNewsAndAlert> tblNewsAndAlerts { get; set; }
 
     public virtual DbSet<tblNotification> tblNotifications { get; set; }
+
+    public virtual DbSet<tblPcpDates> tblPcpDates { get; set; }
 
     public virtual DbSet<tblQuestion> tblQuestions { get; set; }
 
@@ -144,6 +146,17 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.UploadedFileName).HasMaxLength(200);
             entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<tblPcpDates>(entity =>
+        {
+            entity.HasKey(e => e.Id)
+                .HasName("PK_PCPDates")
+                .IsClustered(false);
+
+            entity.HasIndex(e => e.Id, "Idx_tblPCPDates_Id")
+                .IsDescending()
+                .IsClustered();
         });
 
         modelBuilder.Entity<tblQuestion>(entity =>
