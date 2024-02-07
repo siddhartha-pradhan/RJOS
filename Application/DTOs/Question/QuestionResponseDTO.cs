@@ -26,6 +26,10 @@ public class Question
     public string? QuestionValue { get; set; }
 
     public int Flag { get; set; }
+    
+    public int PaperTypeId { get; set; }
+
+    public string PaperType { get; set; }
 }
 
 public class Common

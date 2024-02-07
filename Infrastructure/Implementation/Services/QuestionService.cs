@@ -34,6 +34,8 @@ public class QuestionService : IQuestionService
             Sequence = x.Sequence,
             QuestionValue = x.Question,
             Flag = x.Flag,
+            PaperTypeId = x.PaperType ?? 1,
+            PaperType = x.PaperType != null ? x.PaperType == 1 ? "Practice Paper" : "Final Paper" : "Practice Paper"
         }).ToList();
 
         var flags = tblQuestions.Select(x => x.Flag);

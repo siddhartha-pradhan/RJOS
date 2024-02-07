@@ -32,4 +32,6 @@ public partial class tblQuestion
     public int? LastUpdatedBy { get; set; }
 
     public DateTime? LastUpdatedOn { get; set; }
+    
+    public int? PaperType { get; set; }
 }
