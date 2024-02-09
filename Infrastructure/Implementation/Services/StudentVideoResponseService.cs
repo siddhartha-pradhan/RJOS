@@ -37,6 +37,8 @@ public class StudentVideoResponseService : IStudentVideoTrackingService
             x.SubjectId == studentVideoTracking.SubjectId && x.Class == studentVideoTracking.Class && 
             x.StudentId == studentVideoTracking.StudentId && x.VideoId == studentVideoTracking.VideoId);
 
+        var playTimeRatio = (decimal)studentVideoTracking.PlayTimeInSeconds! / (decimal)studentVideoTracking.VideoDurationInSeconds!;
+
         if (videoTracking == null)
         {
             var studentVideoTrackingModel = new tblStudentVideoTracking()
@@ -45,7 +47,7 @@ public class StudentVideoResponseService : IStudentVideoTrackingService
                 VideoId = studentVideoTracking.VideoId,
                 StudentId = studentVideoTracking.StudentId,
                 Class = studentVideoTracking.Class,
-                IsCompleted = false,
+                IsCompleted = playTimeRatio >= (decimal)0.9,
                 PlayTimeInSeconds = studentVideoTracking.PlayTimeInSeconds,
                 PercentageCompleted = studentVideoTracking.PercentageCompleted,
                 VideoDurationInSeconds = studentVideoTracking.VideoDurationInSeconds,
@@ -61,7 +63,7 @@ public class StudentVideoResponseService : IStudentVideoTrackingService
             videoTracking.PlayTimeInSeconds = studentVideoTracking.PlayTimeInSeconds;
             videoTracking.PercentageCompleted = studentVideoTracking.PercentageCompleted;
             videoTracking.VideoDurationInSeconds = studentVideoTracking.VideoDurationInSeconds;
-            videoTracking.IsCompleted = videoTracking.PlayTimeInSeconds == videoTracking.VideoDurationInSeconds;
+            videoTracking.IsCompleted = playTimeRatio >= (decimal)0.9;
 
             await _genericRepository.UpdateAsync(videoTracking);
         }
