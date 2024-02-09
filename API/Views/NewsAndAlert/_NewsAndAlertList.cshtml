@@ -145,6 +145,10 @@
             $('#newsAndAlert-header').val('');
             $('#newsAndAlert-description').val('');
             $('#validTill').val('');
+            
+            let today = new Date().toISOString().split('T')[0];
+            $('#validTill').attr('min', today);
+                                
             quill.setText("");
             editor.setText("");
 
@@ -163,16 +167,22 @@
                     $('#validTill').val(datePart);
                     $('#newsAndAlert-header').val(result.data.header);
                     $('#newsAndAlert-description').val(result.data.description);
+                    
+                    let today = new Date().toISOString().split('T')[0];
+                    $('#validTill').attr('min', today);
+                    
                     if (result.data.header !== undefined) {
                         quill.clipboard.dangerouslyPasteHTML(result.data.header);
                     } else {
                         quill.setText("");
                     }
+                    
                     if (result.data.description !== undefined) {
                         editor.clipboard.dangerouslyPasteHTML(result.data.description);
                     } else {
                         editor.setText("");
                     }
+                    
                     $('#add-newsAndAlert').modal('show');
                 }
             });

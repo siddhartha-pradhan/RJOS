@@ -79,7 +79,10 @@
             $('#Id').val('');
             $('#pcpDates-startDate').val('');
             $('#pcpDates-endDate').val('');
-
+            
+            let today = new Date().toISOString().split('T')[0];
+            $('#pcpDates-startDate').attr('min', today);
+            
             $('#add-pcpDates').modal('show');
         }
     }
@@ -99,6 +102,7 @@
         else {
             toastr.success("PCP Dates successfully saved.");
         }
+        
         $('#add-pcpDates').modal('hide');
         $('#pcpDates-list').html(data.htmlData);
     }

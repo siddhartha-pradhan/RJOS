@@ -1,8 +1,6 @@
-﻿using Application.DTOs.NewsAndAlert;
-using Application.DTOs.PcpDate;
+﻿using Application.DTOs.PcpDate;
 using Application.Interfaces.Services;
 using Common.Utilities;
-using Data.Implementation.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RJOS.Controllers;
@@ -31,7 +29,6 @@ public class PcpDatesController : BaseController<PcpDatesController>
 
         pcpDatesRequest.UserId = userId ?? 1;
 
-
         if (pcpDatesRequest.UserId != 0)
         {
             await _pcpDatesService.InsertPcpDates(pcpDatesRequest);
@@ -44,11 +41,4 @@ public class PcpDatesController : BaseController<PcpDatesController>
             htmlData = ConvertViewToString("_pcpDatesList", result, true)
         });
     }
-
-    //[HttpGet]
-    //public async Task<IActionResult> GetAllPcpDates()
-    //{
-    //    var result = await _pcpDatesService.GetAllPcpDates();
-    //    return result;
-    //}
 }

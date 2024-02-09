@@ -93,9 +93,12 @@
                             <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateNotification(@notification.Id)">
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </a>
-                            <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="triggerNotification(@notification.Id)">
-                                <i class="fa-solid fa-check-double"></i>
-                            </a>
+                            @if (notification.IsTriggered != 1)
+                            {
+                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="triggerNotification(@notification.Id)">
+                                    <i class="fa-solid fa-check-double"></i>
+                                </a>
+                            }
                         </td>
                     </tr>
                 }
@@ -169,6 +172,10 @@
             $('#notification-description').val('');
             $('#fileInput').val('');
             $('#validTill').val('');
+            
+            let today = new Date().toISOString().split('T')[0];
+            $('#validTill').attr('min', today);
+                                
             quill.setText("");
             editor.setText("");
             
@@ -188,6 +195,10 @@
                     $('#validTill').val(datePart);
                     $('#notification-header').val(result.data.title);
                     $('#notification-description').val(result.data.description);
+                    
+                    let today = new Date().toISOString().split('T')[0];
+                    $('#validTill').attr('min', today);
+                    
                     if (result.data.title !== undefined) {
                         quill.clipboard.dangerouslyPasteHTML(result.data.title);
                     } else {

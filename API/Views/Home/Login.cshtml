@@ -11,13 +11,13 @@
     <form method="post" asp-controller="Home" asp-action="Login">
         @Html.AntiForgeryToken()
         <h2 class="text-danger poppins-semibold">Login</h2>
-            <p class="poppins-regular mb-5" style="color: #4E4E4E;">Enter your email & password</p>
+            <p class="poppins-regular mb-2" style="color: #4E4E4E;">Enter your username & password</p>
             <p class="poppins-light mb-1">User Name</p>
             <div class="input-group mb-3">
                 <span style="background-color: #db4b73; width: 0.7vw; border-radius: 3px;"></span>
                 <div class="form-floating position-relative">
                     <img src="~/images/user.png" alt="" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw">
-                    @Html.TextBoxFor(m => m.UserName, new { @class = "form-control ps-5", placeholder = "", id = "UserName" })
+                    @Html.TextBoxFor(m => m.UserName, new { @class = "form-control ps-5", placeholder = "", id = "UserName", autofill = "off" })
                     <label class="ms-4 ps-4">Type Here ...</label>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     <span>
                         <img src="images/password.png" alt="" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw">
                     </span>
-                    @Html.TextBoxFor(m => m.Password, new { @class = "form-control ps-5", placeholder = "", id = "UserPassword", type = "password" })
+                    @Html.TextBoxFor(m => m.Password, new { @class = "form-control ps-5", placeholder = "", id = "UserPassword", type = "password", autofill = "off" })
                     <label class="ms-4 ps-4">Type Here ...</label>
                 </div>
             </div>
@@ -37,6 +37,32 @@
                 <input type="checkbox" onclick="togglePassword()">
                 Show Password
             </p>
+            <div class="mb-3">
+                <dnt-captcha asp-captcha-generator-max="999999"
+                     asp-captcha-generator-min="111111"
+                     asp-captcha-generator-language="English"
+                     asp-captcha-generator-display-mode="ShowDigits"
+                     asp-use-relative-urls="true"
+                     asp-placeholder="Type Here ..."
+                     asp-font-name="Poppins"
+                     asp-font-size="30"
+                     asp-fore-color="#ffffff"
+                     asp-back-color="#db4b73"
+                     asp-text-box-template="
+                        <div class='input-group mt-1'>
+                            <span style='background-color: #db4b73; width: 0.7vw; border-radius: 3px;'></span>
+                            <div class='form-floating position-relative'>
+                                <span>
+                                    <img src='images/password.png' alt='' style='position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw'>
+                                </span>
+                                {0}
+                                <label class='ms-4 ps-4'>Type Here ...</label>
+                            </div>
+                        </div>"
+                     asp-validation-message-class="text-danger"
+                     asp-refresh-button-class="glyphicon glyphicon-refresh btn-sm"
+                     asp-use-noise="false" />
+            </div>
             <div class="mt-3 pt-5 mb-2 itemCenter">
                 <button class="btn-block loginButtonSize" type="submit" style="background-color: #393185; color: white">
                    Login

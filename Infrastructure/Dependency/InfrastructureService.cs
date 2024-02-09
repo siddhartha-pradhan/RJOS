@@ -35,12 +35,17 @@ public static class InfrastructureService
         services.AddTransient<IFAQService, FAQService>();
         services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
         services.AddTransient<INotificationService, NotificationService>();
+        services.AddTransient<IPcpDatesService, PcpDatesService>();
+        services.AddTransient<IPdfService, PdfService>();
         services.AddTransient<IQuestionService, QuestionService>();
         services.AddTransient<ISubjectService, SubjectService>();
         services.AddTransient<IStudentService, StudentService>();
         services.AddTransient<IStudentVideoTrackingService, StudentVideoResponseService>();
         services.AddTransient<IUserService, UserService>();
-        services.AddTransient<IPcpDatesService, PcpDatesService>();
+
+        services.AddMemoryCache();
+
+        services.AddHostedService<PreloadCacheService>();
 
         return services;
     }

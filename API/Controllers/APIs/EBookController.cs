@@ -1,11 +1,12 @@
 ﻿using System.Net;
 using Application.DTOs.Base;
-using Application.DTOs.Content;
 using Application.DTOs.EBook;
-using Application.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Application.Interfaces.Services;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
+using IPdfService = Application.Interfaces.Services.IPdfService;
 
 namespace RJOS.Controllers.APIs;
 
@@ -13,13 +14,18 @@ namespace RJOS.Controllers.APIs;
 [Route("api/ebooks")]
 public class EBookController : ControllerBase
 {
+    private readonly IMemoryCache _cache;
+    private readonly IPdfService _pdfService;
     private readonly IEBookService _eBookService;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    private static SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
-    public EBookController(IEBookService eBookService, IWebHostEnvironment webHostEnvironment)
+    public EBookController(IMemoryCache cache, IEBookService eBookService, IWebHostEnvironment webHostEnvironment, IPdfService pdfService)
     {
+        _cache = cache;
         _eBookService = eBookService;
         _webHostEnvironment = webHostEnvironment;
+        _pdfService = pdfService;
     }
 
     [HttpGet("get-all-ebooks")]
@@ -72,15 +78,17 @@ public class EBookController : ControllerBase
     }
 
     [HttpGet("download-ebook/{fileUrl}")]
+    [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
     public async Task<IActionResult> DownloadEbook(string fileUrl)
     {
+        if (_cache.TryGetValue(fileUrl, out byte[]? cachedContent))
+        {
+            return File(cachedContent, "application/pdf", fileUrl);
+        }
+        
         var wwwRootPath = _webHostEnvironment.WebRootPath;
         
-        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
-
-        var ebooksFolderPath = Path.Combine(documentsFolderPath, "ebooks");
-        
-        var filePath = Path.Combine(ebooksFolderPath, fileUrl);
+        var filePath = Path.Combine(wwwRootPath, "documents", "ebooks", fileUrl);
         
         var notFound = new ResponseDTO<object>()
         {
@@ -89,32 +97,46 @@ public class EBookController : ControllerBase
             StatusCode = HttpStatusCode.NotFound,
             Result = false
         };
+
+        await _semaphoreSlim.WaitAsync();
         
-        if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
-        
-        var memory = new MemoryStream();
-        
-        await using(var stream = new FileStream(filePath, FileMode.Open)) 
+        try
         {
-            await stream.CopyToAsync(memory);
+            if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
+            
+            byte[] fileContent;
+            
+            await using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await stream.CopyToAsync(memoryStream);
+
+                    fileContent = memoryStream.ToArray();
+                }
+            }
+            
+            return File(fileContent, "application/pdf", fileUrl);
         }
-        
-        memory.Position = 0;
-        
-        return File(memory, GetContentType(filePath), fileUrl);
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
     }
 
     [HttpPost("download-ebook")]
+    [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
     public async Task<IActionResult> PostDownloadEbook(string fileUrl)
     {
+        if (_cache.TryGetValue(fileUrl, out byte[]? cachedContent))
+        {
+            return File(cachedContent, "application/pdf", fileUrl);
+        }
+        
         var wwwRootPath = _webHostEnvironment.WebRootPath;
-
-        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
-
-        var ebooksFolderPath = Path.Combine(documentsFolderPath, "ebooks");
-
-        var filePath = Path.Combine(ebooksFolderPath, fileUrl);
-
+        
+        var filePath = Path.Combine(wwwRootPath, "documents", "ebooks", fileUrl);
+        
         var notFound = new ResponseDTO<object>()
         {
             Status = "Not Found",
@@ -123,32 +145,46 @@ public class EBookController : ControllerBase
             Result = false
         };
 
-        if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
-
-        var memory = new MemoryStream();
-
-        await using (var stream = new FileStream(filePath, FileMode.Open))
+        await _semaphoreSlim.WaitAsync();
+        
+        try
         {
-            await stream.CopyToAsync(memory);
+            if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
+            
+            byte[] fileContent;
+            
+            await using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await stream.CopyToAsync(memoryStream);
+
+                    fileContent = memoryStream.ToArray();
+                }
+            }
+            
+            return File(fileContent, "application/pdf", fileUrl);
         }
-
-        memory.Position = 0;
-
-        return File(memory, GetContentType(filePath), fileUrl);
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
     }
 
     [Authorize]
     [HttpPost("download-ebook-authorize")]
+    [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
     public async Task<IActionResult> PostDownloadEbookAuthorize(string fileUrl)
     {
+        if (_cache.TryGetValue(fileUrl, out byte[]? cachedContent))
+        {
+            return File(cachedContent, "application/pdf", fileUrl);
+        }
+        
         var wwwRootPath = _webHostEnvironment.WebRootPath;
-
-        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
-
-        var ebooksFolderPath = Path.Combine(documentsFolderPath, "ebooks");
-
-        var filePath = Path.Combine(ebooksFolderPath, fileUrl);
-
+        
+        var filePath = Path.Combine(wwwRootPath, "documents", "ebooks", fileUrl);
+        
         var notFound = new ResponseDTO<object>()
         {
             Status = "Not Found",
@@ -157,18 +193,30 @@ public class EBookController : ControllerBase
             Result = false
         };
 
-        if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
-
-        var memory = new MemoryStream();
-
-        await using (var stream = new FileStream(filePath, FileMode.Open))
+        await _semaphoreSlim.WaitAsync();
+        
+        try
         {
-            await stream.CopyToAsync(memory);
+            if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
+            
+            byte[] fileContent;
+            
+            await using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await stream.CopyToAsync(memoryStream);
+
+                    fileContent = memoryStream.ToArray();
+                }
+            }
+            
+            return File(fileContent, "application/pdf", fileUrl);
         }
-
-        memory.Position = 0;
-
-        return File(memory, GetContentType(filePath), fileUrl);
+        finally
+        {
+            _semaphoreSlim.Release();
+        }
     }
 
     private static string GetContentType(string path) {

@@ -87,8 +87,8 @@ public class AuthenticationService : IAuthenticationService
                     ApplicationToken = GenerateJwtToken(studentLoginData),
                     SecureRSOSToken = apiResponse.secure_token,
                     ValidTill = apiResponse.secure_token_valid_till,
-                    StartDate = maxPcpDate.StartDate.ToString("yyyy-MM-dd"),
-                    EndDate = maxPcpDate.EndDate.ToString("yyyy-MM-dd")
+                    StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
+                    EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
                 };
 
                 return authenticationResponse;

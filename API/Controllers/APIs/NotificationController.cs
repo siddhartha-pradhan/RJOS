@@ -14,6 +14,7 @@ public class NotificationController : ControllerBase
 {
     private readonly INotificationService _notificationService;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    private static SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1, 1);
 
     public NotificationController(INotificationService notificationService, IWebHostEnvironment webHostEnvironment)
     {
@@ -135,179 +136,135 @@ public class NotificationController : ControllerBase
     {
         var notification = await _notificationService.GetNotificationById(notificationId);
 
+        var notFound = new ResponseDTO<object>()
+        {
+            Status = "Not Found",
+            Message = "Attachment Not Found.",
+            StatusCode = HttpStatusCode.NotFound,
+            Result = false
+        };
+        
         if (string.IsNullOrEmpty(notification.UploadedFileUrl))
         {
-            var notFound = new ResponseDTO<object>()
-            {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
-            
             return NotFound(notFound);
         }
         
         var wwwRootPath = _webHostEnvironment.WebRootPath;
         
-        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
-
-        var notificationsFolderPath = Path.Combine(documentsFolderPath, "notifications");
+        var filePath = Path.Combine(wwwRootPath, "documents", "notifications", notification.UploadedFileUrl);
         
-        var filePath = Path.Combine(notificationsFolderPath, notification.UploadedFileUrl);
+        await _semaphoreSlim.WaitAsync();
 
-        if (!System.IO.File.Exists(filePath))
+        try
         {
-            var notFound = new ResponseDTO<object>()
-            {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
+            if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
             
-            return NotFound(notFound);
+            var memory = new MemoryStream();
+        
+            await using(var stream = new FileStream(filePath, FileMode.Open)) 
+            {
+                await stream.CopyToAsync(memory);
+            }
+        
+            memory.Position = 0;
+        
+            return File(memory, GetContentType(filePath), notification.UploadedFileName);
         }
-        
-        var memory = new MemoryStream();
-        
-        await using(var stream = new FileStream(filePath, FileMode.Open)) 
+        finally
         {
-            await stream.CopyToAsync(memory);
+            _semaphoreSlim.Release();
         }
-        
-        memory.Position = 0;
-        
-        return File(memory, GetContentType(filePath), notification.UploadedFileName);
     }
 
     [HttpPost("download-notification-attachment")]
     public async Task<IActionResult> PostDownloadNotificationAttachment(int? notificationId)
     {
-        if (!notificationId.HasValue)
-        {
-            var notFound = new ResponseDTO<object>()
-            {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
+        var notification = await _notificationService.GetNotificationById((int)notificationId!);
 
+        var notFound = new ResponseDTO<object>()
+        {
+            Status = "Not Found",
+            Message = "Attachment Not Found.",
+            StatusCode = HttpStatusCode.NotFound,
+            Result = false
+        };
+        
+        if (string.IsNullOrEmpty(notification.UploadedFileUrl))
+        {
             return NotFound(notFound);
         }
         
-        var notification = await _notificationService.GetNotificationById((int)notificationId);
-
-        if (string.IsNullOrEmpty(notification.UploadedFileUrl))
-        {
-            var notFound = new ResponseDTO<object>()
-            {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
-
-            return NotFound(notFound);
-        }
-
         var wwwRootPath = _webHostEnvironment.WebRootPath;
+        
+        var filePath = Path.Combine(wwwRootPath, "documents", "notifications", notification.UploadedFileUrl);
+        
+        await _semaphoreSlim.WaitAsync();
 
-        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
-
-        var notificationsFolderPath = Path.Combine(documentsFolderPath, "notifications");
-
-        var filePath = Path.Combine(notificationsFolderPath, notification.UploadedFileUrl);
-
-        if (!System.IO.File.Exists(filePath))
+        try
         {
-            var notFound = new ResponseDTO<object>()
+            if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
+            
+            var memory = new MemoryStream();
+        
+            await using(var stream = new FileStream(filePath, FileMode.Open)) 
             {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
-
-            return NotFound(notFound);
+                await stream.CopyToAsync(memory);
+            }
+        
+            memory.Position = 0;
+        
+            return File(memory, GetContentType(filePath), notification.UploadedFileName);
         }
-
-        var memory = new MemoryStream();
-
-        await using (var stream = new FileStream(filePath, FileMode.Open))
+        finally
         {
-            await stream.CopyToAsync(memory);
+            _semaphoreSlim.Release();
         }
-
-        memory.Position = 0;
-
-        return File(memory, GetContentType(filePath), notification.UploadedFileName);
     }
 
     [Authorize]
     [HttpPost("download-notification-attachment-authorize")]
     public async Task<IActionResult> PostDownloadNotificationAttachmentAuthorize(int? notificationId)
     {
-        if (!notificationId.HasValue)
+        var notification = await _notificationService.GetNotificationById((int)notificationId!);
+
+        var notFound = new ResponseDTO<object>()
         {
-            var notFound = new ResponseDTO<object>()
-            {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
-
-            return NotFound(notFound);
-        }
-
-        var notification = await _notificationService.GetNotificationById((int)notificationId);
-
+            Status = "Not Found",
+            Message = "Attachment Not Found.",
+            StatusCode = HttpStatusCode.NotFound,
+            Result = false
+        };
+        
         if (string.IsNullOrEmpty(notification.UploadedFileUrl))
         {
-            var notFound = new ResponseDTO<object>()
-            {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
-
             return NotFound(notFound);
         }
-
+        
         var wwwRootPath = _webHostEnvironment.WebRootPath;
+        
+        var filePath = Path.Combine(wwwRootPath, "documents", "notifications", notification.UploadedFileUrl);
+        
+        await _semaphoreSlim.WaitAsync();
 
-        var documentsFolderPath = Path.Combine(wwwRootPath, "documents");
-
-        var notificationsFolderPath = Path.Combine(documentsFolderPath, "notifications");
-
-        var filePath = Path.Combine(notificationsFolderPath, notification.UploadedFileUrl);
-
-        if (!System.IO.File.Exists(filePath))
+        try
         {
-            var notFound = new ResponseDTO<object>()
+            if (!System.IO.File.Exists(filePath)) return NotFound(notFound);
+            
+            var memory = new MemoryStream();
+        
+            await using(var stream = new FileStream(filePath, FileMode.Open)) 
             {
-                Status = "Not Found",
-                Message = "Attachment Not Found.",
-                StatusCode = HttpStatusCode.NotFound,
-                Result = false
-            };
-
-            return NotFound(notFound);
+                await stream.CopyToAsync(memory);
+            }
+        
+            memory.Position = 0;
+        
+            return File(memory, GetContentType(filePath), notification.UploadedFileName);
         }
-
-        var memory = new MemoryStream();
-
-        await using (var stream = new FileStream(filePath, FileMode.Open))
+        finally
         {
-            await stream.CopyToAsync(memory);
+            _semaphoreSlim.Release();
         }
-
-        memory.Position = 0;
-
-        return File(memory, GetContentType(filePath), notification.UploadedFileName);
     }
 
     private static string GetContentType(string path) {

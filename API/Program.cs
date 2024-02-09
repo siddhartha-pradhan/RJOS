@@ -9,6 +9,8 @@ using Firebase.Auth.Providers;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
+using Data.Implementation.Services;
+using DNTCaptcha.Core;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
@@ -123,6 +125,22 @@ services
 services.AddAuthorization();
 
 services.AddInfrastructureService(configuration);
+
+services.AddDNTCaptcha(options =>
+{
+    options.UseCookieStorageProvider()
+        .ShowThousandsSeparators(false)
+        .WithEncryptionKey("123456")
+        .AbsoluteExpiration(minutes: 7)
+        .InputNames(
+            new DNTCaptchaComponent
+            {
+                CaptchaHiddenInputName = "DNTCaptchaText",
+                CaptchaHiddenTokenName = "DNTCaptchaToken",
+                CaptchaInputName = "DNTCaptchaInputText"
+            })
+        .Identifier("dntcaptha");
+});
 
 Log.Logger = new LoggerConfiguration()
         .MinimumLevel.Information()

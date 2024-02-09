@@ -23,7 +23,7 @@ public class NotificationService : INotificationService
     {
         var notifications = await _genericRepository.GetAsync<tblNotification>(x => x.IsActive);
         
-        return notifications.Select(x => new NotificationResponseDTO
+        return notifications.OrderByDescending(x => x.Id).Select(x => new NotificationResponseDTO
         {
             Id = x.Id,
             Title = x.Header,

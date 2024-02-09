@@ -5,16 +5,22 @@ using Application.DTOs.Error;
 using Application.DTOs.Password;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.Services;
+using DNTCaptcha.Core;
+using Microsoft.Extensions.Options;
 
 namespace RJOS.Controllers;
 
 public class HomeController : Controller
 {
     private readonly IUserService _userService;
-
-    public HomeController(IUserService userService)
+    private readonly DNTCaptchaOptions _captchaOptions;
+    private readonly IDNTCaptchaValidatorService _validatorService;
+    
+    public HomeController(IUserService userService, IOptions<DNTCaptchaOptions> captchaOptions, IDNTCaptchaValidatorService validatorService)
     {
-        _userService = userService; 
+        _userService = userService;
+        _validatorService = validatorService;
+        _captchaOptions = captchaOptions == null ? throw new ArgumentNullException(nameof(captchaOptions)) : captchaOptions.Value;;
     }
 
     public IActionResult Login()
@@ -32,11 +38,19 @@ public class HomeController : Controller
     {
         if (HttpContext.Session.GetInt32("UserId") != null) return RedirectToAction("Index", "Notification");
         
+        if (!_validatorService.HasRequestValidCaptchaEntry())
+        {
+            TempData["Warning"] = "Invalid captcha, please try again.";
+            
+            return RedirectToAction("Login");
+        }
+        
         var isPasswordValidate = await _userService.IsUserAuthenticated(userRequest);
 
         if (!isPasswordValidate)
         {
             TempData["Warning"] = "Invalid username or password.";
+
             return RedirectToAction("Login");
         }
         

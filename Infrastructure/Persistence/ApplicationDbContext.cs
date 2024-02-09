@@ -151,10 +151,10 @@ public partial class ApplicationDbContext : DbContext
         modelBuilder.Entity<tblPcpDates>(entity =>
         {
             entity.HasKey(e => e.Id)
-                .HasName("PK_PCPDates")
+                .HasName("PK_PCPDate")
                 .IsClustered(false);
 
-            entity.HasIndex(e => e.Id, "Idx_tblPCPDates_Id")
+            entity.HasIndex(e => e.Id, "Idx_PCPDates")
                 .IsDescending()
                 .IsClustered();
         });
