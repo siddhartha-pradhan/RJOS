@@ -8,7 +8,7 @@ using DocumentFormat.OpenXml.Vml.Spreadsheet;
 
 namespace RJOS.Controllers;
 
-public class EnrollmentController : Controller
+public class EnrollmentController : BaseController<EnrollmentController>
 {
     private readonly IEnrollmentService _enrollmentService;
 

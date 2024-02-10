@@ -10,17 +10,15 @@ using Microsoft.Extensions.Options;
 
 namespace RJOS.Controllers;
 
-public class HomeController : Controller
+public class HomeController : BaseController<HomeController>
 {
     private readonly IUserService _userService;
-    private readonly DNTCaptchaOptions _captchaOptions;
     private readonly IDNTCaptchaValidatorService _validatorService;
     
-    public HomeController(IUserService userService, IOptions<DNTCaptchaOptions> captchaOptions, IDNTCaptchaValidatorService validatorService)
+    public HomeController(IUserService userService, IDNTCaptchaValidatorService validatorService)
     {
         _userService = userService;
         _validatorService = validatorService;
-        _captchaOptions = captchaOptions == null ? throw new ArgumentNullException(nameof(captchaOptions)) : captchaOptions.Value;;
     }
 
     public IActionResult Login()
@@ -36,6 +34,13 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<ActionResult> Login(UserRequestDTO userRequest)
     {
+        if (string.IsNullOrEmpty(userRequest.UserName) || string.IsNullOrEmpty(userRequest.Password))
+        {
+            TempData["Warning"] = "Please insert your username and password before submitting your request.";
+
+            return RedirectToAction("Login");
+        }
+        
         if (HttpContext.Session.GetInt32("UserId") != null) return RedirectToAction("Index", "Notification");
         
         if (!_validatorService.HasRequestValidCaptchaEntry())
@@ -72,22 +77,19 @@ public class HomeController : Controller
     [HttpPost]
     public async Task<IActionResult> ChangePassword(ChangePasswordRequestDTO changePassword)
     {
-        if (changePassword.NewPassword != changePassword.ConfirmNewPassword)
-        {
-            TempData["Warning"] = "Enter the same password for your new and your confirmed password.";
-
-            return View(changePassword);
-        }
-        
         var userId = HttpContext.Session.GetInt32("UserId") ?? 1;
         
-        var isPasswordChanged = await _userService.ChangePassword(userId, changePassword.CurrentPassword, changePassword.NewPassword);
+        var isPasswordChanged = await _userService.ChangePassword(userId, changePassword.HdCurrentPassword, changePassword.HdNewPassword);
 
         if (isPasswordChanged)
         {
             TempData["Success"] = "Password successfully changed.";
-
-            return View();
+            
+            HttpContext.Session.Clear();
+        
+            HttpContext.Session.Remove("UserId");
+        
+            return RedirectToAction("Login");
         }
 
         TempData["Warning"] = "Please insert your correct current state of password before changing it.";

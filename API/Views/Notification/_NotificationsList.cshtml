@@ -220,8 +220,14 @@
     };
     
     function onSuccessNotification(data){
+        if (data.errorType === 0){
+            toastr.warning(data.message);
+            return;
+        }
+        
         if (data.errorType === 1) {
             toastr.warning("Please insert all the required fields.");
+            return;
         }
         
         if (data.action === 1){

@@ -52,9 +52,48 @@ public class NotificationController : BaseController<NotificationController>
         }
 
         var action = 0;
+        var message = "";
         
         if (notification.UploadedFile != null)
         {
+            if (!ValidateFileMimeType(notification.UploadedFile))
+            {
+                action = 0;
+                message = $"The file format of {notification.UploadedFile.FileName} is incorrect.";
+
+                return Json(new
+                {
+                    errorType = action,
+                    message = message
+                });
+            }
+            
+            if (!IsValidFileName(notification.UploadedFile.FileName))
+            {
+                action = 0;
+                message = $"The file name must not contain special characters. Only the following characters are allowed while naming the files, <br />1. a to z characters.<br/>2. numbers(0 to 9). <br />3. - and _ with space. <br /> The naming convention for {notification.UploadedFile.FileName} file is incorrect.";
+
+                return Json(new
+                {
+                    errorType = action,
+                    message = message
+                });
+            }
+
+            var fileValidLength = IsFileLengthValid(notification.UploadedFile);
+            
+            if (!fileValidLength.Item1)
+            {
+                action = 0;
+                message = $"The uploaded file exceeds 30 MB. The file size for {notification.UploadedFile.FileName} file is {fileValidLength.Item2} MB.";
+
+                return Json(new
+                {
+                    errorType = action,
+                    message = message
+                });
+            }
+            
             var notificationDocumentPath = DocumentUploadFilePath.NotificationDocumentFilePath;
             
             var serverDocName = await UploadDocument(notificationDocumentPath, notification.UploadedFile);
@@ -79,6 +118,7 @@ public class NotificationController : BaseController<NotificationController>
         return Json(new
         {
             action = action,
+            message = message,
             htmlData = ConvertViewToString("_NotificationsList", result, true)
         });
     }

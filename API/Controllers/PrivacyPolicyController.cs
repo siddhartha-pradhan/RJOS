@@ -2,7 +2,7 @@
 
 namespace RJOS.Controllers;
 
-public class PrivacyPolicyController : BaseController<NotificationController>
+public class PrivacyPolicyController : BaseController<PrivacyPolicyController>
 {
     public IActionResult Index()
     {

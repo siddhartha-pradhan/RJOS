@@ -52,7 +52,7 @@ public class StudentController : ControllerBase
 
     [Authorize]
     [HttpPost("get-student-responses-authorize")]
-    public async Task<IActionResult> GetStudentResponsesResultAuthorize(int studentId)
+    public async Task<IActionResult> GetStudentResponsesResultAuthorize([FromForm]int studentId)
     {
         var result = await _studentService.GetStudentRecords(studentId);
 

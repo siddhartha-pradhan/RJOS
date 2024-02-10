@@ -223,7 +223,7 @@ public class NotificationController : ControllerBase
 
     [Authorize]
     [HttpPost("download-notification-attachment-authorize")]
-    public async Task<IActionResult> PostDownloadNotificationAttachmentAuthorize(int? notificationId)
+    public async Task<IActionResult> PostDownloadNotificationAttachmentAuthorize([FromForm]int? notificationId)
     {
         var notification = await _notificationService.GetNotificationById((int)notificationId!);
 
