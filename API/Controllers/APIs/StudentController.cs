@@ -35,7 +35,7 @@ public class StudentController : ControllerBase
     }
     
     [HttpPost("get-student-responses")]
-    public async Task<IActionResult> GetStudentResponsesResult(int studentId)
+    public async Task<IActionResult> GetStudentResponsesResult([FromForm]int studentId)
     {
         var result = await _studentService.GetStudentRecords(studentId);
         
@@ -52,7 +52,7 @@ public class StudentController : ControllerBase
 
     [Authorize]
     [HttpPost("get-student-responses-authorize")]
-    public async Task<IActionResult> GetStudentResponsesResultAuthorize(int studentId)
+    public async Task<IActionResult> GetStudentResponsesResultAuthorize([FromForm]int studentId)
     {
         var result = await _studentService.GetStudentRecords(studentId);
 
@@ -87,7 +87,7 @@ public class StudentController : ControllerBase
 
     [Authorize]
     [HttpPost("insert-student-records-authorize")]
-    public async Task<IActionResult> InsertStudentResponseAuthorize(StudentRequestDTO studentResponse)
+    public async Task<IActionResult> InsertStudentResponseAuthorize([FromForm]StudentRequestDTO studentResponse)
     {
         await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
 

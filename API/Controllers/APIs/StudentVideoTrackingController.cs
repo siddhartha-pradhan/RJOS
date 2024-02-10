@@ -36,7 +36,7 @@ public class StudentVideoTrackingController : ControllerBase
     
     [Authorize]
     [HttpPost("upsert-student-video-tracking-authorize")]
-    public async Task<IActionResult> UpsertStudentVideoTrackingAuthorize(StudentVideoTrackingRequestDTO studentVideoTrackingRequest)
+    public async Task<IActionResult> UpsertStudentVideoTrackingAuthorize([FromForm]StudentVideoTrackingRequestDTO studentVideoTrackingRequest)
     {
         await _studentVideoTrackingService.UpsertStudentVideoTracking(studentVideoTrackingRequest);
 
@@ -85,7 +85,7 @@ public class StudentVideoTrackingController : ControllerBase
     
     [Authorize]
     [HttpPost("get-student-video-tracking-authorize")]
-    public async Task<IActionResult> PostGetStudentVideoTrackingByIdAuthorize(int studentId)
+    public async Task<IActionResult> PostGetStudentVideoTrackingByIdAuthorize([FromForm]int studentId)
     {
         var result = await _studentVideoTrackingService.GetStudentVideoTrackingByStudentId(studentId);
 

@@ -91,7 +91,7 @@ public class EnrollmentController : ControllerBase
 
     [Authorize]
     [HttpPost("get-enrollment-status-authorize")]
-    public async Task<IActionResult> PostEnrollmentStatusAuthorize(int? enrollmentId)
+    public async Task<IActionResult> PostEnrollmentStatusAuthorize([FromForm]int? enrollmentId)
     {
         if (!enrollmentId.HasValue)
         {

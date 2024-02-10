@@ -174,7 +174,7 @@ public class EBookController : ControllerBase
     [Authorize]
     [HttpPost("download-ebook-authorize")]
     [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
-    public async Task<IActionResult> PostDownloadEbookAuthorize(string fileUrl)
+    public async Task<IActionResult> PostDownloadEbookAuthorize([FromForm]string fileUrl)
     {
         if (_cache.TryGetValue(fileUrl, out byte[]? cachedContent))
         {

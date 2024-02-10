@@ -4,23 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"] - RSOS</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/css/app.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/API.styles.css" asp-append-version="true"/>
-	<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link href="https://cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" asp-append-version="true">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet" asp-append-version="true">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" asp-append-version="true">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" asp-append-version="true">
+    <link rel="preconnect" href="https://fonts.googleapis.com" asp-append-version="true">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin asp-append-version="true">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" asp-append-version="true">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet" asp-append-version="true">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" asp-append-version="true">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    @* <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" asp-append-version="true" /> *@
+    @* <link rel="stylesheet" href="~/css/app.css" asp-append-version="true"/> *@
+    @* <link rel="stylesheet" href="~/API.styles.css" asp-append-version="true"/> *@
+    @* <link rel="stylesheet" href="~/lib/quill/dist/css/quill.bubble.css" asp-append-version="true"/> *@
+    @* <link rel="stylesheet" href="~/lib/quill/dist/css/quill.core.css" asp-append-version="true"/> *@
+    @* <link rel="stylesheet" href="~/lib/quill/dist/css/quill.snow.css" asp-append-version="true"/> *@
+    @* <link rel="stylesheet" href="~/lib/toastr/dist/css/toastr.css" asp-append-version="true"/> *@
+    @* <link rel="stylesheet" href="~/lib/toastr/dist/css/toastr.min.css" asp-append-version="true"/> *@
+    @* <script src="lib/jquery/dist/jquery.js"></script> *@
+    @* <script src="lib/jquery/dist/jquery.min.js"></script> *@
+    @* <script src="lib/jquery/dist/jquery.min.map"></script> *@
+    @* <script src="lib/jquery-validation/dist/jquery.validate.js"></script> *@
+    @* <script src="lib/jquery-validation/dist/jquery.validate.min.js"></script> *@
+    @* <script src="lib/jquery-validation/dist/additional-methods.js"></script> *@
+    @* <script src="lib/jquery-validation/dist/additional-methods.min.js"></script> *@
+    @* <script src="lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script> *@
+    @* <script src="lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script> *@
+    @* <script src="~/lib/quill/dist/js/quill.js"></script> *@
+    @* <script src="~/lib/quill/dist/js/quill.min.js"></script> *@
+    @* <script src="~/lib/quill/dist/js/quill.core.js"></script> *@
+    @* <script src="~/lib/toastr/dist/js/toastr.js.map"></script> *@
+    @* <script src="~/lib/toastr/dist/js/toastr.min.js"></script> *@
+    
     <link rel="shortcut icon" href="~/favicon.ico" asp-append-version="true">
+    
     <style>
         .header-container {
             display: flex;
@@ -55,6 +81,9 @@
             padding: 20px;
         }
     </style>
+
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self';">
+
 </head>
 <body>
     <nav class="navbar navbar-light p-0">
@@ -70,9 +99,6 @@
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="PcpDates" asp-action="Index">PCP Dates</a>
                 </li>
-                @* <li class="nav-item"> *@
-                @*     <a class="nav-link" asp-controller="Enrollment" asp-action="Index">Enrollment</a> *@
-                @* </li> *@
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Home" asp-action="ChangePassword">Change Password</a>
                 </li>
@@ -90,6 +116,7 @@
             @RenderBody()
         </div>
     </div>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>

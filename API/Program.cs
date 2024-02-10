@@ -1,3 +1,4 @@
+using Serilog;
 using System.Text;
 using Firebase.Auth;
 using FirebaseAdmin;
@@ -5,15 +6,19 @@ using Data.Dependency;
 using Newtonsoft.Json;
 using RJOS.Middlewares;
 using Google.Apis.Auth.OAuth2;
+using System.Globalization;
 using Firebase.Auth.Providers;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
-using Data.Implementation.Services;
 using DNTCaptcha.Core;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Serilog;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +26,30 @@ var services = builder.Services;
 
 var configuration = builder.Configuration;
 
-services.AddControllersWithViews();
+services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+    
+    var jsonInputFormatter = options.InputFormatters
+        .OfType<Microsoft.AspNetCore.Mvc.Formatters.SystemTextJsonInputFormatter>()
+        .Single();
+    
+    jsonInputFormatter.SupportedMediaTypes.Add("application/csp-report");
+});
 
-services.AddSession();
+services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 20971520; // Set the limit to 20 MB => 20971520 Bytes (in binary)
+});
+
+services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+    options.IncludeSubDomains = true;
+});
+
+services.AddSession(option => { option.IdleTimeout = TimeSpan.FromMinutes(15); });
 
 services.AddCors();
 
@@ -76,6 +102,23 @@ services.AddResponseCompression(options =>
     options.EnableForHttps = true;
 });
 
+services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("en-IN") 
+    };
+
+    options.DefaultRequestCulture = new RequestCulture("en-IN"); 
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+            
+services.Configure<KestrelServerOptions>(options =>
+{
+    options.AddServerHeader = false;
+});
+
 var credentials = builder.Configuration.GetValue<string>("FIREBASE_CONFIG");
 
 services.AddSingleton(FirebaseApp.Create(new AppOptions()
@@ -83,7 +126,7 @@ services.AddSingleton(FirebaseApp.Create(new AppOptions()
     Credential = GoogleCredential.FromJson(credentials)
 }));
 
-var firebaseProjectName = JsonConvert.DeserializeObject<Dictionary<string, string>>(credentials)
+var firebaseProjectName = JsonConvert.DeserializeObject<Dictionary<string, string>>(credentials!)
     .Where(i => i.Key == "project_id")
     .Select(p => p.Value).FirstOrDefault();
 
@@ -93,10 +136,10 @@ services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig
 {
     ApiKey = apiKey,
     AuthDomain = $"{firebaseProjectName}.firebaseapp.com",
-    Providers = new FirebaseAuthProvider[]
-    {
+    Providers =
+    [
         new EmailProvider()
-    }
+    ]
 }));
 
 services
@@ -160,8 +203,6 @@ app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseMiddleware<ExceptionMiddleware>();
@@ -173,6 +214,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
+
+app.UseStatusCodePages();
 
 app.MapRazorPages();
 
@@ -187,6 +230,28 @@ app.UseCors(policyBuilder =>
     policyBuilder.AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader();
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = (context) =>
+    {
+        var headers = context.Context.Response.GetTypedHeaders();
+
+        headers.CacheControl = new CacheControlHeaderValue
+        {
+            Public = true,
+            MaxAge = TimeSpan.FromHours(24)
+        };
+    }
+});
+
+app.UseContentSecurityPolicy();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-XSS-Protection", "1");
+    await next();
 });
 
 app.MapControllerRoute(

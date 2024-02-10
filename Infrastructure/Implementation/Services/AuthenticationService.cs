@@ -54,53 +54,114 @@ public class AuthenticationService : IAuthenticationService
 
         var response = await httpClient.PostAsync(uriBuilder.Uri, postData);
 
-        if (response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode) return new AuthenticationResponseDTO();
+        
+        var responseData = await response.Content.ReadAsStringAsync();
+
+        var apiResponse = JsonConvert.DeserializeObject<LoginResponseDTO>(responseData);
+
+        if (apiResponse is not { Status: true }) return new AuthenticationResponseDTO();
+        
+        var studentLoginData = apiResponse.Data.Student;
+
+        var studentEntity = new tblStudentLoginDetail
         {
-            var responseData = await response.Content.ReadAsStringAsync();
-
-            var apiResponse = JsonConvert.DeserializeObject<LoginResponseDTO>(responseData);
-
-            if (apiResponse is { Status: true })
-            {
-                var studentLoginData = apiResponse.Data.Student;
-
-                var studentEntity = new tblStudentLoginDetail
-                {
-                    LoginTime = DateTime.Now,
-                    SSOID = studentLoginData.SsoId,
-                    DeviceRegistrationToken = authenticationRequest.DeviceRegistrationToken ?? ""
-                };
+            LoginTime = DateTime.Now,
+            SSOID = studentLoginData.SsoId,
+            DeviceRegistrationToken = authenticationRequest.DeviceRegistrationToken ?? ""
+        };
                 
-                await _genericRepository.InsertAsync(studentEntity);
+        await _genericRepository.InsertAsync(studentEntity);
 
-                var pcpDates =  await _genericRepository.GetAsync<tblPcpDates>();
+        var pcpDates =  await _genericRepository.GetAsync<tblPcpDates>();
 
-                var maxPcpDate = pcpDates.MaxBy(x => x.Id);
+        var maxPcpDate = pcpDates.MaxBy(x => x.Id);
 
-                var authenticationResponse = new AuthenticationResponseDTO
-                {
-                    Id = studentLoginData.Id,
-                    Enrollment = studentLoginData.Enrollment,
-                    Name = studentLoginData.Name,
-                    DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
-                    SSOID = studentLoginData.SsoId,
-                    ApplicationToken = GenerateJwtToken(studentLoginData),
-                    SecureRSOSToken = apiResponse.secure_token,
-                    ValidTill = apiResponse.secure_token_valid_till,
-                    StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
-                    EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
-                };
-
-                return authenticationResponse;
-            }
-            else
-            {
-                return new AuthenticationResponseDTO();
-            }
-        } else
+        var authenticationResponse = new AuthenticationResponseDTO
         {
-            return new AuthenticationResponseDTO();
-        }
+            Id = studentLoginData.Id,
+            Enrollment = studentLoginData.Enrollment,
+            Name = studentLoginData.Name,
+            DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
+            SSOID = studentLoginData.SsoId,
+            ApplicationToken = GenerateJwtToken(studentLoginData),
+            SecureRSOSToken = apiResponse.secure_token,
+            ValidTill = apiResponse.secure_token_valid_till,
+            StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
+            EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
+        };
+
+        return authenticationResponse;
+    }
+
+    public async Task<AuthenticationResponseDTO> AuthenticateForceLogin(AuthenticationForceLoginRequestDTO authenticationLoginRequest)
+    {
+        var httpClient = new HttpClient();
+
+        var rsosToken = _rsosSettings.Token;
+
+        var rsosUrl = _rsosSettings.URL;
+
+        var baseUrl = $"{rsosUrl}/new_api_student_login";
+
+        var queryParams = new System.Collections.Specialized.NameValueCollection
+        {
+            { "ssoid", authenticationLoginRequest.SSOID },
+            { "dob", authenticationLoginRequest.DateOfBirth },
+            { "token", rsosToken }
+        };
+
+        var uriBuilder = new UriBuilder(baseUrl)
+        {
+            Query = string.Join("&", Array.ConvertAll(queryParams.AllKeys,
+                key => $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(queryParams[key])}"))
+        };
+
+        var postData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+
+        var response = await httpClient.PostAsync(uriBuilder.Uri, postData);
+
+        if (!response.IsSuccessStatusCode) return new AuthenticationResponseDTO();
+        
+        var responseData = await response.Content.ReadAsStringAsync();
+
+        var apiResponse = JsonConvert.DeserializeObject<LoginResponseDTO>(responseData);
+
+        if (apiResponse is not { Status: true }) return new AuthenticationResponseDTO();
+        
+        var studentLoginData = apiResponse.Data.Student;
+
+        var studentEntity = new tblStudentLoginDetail
+        {
+            LoginTime = DateTime.Now,
+            SSOID = studentLoginData.SsoId,
+            DeviceRegistrationToken = authenticationLoginRequest.DeviceRegistrationToken ?? ""
+        };
+                
+        await _genericRepository.InsertAsync(studentEntity);
+
+        var pcpDates =  await _genericRepository.GetAsync<tblPcpDates>();
+
+        var maxPcpDate = pcpDates.MaxBy(x => x.Id);
+
+        var secureToken = authenticationLoginRequest.IsForceLogIn == 1 ? apiResponse.secure_token : "";
+        
+        var authenticationResponse = new AuthenticationResponseDTO
+        {
+            Id = studentLoginData.Id,
+            Enrollment = studentLoginData.Enrollment,
+            Name = studentLoginData.Name,
+            DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
+            SSOID = studentLoginData.SsoId,
+            ApplicationToken = GenerateJwtToken(studentLoginData),
+            SecureRSOSToken = secureToken,
+            ValidTill = apiResponse.secure_token_valid_till,
+            StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
+            EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
+        };
+
+        return authenticationResponse;
+
     }
 
     private string GenerateJwtToken(StudentInfoDTO studentInfo)

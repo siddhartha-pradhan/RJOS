@@ -18,7 +18,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Authenticate(AuthenticationRequestDTO authenticationRequest)
+    public async Task<IActionResult> Authenticate([FromForm]AuthenticationRequestDTO authenticationRequest)
     {
         var response = await _authenticationService.Authenticate(authenticationRequest);
             
