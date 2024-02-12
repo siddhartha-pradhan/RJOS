@@ -6,18 +6,24 @@ using Application.DTOs.Password;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.Services;
 using DNTCaptcha.Core;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace RJOS.Controllers;
 
 public class HomeController : BaseController<HomeController>
 {
+    private Guid UserSessionId;
     private readonly IUserService _userService;
+    private readonly IMemoryCache _memoryCache;
     private readonly IDNTCaptchaValidatorService _validatorService;
-    
-    public HomeController(IUserService userService, IDNTCaptchaValidatorService validatorService)
+
+    public HomeController(IUserService userService, 
+        IMemoryCache memoryCache,
+        IDNTCaptchaValidatorService validatorService)
     {
         _userService = userService;
+        _memoryCache = memoryCache;
         _validatorService = validatorService;
     }
 
@@ -41,18 +47,16 @@ public class HomeController : BaseController<HomeController>
             return RedirectToAction("Login");
         }
         
-        if (HttpContext.Session.GetInt32("UserId") != null) return RedirectToAction("Index", "Notification");
-        
         if (!_validatorService.HasRequestValidCaptchaEntry())
         {
             TempData["Warning"] = "Invalid captcha, please try again.";
-            
+                    
             return RedirectToAction("Login");
         }
-        
-        var isPasswordValidate = await _userService.IsUserAuthenticated(userRequest);
+           
+        var isPasswordValid = await _userService.IsUserAuthenticated(userRequest);
 
-        if (!isPasswordValidate)
+        if (!isPasswordValid)
         {
             TempData["Warning"] = "Invalid username or password.";
 
@@ -61,12 +65,24 @@ public class HomeController : BaseController<HomeController>
         
         var userId = await _userService.GetUserId(userRequest);
 
+        var isExist = _memoryCache.TryGetValue(userId, out UserSessionId);
+
+        if (isExist)
+        {
+            TempData["Warning"] = "The previous session was not logged out.";
+
+            return RedirectToAction("Login");
+        }
+
         HttpContext.Session.SetInt32("UserId", userId);
-                
+                    
+        _memoryCache.Set(userId, UserSessionId);
+            
         TempData["Success"] = "Successfully authenticated.";
 
         return RedirectToAction("Index", "Notification");
     }
+
 
     [Authentication]
     public ActionResult ChangePassword()
@@ -99,10 +115,14 @@ public class HomeController : BaseController<HomeController>
     
     public ActionResult Logout()
     {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        
+        _memoryCache.Remove(userId ?? 1);
+
         HttpContext.Session.Clear();
         
         HttpContext.Session.Remove("UserId");
-        
+
         return RedirectToAction("Login");
     }
 

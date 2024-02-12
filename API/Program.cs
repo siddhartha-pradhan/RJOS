@@ -10,11 +10,9 @@ using Firebase.Auth.Providers;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
-using Data.Implementation.Services;
 using DNTCaptcha.Core;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -36,6 +34,11 @@ services.AddControllersWithViews(options =>
         .Single();
     
     jsonInputFormatter.SupportedMediaTypes.Add("application/csp-report");
+});
+
+services.AddMvc(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
 
 // services.Configure<FormOptions>(options =>

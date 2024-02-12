@@ -27,7 +27,7 @@ public class AuthenticationController : ControllerBase
             var badRequest = new ResponseDTO<object>()
             {
                 Status = "Bad Request",
-                Message = "Please insert a valid ssoid and date of birth.",
+                Message = "Please insert a valid SSOID and Date of Birth.",
                 StatusCode = HttpStatusCode.BadRequest,
                 Result = false
             };

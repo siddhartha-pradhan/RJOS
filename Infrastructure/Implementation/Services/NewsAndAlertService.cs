@@ -17,7 +17,7 @@ public class NewsAndAlertService : INewsAndAlertService
     {
         var newsAndAlert = await _genericRepository.GetAsync<tblNewsAndAlert>(x => x.IsActive);
 
-        return newsAndAlert.Select(x => new NewsAndAlertResponseDTO
+        return newsAndAlert.OrderByDescending(x => x.Id).Select(x => new NewsAndAlertResponseDTO
         {
             Id = x.Id,
             Header = x.Header,

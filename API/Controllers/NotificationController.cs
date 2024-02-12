@@ -124,6 +124,7 @@ public class NotificationController : BaseController<NotificationController>
     }
 
     [HttpPost]
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> TriggerNotification(int notificationId)
     {
         await _notificationService.NotifyNotification(notificationId);
