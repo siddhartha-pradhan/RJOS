@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Net.Http.Headers;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -190,10 +191,12 @@ services.AddDNTCaptcha(options =>
 });
 
 Log.Logger = new LoggerConfiguration()
-        .MinimumLevel.Information()
-        //.WriteTo.Console()
-        .WriteTo.File("Logs/.txt", rollingInterval: RollingInterval.Day)
-        .CreateLogger();
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 builder.Host.UseSerilog();
 
@@ -209,10 +212,6 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseMiddleware<ExceptionMiddleware>();
-
-app.UseMiddleware<SecurityHeadersMiddleware>();
-
 app.UseResponseCompression();
 
 app.UseAuthentication();
@@ -220,6 +219,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
+app.UseMiddleware<UserLogMiddleware>();
 
 app.UseStatusCodePages();
 

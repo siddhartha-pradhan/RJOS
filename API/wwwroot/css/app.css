@@ -1,5 +1,10 @@
+@font-face {
+    font-family: 'Poppins-Regular';
+    src: url("../lib/font/Poppins-Regular.ttf") format("truetype");
+}
+
 *{
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
 }
 
 .primary-color{
@@ -9,10 +14,10 @@
 .btn-outline-pink {
     --bs-btn-color: #fff;
     --bs-btn-border-color: #DB4B73;
-    --bs-btn-bg: #DB4B73; /* Set the pink background color */
+    --bs-btn-bg: #DB4B73; 
     --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #ff5e8a; /* Set a slightly different pink for hover effect */
-    --bs-btn-hover-border-color: #ff5e8a; /* Set a slightly different pink for hover border */
+    --bs-btn-hover-bg: #ff5e8a;
+    --bs-btn-hover-border-color: #ff5e8a; 
     --bs-btn-focus-shadow-rgb: 220, 53, 69;
     --bs-btn-active-color: #fff;
     --bs-btn-active-bg: #DB4B73;
@@ -49,49 +54,49 @@
 }
 
 .poppins-light {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 300;
     font-style: normal;
 }
 
 .poppins-light-italic {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 300;
     font-style: italic;
 }
 
 .poppins-regular {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 400;
     font-style: normal;
 }
 
 .poppins-regular-italic {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 400;
     font-style: italic;
 }
 
 .poppins-medium {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 500;
     font-style: normal;
 }
 
 .poppins-medium-italic {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 500;
     font-style: italic;
 }
 
 .poppins-semibold {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 600;
     font-style: normal;
 }
 
 .poppins-semibold-italic {
-    font-family: "Poppins", sans-serif;
+    font-family: "Poppins-Regular", sans-serif;
     font-weight: 600;
 }
 
@@ -182,7 +187,7 @@
 }
 
 .poppinforCard{
-    font-family: Poppins;
+    font-family: Poppins-Regular;
     font-size: 22px;
     font-weight: 500;
     line-height: 28px;
