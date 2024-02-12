@@ -10,6 +10,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/notifications")]
+[IgnoreAntiforgeryToken]
 public class NotificationController : ControllerBase
 {
     private readonly INotificationService _notificationService;

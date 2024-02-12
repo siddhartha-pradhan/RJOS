@@ -6,8 +6,9 @@ using System.Net;
 
 namespace RJOS.Controllers.APIs;
 
-[Route("api/pcp-dates")]
 [ApiController]
+[Route("api/pcp-dates")]
+[IgnoreAntiforgeryToken]
 public class PcpDatesController : ControllerBase
 {
     private readonly IPcpDatesService _pcpDatesService;

@@ -8,6 +8,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/authentication")]
+[IgnoreAntiforgeryToken]
 public class AuthenticationController : ControllerBase
 {
     private readonly IAuthenticationService _authenticationService;

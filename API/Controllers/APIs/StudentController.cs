@@ -10,6 +10,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/students")]
+[IgnoreAntiforgeryToken]
 public class StudentController : ControllerBase
 {
     private readonly IStudentService _studentService;

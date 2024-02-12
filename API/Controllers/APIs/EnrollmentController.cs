@@ -9,6 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/enrollments")]
+[IgnoreAntiforgeryToken]
 public class EnrollmentController : ControllerBase
 {
     private readonly IEnrollmentService _enrollmentService;

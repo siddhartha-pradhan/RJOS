@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/contents")]
+[IgnoreAntiforgeryToken]
 public class ContentController : ControllerBase
 {
     private readonly IContentService _contentService;

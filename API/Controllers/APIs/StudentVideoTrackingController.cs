@@ -9,6 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/student-video-tracking")]
+[IgnoreAntiforgeryToken]
 public class StudentVideoTrackingController : ControllerBase
 {
     private readonly IStudentService _studentService;

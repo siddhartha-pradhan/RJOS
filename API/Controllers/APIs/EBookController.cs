@@ -12,6 +12,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/ebooks")]
+[IgnoreAntiforgeryToken]
 public class EBookController : ControllerBase
 {
     private readonly IMemoryCache _cache;

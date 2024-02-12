@@ -9,6 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/news-and-alerts")]
+[IgnoreAntiforgeryToken]
 public class NewsAndAlertController : ControllerBase
 {
     private readonly INewsAndAlertService _newsAndAlertService;

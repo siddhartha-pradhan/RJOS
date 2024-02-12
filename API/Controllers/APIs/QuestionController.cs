@@ -9,6 +9,7 @@ namespace RJOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/questions")]
+[IgnoreAntiforgeryToken]
 public class QuestionController : ControllerBase
 {
     private readonly IQuestionService _questionService;
