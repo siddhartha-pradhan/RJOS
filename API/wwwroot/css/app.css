@@ -189,3 +189,9 @@
     letter-spacing: 0em;
     text-align: center;
 }
+
+
+.captcha-color {
+    color: #db4b73;
+    margin-left: 1px;
+}
