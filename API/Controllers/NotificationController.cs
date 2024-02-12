@@ -2,6 +2,7 @@ using Application.DTOs.Notification;
 using Application.Interfaces.Services;
 using Common.Constants;
 using Common.Utilities;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RJOS.Controllers;
@@ -48,6 +49,16 @@ public class NotificationController : BaseController<NotificationController>
             return Json(new
             {
                 errorType = 1
+            });
+        }
+
+        if (ExtensionMethods.IsMaliciousInput(notification.Title) ||
+            ExtensionMethods.IsMaliciousInput(notification.Description))
+        {
+            return Json(new
+            {
+                errorType = -1,
+                message = "The following heading title and description consists of malicious input, please try again."
             });
         }
 

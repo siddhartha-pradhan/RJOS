@@ -50,6 +50,16 @@ public class NewsAndAlertController : BaseController<NewsAndAlertController>
 
         var action = 0;
 
+        if (ExtensionMethods.IsMaliciousInput(newsAndAlert.Header) ||
+            ExtensionMethods.IsMaliciousInput(newsAndAlert.Description))
+        {
+            return Json(new
+            {
+                errorType = -1,
+                message = "The following heading title and description consists of malicious input, please try again."
+            });
+        }
+        
         if (newsAndAlert.Id != 0)
         {
             action = 1;

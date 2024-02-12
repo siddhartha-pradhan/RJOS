@@ -197,7 +197,11 @@
         if (data.errorType === 1) {
             toastr.warning("Please insert all the required fields.");
         }
-
+        
+        if (data.errorType === -1) {
+            toastr.warning(data.message);
+        }
+        
         if (data.action === 1) {
             toastr.success("News and alerts successfully updated.");
         }
