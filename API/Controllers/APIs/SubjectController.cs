@@ -3,6 +3,7 @@ using Application.DTOs.Subject;
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RJOS.Controllers.APIs;
 
@@ -18,6 +19,7 @@ public class SubjectController : ControllerBase
         _subjectService = subjectService;
     }
 
+    [Authorize]
     [HttpPost("get-all-subjects")]
     public async Task<IActionResult> PostAllSubject([FromForm]SubjectRequestDTO subject)
     {
