@@ -1,16 +1,30 @@
-﻿using Application.DTOs.Student;
+﻿using System.Security.Claims;
+using Application.DTOs.Student;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace Data.Implementation.Services;
 
 public class StudentService : IStudentService
 {
     private readonly IGenericRepository _genericRepository;
+    private readonly IHttpContextAccessor _contextAccessor;
 
-    public StudentService(IGenericRepository genericRepository)
+    public StudentService(IGenericRepository genericRepository, IHttpContextAccessor contextAccessor)
     {
         _genericRepository = genericRepository;
+        _contextAccessor = contextAccessor;
+    }
+
+    public int StudentId
+    {
+        get
+        {
+            var userIdClaimValue = _contextAccessor.HttpContext?.User.FindFirstValue("studentid");
+
+            return int.TryParse(userIdClaimValue, out var userId) ? userId : 0;
+        }
     }
     
     public async Task<StudentResponseDTO> GetStudentRecords(int studentId)

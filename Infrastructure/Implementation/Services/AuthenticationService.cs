@@ -58,11 +58,13 @@ public class AuthenticationService : IAuthenticationService
         {
             var responseData = await response.Content.ReadAsStringAsync();
 
-            var apiResponse = JsonConvert.DeserializeObject<LoginResponseDTO>(responseData);
-
+            var apiResponse = JsonConvert.DeserializeObject<RSOSLoginResponse>(responseData);
+            
             if (apiResponse is { Status: true })
             {
-                var studentLoginData = apiResponse.Data.Student;
+                var studentResponseData = JsonConvert.DeserializeObject<LoginResponseDTO>(responseData);
+
+                var studentLoginData = studentResponseData.Data.Student;
 
                 var studentEntity = new tblStudentLoginDetail
                 {
@@ -85,8 +87,8 @@ public class AuthenticationService : IAuthenticationService
                     DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
                     SSOID = studentLoginData.SsoId,
                     ApplicationToken = GenerateJwtToken(studentLoginData),
-                    SecureRSOSToken = apiResponse.secure_token,
-                    ValidTill = apiResponse.secure_token_valid_till,
+                    SecureRSOSToken = studentResponseData.secure_token,
+                    ValidTill = studentResponseData.secure_token_valid_till,
                     StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
                     EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
                 };

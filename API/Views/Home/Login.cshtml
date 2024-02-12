@@ -17,7 +17,7 @@
                 <span style="background-color: #db4b73; width: 0.7vw; border-radius: 3px;"></span>
                 <div class="form-floating position-relative">
                     <img src="~/images/user.png" alt="" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw">
-                    @Html.TextBoxFor(m => m.UserName, new { @class = "form-control ps-5", placeholder = "", id = "UserName", autofill = "off" })
+                    @Html.TextBoxFor(m => m.UserName, new { @class = "form-control ps-5", placeholder = "", id = "UserName", autocomplete = "off" })
                     <label class="ms-4 ps-4">Type Here ...</label>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     <span>
                         <img src="images/password.png" alt="" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw">
                     </span>
-                    @Html.TextBoxFor(m => m.Password, new { @class = "form-control ps-5", placeholder = "", id = "Password", type = "password", autofill = "off" })
+                    @Html.TextBoxFor(m => m.Password, new { @class = "form-control ps-5", placeholder = "", id = "Password", type = "password", autocomplete = "off" })
                     <label class="ms-4 ps-4">Type Here ...</label>
                 </div>
             </div>

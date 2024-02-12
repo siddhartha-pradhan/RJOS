@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Application.DTOs.Base;
 using Application.DTOs.Student;
 using Application.Interfaces.Services;
@@ -54,6 +55,21 @@ public class StudentController : ControllerBase
     [HttpPost("get-student-responses-authorize")]
     public async Task<IActionResult> GetStudentResponsesResultAuthorize([FromForm]int studentId)
     {
+        var studentIdentifier = _studentService.StudentId;
+
+        if (studentId != studentIdentifier)
+        {
+            var unauthorized = new ResponseDTO<object>()
+            {
+                Status = "Unauthorized",
+                Message = "The logged in student's identifier do not match with the provided student's identifier. ",
+                StatusCode = HttpStatusCode.Unauthorized,
+                Result = false
+            };
+
+            return Unauthorized(unauthorized);
+        }
+        
         var result = await _studentService.GetStudentRecords(studentId);
 
         var response = new ResponseDTO<StudentResponseDTO>
@@ -68,7 +84,7 @@ public class StudentController : ControllerBase
     }
 
     [HttpPost("insert-student-records")]
-    public async Task<IActionResult> InsertStudentResponse(StudentRequestDTO studentResponse)
+    public async Task<IActionResult> InsertStudentResponse(StudentTransactionRequestDTO studentResponse)
     {
         await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
 
@@ -87,20 +103,65 @@ public class StudentController : ControllerBase
 
     [Authorize]
     [HttpPost("insert-student-records-authorize")]
-    public async Task<IActionResult> InsertStudentResponseAuthorize(StudentRequestDTO studentResponse)
+    public async Task<IActionResult> InsertStudentResponseAuthorize([FromForm]string? studentResponse, [FromForm]string? studentScore)
     {
-        await _studentService.InsertStudentResponse(studentResponse.StudentResponse);
+        var studentIdentifier = _studentService.StudentId;
 
-        await _studentService.InsertStudentScore(studentResponse.StudentScores);
-
-        var result = new ResponseDTO<object>()
+        var unauthorizedResponse = new ResponseDTO<object>()
         {
-            Status = "Success",
-            Message = "Successfully Inserted / Updated.",
-            StatusCode = HttpStatusCode.OK,
-            Result = true
+            Status = "Unauthorized",
+            Message = "The logged in student's identifier do not match with the provided student's identifier. ",
+            StatusCode = HttpStatusCode.Unauthorized,
+            Result = false
         };
 
-        return Ok(result);
+        if (studentResponse != null)
+        {
+            var studentResponses = JsonSerializer.Deserialize<List<StudentResponseRequestDTO>>(studentResponse);
+            
+            if(studentResponses != null && studentResponses.Any(x => x.StudentId != studentIdentifier))
+            {
+                return Unauthorized(unauthorizedResponse);
+            }
+        }
+
+        if (studentScore != null)
+        {
+            var studentScores = JsonSerializer.Deserialize<List<StudentScoreRequestDTO>>(studentScore);
+            
+            if (studentScores != null && studentScores.Any(x => x.StudentId != studentIdentifier))
+            {
+                return Unauthorized(unauthorizedResponse);
+            }
+        }
+
+        if (studentResponse != null && studentScore != null)
+        {
+            var studentResponses = JsonSerializer.Deserialize<List<StudentResponseRequestDTO>>(studentResponse);
+            var studentScores = JsonSerializer.Deserialize<List<StudentScoreRequestDTO>>(studentScore);
+
+            await _studentService.InsertStudentResponse(studentResponses);
+            await _studentService.InsertStudentScore(studentScores);
+
+            var successResponse = new ResponseDTO<object>()
+            {
+                Status = "Success",
+                Message = "Successfully Inserted / Updated.",
+                StatusCode = HttpStatusCode.OK,
+                Result = true
+            };
+
+            return Ok(successResponse);
+        }
+
+        var errorResponse = new ResponseDTO<object>()
+        {
+            Status = "Error",
+            Message = "Invalid data provided.",
+            StatusCode = HttpStatusCode.BadRequest,
+            Result = false
+        };
+
+        return BadRequest(errorResponse);
     }
 }

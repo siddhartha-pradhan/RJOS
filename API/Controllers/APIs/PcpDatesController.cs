@@ -1,10 +1,6 @@
 ﻿using Application.DTOs.Base;
-using Application.DTOs.NewsAndAlert;
 using Application.DTOs.PcpDate;
-using Application.DTOs.Student;
 using Application.Interfaces.Services;
-using Data.Implementation.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 

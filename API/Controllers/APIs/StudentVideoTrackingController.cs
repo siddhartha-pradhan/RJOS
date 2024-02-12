@@ -11,11 +11,13 @@ namespace RJOS.Controllers.APIs;
 [Route("api/student-video-tracking")]
 public class StudentVideoTrackingController : ControllerBase
 {
+    private readonly IStudentService _studentService;
     private readonly IStudentVideoTrackingService _studentVideoTrackingService;
 
-    public StudentVideoTrackingController(IStudentVideoTrackingService studentVideoTracking)
+    public StudentVideoTrackingController(IStudentVideoTrackingService studentVideoTracking, IStudentService studentService)
     {
         _studentVideoTrackingService = studentVideoTracking;
+        _studentService = studentService;
     }
 
     [HttpPost("upsert-student-video-tracking")]
@@ -38,6 +40,21 @@ public class StudentVideoTrackingController : ControllerBase
     [HttpPost("upsert-student-video-tracking-authorize")]
     public async Task<IActionResult> UpsertStudentVideoTrackingAuthorize([FromForm]StudentVideoTrackingRequestDTO studentVideoTrackingRequest)
     {
+        var studentIdentifier = _studentService.StudentId;
+
+        if (studentVideoTrackingRequest.StudentId != studentIdentifier)
+        {
+            var unauthorized = new ResponseDTO<object>()
+            {
+                Status = "Unauthorized",
+                Message = "The logged in student's identifier do not match with the provided student's identifier. ",
+                StatusCode = HttpStatusCode.Unauthorized,
+                Result = false
+            };
+
+            return Unauthorized(unauthorized);
+        }
+        
         await _studentVideoTrackingService.UpsertStudentVideoTracking(studentVideoTrackingRequest);
 
         var result = new ResponseDTO<object>()
@@ -87,6 +104,21 @@ public class StudentVideoTrackingController : ControllerBase
     [HttpPost("get-student-video-tracking-authorize")]
     public async Task<IActionResult> PostGetStudentVideoTrackingByIdAuthorize([FromForm]int studentId)
     {
+        var studentIdentifier = _studentService.StudentId;
+
+        if (studentId != studentIdentifier)
+        {
+            var unauthorized = new ResponseDTO<object>()
+            {
+                Status = "Unauthorized",
+                Message = "The logged in student's identifier do not match with the provided student's identifier. ",
+                StatusCode = HttpStatusCode.Unauthorized,
+                Result = false
+            };
+
+            return Unauthorized(unauthorized);
+        }
+        
         var result = await _studentVideoTrackingService.GetStudentVideoTrackingByStudentId(studentId);
 
         var response = new ResponseDTO<List<StudentVideoTrackingResponseDTO>>

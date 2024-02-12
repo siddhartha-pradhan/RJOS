@@ -4,10 +4,15 @@ namespace Application.DTOs.Student;
 
 public class StudentRequestDTO
 {
-    [JsonPropertyName("tbl_student_response")]
+    public string StudentResponse { get; set; }
+
+    public string StudentScores { get; set; }
+}
+
+public class StudentTransactionRequestDTO
+{
     public List<StudentResponseRequestDTO> StudentResponse { get; set; }
 
-    [JsonPropertyName("tbl_student_score")]
     public List<StudentScoreRequestDTO> StudentScores { get; set; }
 }
 

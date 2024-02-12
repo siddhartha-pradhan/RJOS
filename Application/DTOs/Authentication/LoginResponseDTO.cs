@@ -1,5 +1,10 @@
 ﻿namespace Application.DTOs.Authentication;
 
+public class RSOSLoginResponse
+{
+    public bool Status { get; set; }
+}
+
 public class LoginResponseDTO
 {
     public bool Status { get; set; }
@@ -10,7 +15,7 @@ public class LoginResponseDTO
     
     public string secure_token_valid_till { get; set; }
     
-    public object Error { get; set; }
+    public List<object> Error { get; set; }
 }
 
 public class StudentDataDTO

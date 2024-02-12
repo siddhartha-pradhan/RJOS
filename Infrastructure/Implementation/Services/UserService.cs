@@ -19,6 +19,8 @@ public class UserService : IUserService
 
     public async Task<int> GetUserId(UserRequestDTO userRequest)
     {
+        userRequest.UserName = DecryptStringAes(userRequest.HdUserName);
+
         var userId = await _genericRepository.GetFirstOrDefaultAsync<tblUser>(x => x.UserName == userRequest.UserName);
         
         return userId?.Id ?? 0;
@@ -27,13 +29,13 @@ public class UserService : IUserService
     public async Task<bool> IsUserAuthenticated(UserRequestDTO userRequest)
     {
         userRequest.UserName = DecryptStringAes(userRequest.HdUserName);
-        
+    
         userRequest.Password = DecryptStringAes(userRequest.HdPassword).Replace(userRequest.HdCp, "");
 
         if (userRequest.UserName == "keyError" || userRequest.Password == "keyError") return false;
-        
+    
         var user = await _genericRepository.GetFirstOrDefaultAsync<tblUser>(x => x.UserName == userRequest.UserName);
-            
+        
         return user != null && VerifyPassword(userRequest.Password, user.Password, PasswordSalt);
     }
 
