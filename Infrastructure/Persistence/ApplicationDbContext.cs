@@ -32,7 +32,7 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblNotification> tblNotifications { get; set; }
 
-    public virtual DbSet<tblPCPDate> tblPcpDate { get; set; }
+    public virtual DbSet<tblPCPDate> tblPcpDates { get; set; }
 
     public virtual DbSet<tblQuestion> tblQuestions { get; set; }
 

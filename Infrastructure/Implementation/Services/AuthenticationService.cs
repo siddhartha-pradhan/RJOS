@@ -75,29 +75,158 @@ public class AuthenticationService : IAuthenticationService
                 
                 await _genericRepository.InsertAsync(studentEntity);
 
-                var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>();
+                var existingStudentLoginHistory =
+                    await _genericRepository.GetFirstOrDefaultAsync<tblStudentLoginHistory>(x =>
+                        x.SSOID == studentLoginData.SsoId);
 
-                var maxPcpDate = pcpDates.MaxBy(x => x.Id);
-
-                var authenticationResponse = new AuthenticationResponseDTO
+                if (existingStudentLoginHistory == null)
                 {
-                    Id = studentLoginData.Id,
-                    Enrollment = studentLoginData.Enrollment,
-                    Name = studentLoginData.Name,
-                    DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
-                    SSOID = studentLoginData.SsoId,
-                    ApplicationToken = GenerateJwtToken(studentLoginData),
-                    SecureRSOSToken = studentResponseData.secure_token,
-                    ValidTill = studentResponseData.secure_token_valid_till,
-                    StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
-                    EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
-                };
+                    var studentLoginHistoryModel = new tblStudentLoginHistory()
+                    {
+                        SSOID = studentLoginData.SsoId,
+                        AttemptCount = 0,
+                        LastAccessedTime = DateTime.Now
+                    };
 
-                return authenticationResponse;
+                    await _genericRepository.InsertAsync(studentLoginHistoryModel);
+                }
+                
+                var studentLoginHistory =
+                    await _genericRepository.GetFirstOrDefaultAsync<tblStudentLoginHistory>(x =>
+                        x.SSOID == studentLoginData.SsoId);
+
+                if (studentLoginHistory is { AttemptCount: >= 5 })
+                {
+                    if (studentLoginHistory.LastAccessedTime.AddDays(1) <= DateTime.Now)
+                    {
+                        var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>();
+
+                        var maxPcpDate = pcpDates.MaxBy(x => x.Id);
+
+                        var authenticationResponse = new AuthenticationResponseDTO
+                        {
+                            Id = studentLoginData.Id,
+                            Enrollment = studentLoginData.Enrollment,
+                            Name = studentLoginData.Name,
+                            DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
+                            SSOID = studentLoginData.SsoId,
+                            ApplicationToken = GenerateJwtToken(studentLoginData),
+                            SecureRSOSToken = studentResponseData.secure_token,
+                            ValidTill = studentResponseData.secure_token_valid_till,
+                            StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
+                            EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
+                        };
+
+                        studentLoginHistory.AttemptCount = 0;
+                        studentLoginHistory.LastAccessedTime = DateTime.Now;
+
+                        await _genericRepository.UpdateAsync(studentLoginHistory);
+                        
+                        return authenticationResponse;
+                    }
+
+                    return new AuthenticationResponseDTO()
+                    {
+                        Id = -1,
+                        ValidTill =  studentLoginHistory.LastAccessedTime.AddDays(1).ToString("dd-MM-yyyy hh:mm:ss tt")
+                    };
+                }
+                else
+                {
+                    var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>();
+
+                    var maxPcpDate = pcpDates.MaxBy(x => x.Id);
+
+                    var authenticationResponse = new AuthenticationResponseDTO
+                    {
+                        Id = studentLoginData.Id,
+                        Enrollment = studentLoginData.Enrollment,
+                        Name = studentLoginData.Name,
+                        DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd"),
+                        SSOID = studentLoginData.SsoId,
+                        ApplicationToken = GenerateJwtToken(studentLoginData),
+                        SecureRSOSToken = studentResponseData.secure_token,
+                        ValidTill = studentResponseData.secure_token_valid_till,
+                        StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
+                        EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
+                    };
+
+                    if (studentLoginHistory != null)
+                    {
+                        studentLoginHistory.AttemptCount = 0;
+                        studentLoginHistory.LastAccessedTime = DateTime.Now;
+
+                        await _genericRepository.UpdateAsync(studentLoginHistory);
+                    }
+                    
+                    return authenticationResponse;
+                }
             }
             else
             {
+                var existingStudentLoginHistory =
+                    await _genericRepository.GetFirstOrDefaultAsync<tblStudentLoginHistory>(x =>
+                        x.SSOID == authenticationRequest.SSOID);
+
+                if (existingStudentLoginHistory == null)
+                {
+                    var studentLoginHistoryModel = new tblStudentLoginHistory()
+                    {
+                        SSOID = authenticationRequest.SSOID,
+                        AttemptCount = 1,
+                        LastAccessedTime = DateTime.Now
+                    };
+
+                    await _genericRepository.InsertAsync(studentLoginHistoryModel);
+                }
+                else
+                {
+                    var studentLoginHistory = await _genericRepository.GetFirstOrDefaultAsync<tblStudentLoginHistory>(x =>
+                        x.SSOID == authenticationRequest.SSOID);
+
+                    if (studentLoginHistory != null)
+                    {
+                        if (studentLoginHistory.AttemptCount == 5)
+                        {
+                            if (studentLoginHistory.LastAccessedTime.AddDays(1) <= DateTime.Now)
+                            {
+                                studentLoginHistory.AttemptCount = 1;
+                                studentLoginHistory.LastAccessedTime = DateTime.Now;
+
+                                await _genericRepository.UpdateAsync(studentLoginHistory);
+
+                                return new AuthenticationResponseDTO();
+                            }
+                            else
+                            {
+                                return new AuthenticationResponseDTO()
+                                {
+                                    Id = -1,
+                                    ValidTill =  studentLoginHistory.LastAccessedTime.AddDays(1).ToString("dd-MM-yyyy hh:mm:ss tt")
+                                };
+                            }
+                        }
+                        else
+                        {
+                            studentLoginHistory.AttemptCount++; 
+                            studentLoginHistory.LastAccessedTime = DateTime.Now;
+                        }
+                        
+                        await _genericRepository.UpdateAsync(studentLoginHistory);
+                        
+                        if (studentLoginHistory.AttemptCount == 5)
+                        {
+                            return new AuthenticationResponseDTO()
+                            {
+                                Id = -1,
+                                ValidTill =  studentLoginHistory.LastAccessedTime.AddDays(1).ToString("dd-MM-yyyy hh:mm:ss tt")
+                            };
+                        }
+                    }
+                }
+
                 return new AuthenticationResponseDTO();
+                
             }
         } else
         {
