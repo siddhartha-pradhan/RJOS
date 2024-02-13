@@ -1,6 +1,6 @@
 ﻿namespace Data;
 
-public partial class tblPcpDates
+public partial class tblPCPDate
 {
     public int Id { get; set; }
 

@@ -1,12 +1,6 @@
-﻿using Application.DTOs.NewsAndAlert;
-using Application.DTOs.PcpDate;
+﻿using Application.DTOs.PcpDate;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Data.Implementation.Services
 {
@@ -21,7 +15,7 @@ namespace Data.Implementation.Services
 
         public async Task<List<PcpDatesResponseDTO>> GetAllPcpDates()
         {
-            var pcpDates = await _genericRepository.GetAsync<tblPcpDates>(x => x.IsActive);
+            var pcpDates = await _genericRepository.GetAsync<tblPCPDate>(x => x.IsActive);
 
             return pcpDates.Select(x => new PcpDatesResponseDTO
             {
@@ -37,7 +31,7 @@ namespace Data.Implementation.Services
 
         public async Task InsertPcpDates(PcpDatesRequestDTO pcpDates)
         {
-            var pcpDatesModel = new tblPcpDates()
+            var pcpDatesModel = new tblPCPDate()
             {
                 StartDate = pcpDates.StartDate,
                 EndDate = pcpDates.EndDate,

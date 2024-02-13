@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Data;
+﻿namespace Data;
 
 public partial class tblStudentLoginDetail
 {

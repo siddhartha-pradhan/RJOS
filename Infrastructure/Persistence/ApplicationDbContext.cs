@@ -32,7 +32,7 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblNotification> tblNotifications { get; set; }
 
-    public virtual DbSet<tblPcpDates> tblPcpDates { get; set; }
+    public virtual DbSet<tblPCPDate> tblPcpDate { get; set; }
 
     public virtual DbSet<tblQuestion> tblQuestions { get; set; }
 
@@ -54,7 +54,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => new { e.CommonId, e.Flag, e.LanguageId }).HasName("PK_Common");
 
-            entity.HasIndex(e => new { e.Flag, e.IsActive }, "Idx_Commons").IsDescending(false, true);
+            entity.HasIndex(e => new { e.Flag, e.CommonId }, "Idx_Commons");
 
             entity.Property(e => e.Flag).HasDefaultValue(1);
             entity.Property(e => e.CorrectAnswer).HasDefaultValue(0);
@@ -148,7 +148,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
         });
 
-        modelBuilder.Entity<tblPcpDates>(entity =>
+        modelBuilder.Entity<tblPCPDate>(entity =>
         {
             entity.HasKey(e => e.Id)
                 .HasName("PK_PCPDate")
@@ -157,6 +157,10 @@ public partial class ApplicationDbContext : DbContext
             entity.HasIndex(e => e.Id, "Idx_PCPDates")
                 .IsDescending()
                 .IsClustered();
+
+            entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<tblQuestion>(entity =>
@@ -181,6 +185,18 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.DeviceRegistrationToken).HasMaxLength(500);
             entity.Property(e => e.LoginTime).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.SSOID).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<tblStudentLoginHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_StudentLoginHistory");
+
+            entity.ToTable("tblStudentLoginHistory");
+
+            entity.HasIndex(e => new { e.SSOID, e.LastAccessedTime }, "Idx_StudentLoginHistory").IsDescending(false, true);
+
+            entity.Property(e => e.LastAccessedTime).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.SSOID).HasMaxLength(200);
         });
 

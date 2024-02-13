@@ -75,7 +75,7 @@ public class AuthenticationService : IAuthenticationService
                 
                 await _genericRepository.InsertAsync(studentEntity);
 
-                var pcpDates =  await _genericRepository.GetAsync<tblPcpDates>();
+                var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>();
 
                 var maxPcpDate = pcpDates.MaxBy(x => x.Id);
 

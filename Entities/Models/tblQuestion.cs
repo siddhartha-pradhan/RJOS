@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Data;
+﻿namespace Data;
 
 public partial class tblQuestion
 {
@@ -32,6 +29,6 @@ public partial class tblQuestion
     public int? LastUpdatedBy { get; set; }
 
     public DateTime? LastUpdatedOn { get; set; }
-    
+
     public int? PaperType { get; set; }
 }
