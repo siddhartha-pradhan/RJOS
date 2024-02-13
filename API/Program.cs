@@ -206,6 +206,19 @@ app.UseExceptionHandler("/Home/Error");
 
 app.UseHsts();
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = (context) =>
+    {
+        var headers = context.Context.Response.GetTypedHeaders();
+        headers.CacheControl = new CacheControlHeaderValue
+        {
+            Public = true,
+            MaxAge = TimeSpan.FromHours(24)
+        };
+    }
+});
+
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
@@ -241,19 +254,6 @@ app.UseCors(policyBuilder =>
     policyBuilder.AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader();
-});
-
-app.UseStaticFiles(new StaticFileOptions
-{
-    OnPrepareResponse = (context) =>
-    {
-        var headers = context.Context.Response.GetTypedHeaders();
-        headers.CacheControl = new CacheControlHeaderValue
-        {
-            Public = true,
-            MaxAge = TimeSpan.FromHours(24)
-        };
-    }
 });
 
 // app.UseContentSecurityPolicy();

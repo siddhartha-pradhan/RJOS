@@ -1,13 +1,26 @@
 ﻿using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace Common.Utilities;
 
 public static class ExtensionMethods
 {
-    private static readonly string MaliciousInputPattern = @"(<\s*script\s*[^>]*>(.*?)<\s*/\s*script\s*>)|(<\s*iframe\s*[^>]*>(.*?)<\s*/\s*iframe\s*>)|(<\s*a\s*[^>]*>(.*?)<\s*/\s*a\s*>)|(<\s*p\s*[^>]*>(.*?)<\s*/\s*p\s*>)|(<\s*strong\s*[^>]*>(.*?)<\s*/\s*strong\s*>)|(\b(?:on\w+))|(\bon\w+\s*=)|(javascript\s*:\s*)|(document\s*\.\s*)|(\b(?:eval|expression|prompt|alert|confirm|javascript|setTimeout|setInterval))|(--\s*;)|(/\*\s*(.*?)\s*\*/)|('(?:[^']|'')*')|(\]|\)|(#|\bselect\b|\bupdate\b|\bdelete\b|\binsert\b|\bdrop\b|\bcreate\b|\btruncate\b|\balter\b|\bexec\b|\bexecute\b|\bscript\b))";
-
+    private static string[] MaliciousInputPattern =
+    [
+        "<script>",
+        "<img src=\"javascript:",
+        "<a href=\"javascript:",
+        "<iframe>",
+        @"\.\./",
+        @"\.\.\\",
+        @"\.(exe|dll|bat)$",
+        @"<!ENTITY",
+        @"<!DOCTYPE",
+        @"(&|\(|\*)"
+    ];
+    
     public static string SetUniqueFileName(this string fileExtension)
     {
         var renamedFileName = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Day.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Millisecond.ToString();
@@ -44,6 +57,29 @@ public static class ExtensionMethods
 
     public static bool IsMaliciousInput(string input)
     {
+        var encodedInput = HttpUtility.HtmlDecode(input);
+        
+        if (encodedInput.Contains("<script>") || encodedInput.Contains("<img src=\"javascript:") || encodedInput.Contains("<a href=\"javascript:") || encodedInput.Contains("<iframe>"))
+        {
+            return true;
+        }
+        if (encodedInput.Contains("../") || encodedInput.Contains("..\\"))
+        {
+            return true;
+        }
+        if (encodedInput.EndsWith(".exe") || encodedInput.EndsWith(".dll") || encodedInput.EndsWith(".bat"))
+        {
+            return true;
+        }
+        if (encodedInput.Contains("<!ENTITY") || encodedInput.Contains("<!DOCTYPE"))
+        {
+            return true; 
+        }
+        if (encodedInput.Contains("(&") || encodedInput.Contains("(|") || encodedInput.Contains("*)"))
+        {
+            return true;
+        }
+        
         return false;
     }
 }

@@ -196,10 +196,12 @@
     function onSuccessNewsAndAlerts(data) {
         if (data.errorType === 1) {
             toastr.warning("Please insert all the required fields.");
+            return;
         }
         
         if (data.errorType === -1) {
             toastr.warning(data.message);
+            return;
         }
         
         if (data.action === 1) {
