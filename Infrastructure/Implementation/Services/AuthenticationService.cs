@@ -97,7 +97,7 @@ public class AuthenticationService : IAuthenticationService
 
                 if (studentLoginHistory is { AttemptCount: >= 5 })
                 {
-                    if (studentLoginHistory.LastAccessedTime.AddDays(1) <= DateTime.Now)
+                    if (studentLoginHistory.LastAccessedTime.AddMinutes(5) <= DateTime.Now)
                     {
                         var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>();
 
@@ -128,7 +128,7 @@ public class AuthenticationService : IAuthenticationService
                     return new AuthenticationResponseDTO()
                     {
                         Id = -1,
-                        ValidTill =  studentLoginHistory.LastAccessedTime.AddDays(1).ToString("dd-MM-yyyy hh:mm:ss tt")
+                        ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(5).ToString("dd-MM-yyyy hh:mm:ss tt")
                     };
                 }
                 else
@@ -188,7 +188,7 @@ public class AuthenticationService : IAuthenticationService
                     {
                         if (studentLoginHistory.AttemptCount == 5)
                         {
-                            if (studentLoginHistory.LastAccessedTime.AddDays(1) <= DateTime.Now)
+                            if (studentLoginHistory.LastAccessedTime.AddMinutes(5) <= DateTime.Now)
                             {
                                 studentLoginHistory.AttemptCount = 1;
                                 studentLoginHistory.LastAccessedTime = DateTime.Now;
@@ -202,7 +202,7 @@ public class AuthenticationService : IAuthenticationService
                                 return new AuthenticationResponseDTO()
                                 {
                                     Id = -1,
-                                    ValidTill =  studentLoginHistory.LastAccessedTime.AddDays(1).ToString("dd-MM-yyyy hh:mm:ss tt")
+                                    ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(5).ToString("dd-MM-yyyy hh:mm:ss tt")
                                 };
                             }
                         }
@@ -219,7 +219,7 @@ public class AuthenticationService : IAuthenticationService
                             return new AuthenticationResponseDTO()
                             {
                                 Id = -1,
-                                ValidTill =  studentLoginHistory.LastAccessedTime.AddDays(1).ToString("dd-MM-yyyy hh:mm:ss tt")
+                                ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(5).ToString("dd-MM-yyyy hh:mm:ss tt")
                             };
                         }
                     }

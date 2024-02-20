@@ -71,6 +71,8 @@ public class HomeController : BaseController<HomeController>
         {
             TempData["Warning"] = "The previous session was not logged out.";
 
+            TempData["LogoutAlert"] = "The previous session was not logged out.";
+
             return RedirectToAction("Login");
         }
 
@@ -122,6 +124,8 @@ public class HomeController : BaseController<HomeController>
         HttpContext.Session.Clear();
         
         HttpContext.Session.Remove("UserId");
+
+        TempData["Success"] = "Successfully logged out.";
 
         return RedirectToAction("Login");
     }

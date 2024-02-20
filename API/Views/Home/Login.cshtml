@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Login";
     Layout = "_LoginLayout";
+    
+    var logoutAlert = TempData["LogoutAlert"] == null ? "" : TempData["LogoutAlert"]!.ToString();
 }
 
 <partial name="_Notification"/>
@@ -126,6 +128,11 @@
             $('#HdPassword').val(encryptedPassword);
             $('#Password').val("********************");
         });
+        
+        if ('@logoutAlert' !== '') {
+            console.log("logout modal");
+            $("#logout-alert-modal").modal("show");
+        }
     });
     
 </script>
