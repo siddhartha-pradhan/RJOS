@@ -1,16 +1,13 @@
-﻿using Application.DTOs.NewsAndAlert;
-using Application.DTOs.PcpDate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.DTOs.PcpDate;
 
-namespace Application.Interfaces.Services
+
+namespace Application.Interfaces.Services;
+
+public interface IPcpDatesService
 {
-    public interface IPcpDatesService
-    {
-        Task<List<PcpDatesResponseDTO>> GetAllPcpDates();
-        Task InsertPcpDates(PcpDatesRequestDTO pcpDates);
-    }
+    Task<List<PcpDatesResponseDTO>> GetAllPcpDates();
+    
+    Task InsertPcpDates(PcpDatesRequestDTO pcpDates);
+    
+    Task UpdatePcpDatesStatus(int pcpDatesId);
 }

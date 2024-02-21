@@ -27,6 +27,7 @@ public class NotificationController : BaseController<NotificationController>
     }
     
     [HttpGet]
+    [Authentication]
     public async Task<IActionResult> GetNotificationById(int notificationId)
     {
         var notification = await _notificationService.GetNotificationById(notificationId);
@@ -38,6 +39,7 @@ public class NotificationController : BaseController<NotificationController>
     }
 
     [HttpPost]
+    [Authentication]
     public async Task<IActionResult> Upsert(NotificationRequestDTO notification)
     {
         var userId = HttpContext.Session.GetInt32("UserId");
@@ -58,7 +60,7 @@ public class NotificationController : BaseController<NotificationController>
             return Json(new
             {
                 errorType = -1,
-                message = "The following heading title and description consists of malicious input, please try again."
+                message = "The following heading title or description consists of malicious input, please try again."
             });
         }
 
@@ -135,6 +137,23 @@ public class NotificationController : BaseController<NotificationController>
     }
 
     [HttpPost]
+    [Authentication]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> UpdateNotificationStatus(int notificationId)
+    {
+        await _notificationService.UpdateNotificationStatus(notificationId);
+
+        var notifications = await _notificationService.GetAllNotifications();
+        
+        return Json(new
+        {
+            data = "Notification's status successfully changed.",
+            htmlData = ConvertViewToString("_NotificationsList", notifications, true)
+        });
+    }
+    
+    [HttpPost]
+    [Authentication]
     [IgnoreAntiforgeryToken]
     public async Task<IActionResult> TriggerNotification(int notificationId)
     {
@@ -149,15 +168,23 @@ public class NotificationController : BaseController<NotificationController>
         });
     }
     
-    public IActionResult DownloadDocument(string fileName, string uploadFileName)
+    [Authentication]
+    public async Task<IActionResult> DownloadDocument(int notificationId)
     {
+        var notification = await _notificationService.GetNotificationById(notificationId);
+
+        if (notification.Id == 0 || string.IsNullOrEmpty(notification.UploadedFileName) ||
+            string.IsNullOrEmpty(notification.UploadedFileUrl))
+            return Content($"file not found.");
+        
         var filePath = DocumentUploadFilePath.NotificationDocumentFilePath;
 
-        var sPhysicalPath = Path.Combine(_webHostEnvironment.WebRootPath, filePath + fileName);
+        var sPhysicalPath = Path.Combine(_webHostEnvironment.WebRootPath, filePath + notification.UploadedFileUrl);
 
-        return !System.IO.File.Exists(sPhysicalPath) ? Content($"file not found.") : DownloadAnyFile(uploadFileName, sPhysicalPath, null);
+        return !System.IO.File.Exists(sPhysicalPath) ? Content($"file not found.") : DownloadAnyFile(notification.UploadedFileName ?? "", sPhysicalPath, null);
     }
     
+    [Authentication]
     private async Task<string> UploadDocument(string folderPath, IFormFile file)
     {
         if (!Directory.Exists(Path.Combine(_webHostEnvironment.WebRootPath, folderPath)))

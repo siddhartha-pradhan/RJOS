@@ -7,6 +7,28 @@
     var logoutAlert = TempData["LogoutAlert"] == null ? "" : TempData["LogoutAlert"]!.ToString();
 }
 
+<style>
+    .captcha-container {
+        background-color: #db4b73;
+        padding: 10px;
+        border-radius: 5px;
+        transform: rotate(-2deg);
+        display: inline-block;
+    }
+
+    .captcha-text {
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        transform: rotate(2deg);
+    }
+    
+    .refresh-btn {
+        margin-left: 10px;
+        cursor: pointer;
+    }
+</style>
+
 <partial name="_Notification"/>
 
 <div class="row section">
@@ -35,35 +57,21 @@
                     <label class="ms-4 ps-4">Type Here ...</label>
                 </div>
             </div>
-            <p class="text-end">
+            <p class="text-end m-0 p-0">
                 <input type="checkbox" onclick="togglePassword()">
                 Show Password
             </p>
-            <div class="mb-3">
-                <dnt-captcha asp-captcha-generator-max="999999"
-                     asp-captcha-generator-min="111111"
-                     asp-captcha-generator-language="English"
-                     asp-captcha-generator-display-mode="ShowDigits"
-                     asp-use-relative-urls="true"
-                     asp-placeholder="Type Here ..."
-                     asp-font-name="Poppins"
-                     asp-font-size="30"
-                     asp-fore-color="#ffffff"
-                     asp-back-color="#db4b73"
-                     asp-text-box-template="
-                        <div class='input-group mt-1'>
-                            <span style='background-color: #db4b73; width: 0.7vw; border-radius: 3px;'></span>
-                            <div class='form-floating position-relative'>
-                                <span>
-                                    <img src='images/password.png' alt='' style='position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw'>
-                                </span>
-                                {0}
-                                <label class='ms-4 ps-4'>Type Here ...</label>
-                            </div>
-                        </div>"
-                     asp-validation-message-class="text-danger"
-                     asp-refresh-button-class="glyphicon glyphicon-refresh btn-sm"
-                     asp-use-noise="false" />
+            <div class="captcha-container mb-2">
+                <span class="captcha-text" id="captcha-value">@ViewData["Captcha"]</span>
+                <span class="refresh-btn text-white" id="refreshCaptcha">&#8635;</span>
+            </div>
+            <div class="input-group mb-3">
+                <span style="background-color: #db4b73; width: 0.7vw; border-radius: 3px;"></span>
+                <div class="form-floating position-relative">
+                    <img src="images/password.png" alt="" style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 1.7vw">
+                    @Html.TextBoxFor(m => m.Captcha, new { @class = "form-control ps-5", placeholder = "", id = "Captcha", autocomplete = "off" })
+                    <label class="ms-4 ps-4">Type Here ...</label>
+                </div>
             </div>
             <div class="row">
                 <input asp-for="HdCp" class="form-control ps-5" id="HdCp" type="hidden" />
@@ -130,9 +138,21 @@
         });
         
         if ('@logoutAlert' !== '') {
-            console.log("logout modal");
             $("#logout-alert-modal").modal("show");
         }
+        
+        $('#refreshCaptcha').on('click', function() {
+            $.ajax({
+                url: '/Home/RefreshCaptcha/', 
+                type: 'GET',
+                success: function(data) {
+                    $('#captcha-value').text(data.text);
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
     });
     
 </script>

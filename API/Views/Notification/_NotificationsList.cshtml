@@ -44,8 +44,8 @@
                     <th style="width:25%">Header</th>
                     <th style="width:25%">Description</th>
                     <th style="width:10%">Download File</th>
+                    <th style="width:10%">Valid From</th>
                     <th style="width:10%">Valid Till</th>
-                    <th style="width:10%">Is Triggered</th>
                     <th style="width:10%">Created On</th>
                     <th style="width:5%">Action</th>
                 </tr>
@@ -55,52 +55,81 @@
             {
                 foreach (var notification in Model)
                 {
-                    <tr>
-                        <td>
-                            <span>@(Model.ToList().IndexOf(notification) + 1).</span>
-                        </td>
-                        <td>
-                            @Html.Raw(notification.Title)
-                        </td>
-                        <td>
-                            @Html.Raw(notification.Description)
-                        </td>
-                        <td class="text-center">
-                            @if (notification.UploadedFileUrl != null)
-                            {
-                                <a asp-controller="Notification" asp-action="DownloadDocument" asp-route-uploadFileName="@notification.UploadedFileName" asp-route-fileName="@notification.UploadedFileUrl" class="btn btn-sm btn-outline-pink btn-rounded">
-                                    <i class="fa-solid fa-download"></i>
+                    if (notification.IsActive == 1)
+                    {
+                        <tr>
+                            <td>
+                                <span>@(Model.ToList().IndexOf(notification) + 1).</span>
+                            </td>
+                            <td>
+                                @Html.Raw(notification.Title)
+                            </td>
+                            <td>
+                                @Html.Raw(notification.Description)
+                            </td>
+                            <td class="text-center">
+                                @if (notification.UploadedFileUrl != null)
+                                {
+                                    <a asp-controller="Notification" asp-action="DownloadDocument" asp-route-notificationId="@notification.Id" class="btn btn-sm btn-outline-pink btn-rounded">
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @notification.ValidFrom.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                            <td>
+                                @notification.ValidTill.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                            <td>
+                                @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateNotification(@notification.Id)">
+                                    <i class="fa-regular fa-pen-to-square"></i>
                                 </a>
-                            }
-                        </td>
-                        <td>
-                            @notification.ValidTill.ToString("dd-MM-yyyy")
-                        </td>
-                        <td>
-                            @if (notification.IsTriggered == 1)
-                            {
-                                <h6><span class="badge bg-success">Yes</span></h6>
-                            }
-                            else
-                            {
-                                <h6><span class="badge bg-warning">No</span></h6>
-                            }
-                        </td>
-                        <td>
-                            @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
-                        </td>
-                        <td>
-                            <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateNotification(@notification.Id)">
-                                <i class="fa-regular fa-pen-to-square"></i>
-                            </a>
-                            @if (notification.IsTriggered != 1)
-                            {
-                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="triggerNotification(@notification.Id)">
+                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeNotificationStatus(@notification.Id)">
+                                    <i class="fa-regular fa-circle-xmark"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td class="text-danger">
+                                <span>@(Model.ToList().IndexOf(notification) + 1).</span>
+                            </td>
+                            <td class="text-danger">
+                                @Html.Raw(notification.Title)
+                            </td>
+                            <td class="text-danger">
+                                @Html.Raw(notification.Description)
+                            </td>
+                            <td class="text-center text-danger">
+                                @if (notification.UploadedFileUrl != null)
+                                {
+                                    <a asp-controller="Notification" asp-action="DownloadDocument" asp-route-notificationId="@notification.Id" class="btn btn-sm btn-outline-pink btn-rounded">
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                }
+                            </td>
+                            <td class="text-danger">
+                                @notification.ValidFrom.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                            <td class="text-danger">
+                                @notification.ValidTill.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                            <td class="text-danger">
+                                @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                            </td>
+                            <td class="text-danger">
+                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeNotificationStatus(@notification.Id)">
                                     <i class="fa-solid fa-check-double"></i>
                                 </a>
-                            }
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                    }
                 }
             }
             </tbody>
@@ -171,10 +200,11 @@
             $('#notification-header').val('');
             $('#notification-description').val('');
             $('#fileInput').val('');
+            $('#validFrom').val('');
             $('#validTill').val('');
             
-            let today = new Date().toISOString().split('T')[0];
-            $('#validTill').attr('min', today);
+            let today = new Date().toISOString().slice(0, 16);
+            $('#validFrom').attr('min', today);
                                 
             quill.setText("");
             editor.setText("");
@@ -189,15 +219,15 @@
                 contentType: 'application/json',
                 dataType: "JSON",
                 success: function(result) {
-                    let datePart = result.data.validTill.split('T')[0]; 
                     $('#Id').val(result.data.id);
                     $('#fileInput').val('');
-                    $('#validTill').val(datePart);
+                    $('#validFrom').val(result.data.validFrom);
+                    $('#validTill').val(result.data.validTill);
                     $('#notification-header').val(result.data.title);
                     $('#notification-description').val(result.data.description);
                     
-                    let today = new Date().toISOString().split('T')[0];
-                    $('#validTill').attr('min', today);
+                    let today = new Date().toISOString().slice(0, 16);
+                    $('#validFrom').attr('min', today);
                     
                     if (result.data.title !== undefined) {
                         quill.clipboard.dangerouslyPasteHTML(result.data.title);
@@ -246,10 +276,10 @@
          $('#notification-list').html(data.htmlData);
     }
     
-    function triggerNotification(index) {
+    function changeNotificationStatus(index) {
         $.ajax({
             type: 'POST',
-            url: '/Notification/TriggerNotification',
+            url: '/Notification/UpdateNotificationStatus',
             data: { notificationId: index },
             contentType: 'application/x-www-form-urlencoded',
             dataType: "JSON",

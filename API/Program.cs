@@ -54,7 +54,7 @@ services.AddHsts(options =>
     options.IncludeSubDomains = true;
 });
 
-services.AddSession(option => { option.IdleTimeout = TimeSpan.FromMinutes(15); });
+services.AddSession(option => { option.IdleTimeout = TimeSpan.FromMinutes(20); });
 
 services.AddCors();
 
@@ -249,12 +249,12 @@ app.UseSwagger();
 
 app.UseSwaggerUI();
 
-app.UseCors(policyBuilder =>
-{
-    policyBuilder.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-});
+// app.UseCors(policyBuilder =>
+// {
+//     policyBuilder.AllowAnyOrigin()
+//         .AllowAnyMethod()
+//         .AllowAnyHeader();
+// });
 
 // app.UseContentSecurityPolicy();
 

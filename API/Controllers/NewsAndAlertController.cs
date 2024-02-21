@@ -23,6 +23,7 @@ public class NewsAndAlertController : BaseController<NewsAndAlertController>
     }
 
     [HttpGet]
+    [Authentication]
     public async Task<IActionResult> GetNewsAndAlertById(int newsAndAlertId)
     {
         var newsAndAlert = await _newsAndAlertService.GetNewsAndAlertById(newsAndAlertId);
@@ -34,13 +35,14 @@ public class NewsAndAlertController : BaseController<NewsAndAlertController>
     }
 
     [HttpPost]
+    [Authentication]
     public async Task<IActionResult> Upsert(NewsAndAlertRequestDTO newsAndAlert)
     {
         var userId = HttpContext.Session.GetInt32("UserId");
 
         newsAndAlert.UserId = userId ?? 1;
 
-        if (string.IsNullOrEmpty(newsAndAlert.Header))
+        if (string.IsNullOrEmpty(newsAndAlert.Description))
         {
             return Json(new
             {
@@ -50,13 +52,12 @@ public class NewsAndAlertController : BaseController<NewsAndAlertController>
 
         var action = 0;
 
-        if (ExtensionMethods.IsMaliciousInput(newsAndAlert.Header) ||
-            ExtensionMethods.IsMaliciousInput(newsAndAlert.Description))
+        if (ExtensionMethods.IsMaliciousInput(newsAndAlert.Description))
         {
             return Json(new
             {
                 errorType = -1,
-                message = "The following heading title and description consists of malicious input, please try again."
+                message = "The following description consists of malicious input, please try again."
             });
         }
         
@@ -76,6 +77,22 @@ public class NewsAndAlertController : BaseController<NewsAndAlertController>
         return Json(new
         {
             action = action,
+            htmlData = ConvertViewToString("_NewsAndAlertList", result, true)
+        });
+    }
+    
+    [HttpPost]
+    [Authentication]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> UpdateNewsAndAlertStatus(int newsAndAlertsId)
+    {
+        await _newsAndAlertService.UpdateNewsAndAlertStatus(newsAndAlertsId);
+
+        var result = await _newsAndAlertService.GetAllNewsAndAlert();
+        
+        return Json(new
+        {
+            data = "News and Alert's status successfully changed.",
             htmlData = ConvertViewToString("_NewsAndAlertList", result, true)
         });
     }

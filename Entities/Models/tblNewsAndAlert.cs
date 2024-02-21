@@ -19,4 +19,6 @@ public partial class tblNewsAndAlert
     public int? LastUpdatedBy { get; set; }
 
     public DateTime? LastUpdatedOn { get; set; }
+
+    public DateTime ValidFrom { get; set; }
 }

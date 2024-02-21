@@ -2,45 +2,56 @@
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 
-namespace Data.Implementation.Services
+namespace Data.Implementation.Services;
+
+public class PcpDatesService : IPcpDatesService
 {
-    public class PcpDatesService : IPcpDatesService
+    private readonly IGenericRepository _genericRepository;
+
+    public PcpDatesService(IGenericRepository genericRepository)
     {
-        private readonly IGenericRepository _genericRepository;
+        _genericRepository = genericRepository;
+    }
 
-        public PcpDatesService(IGenericRepository genericRepository)
+    public async Task<List<PcpDatesResponseDTO>> GetAllPcpDates()
+    {
+        var pcpDates = await _genericRepository.GetAsync<tblPCPDate>();
+
+        return pcpDates.Select(x => new PcpDatesResponseDTO
         {
-            _genericRepository = genericRepository;
-        }
-
-        public async Task<List<PcpDatesResponseDTO>> GetAllPcpDates()
-        {
-            var pcpDates = await _genericRepository.GetAsync<tblPCPDate>(x => x.IsActive);
-
-            return pcpDates.Select(x => new PcpDatesResponseDTO
-            {
-                 Id = x.Id,
-                 StartDate = x.StartDate,
-                 EndDate = x.EndDate,
-                 CreatedBy = x.CreatedBy,
-                 CreatedOn = x.CreatedOn,
-                 IsActive = x.IsActive 
+            Id = x.Id,
+            StartDate = x.StartDate,
+            EndDate = x.EndDate,
+            CreatedBy = x.CreatedBy,
+            CreatedOn = x.CreatedOn,
+            IsActive = x.IsActive 
                 
-            }).ToList();
-        }
+        }).ToList();
+    }
 
-        public async Task InsertPcpDates(PcpDatesRequestDTO pcpDates)
+    public async Task InsertPcpDates(PcpDatesRequestDTO pcpDates)
+    {
+        var pcpDatesModel = new tblPCPDate()
         {
-            var pcpDatesModel = new tblPCPDate()
-            {
-                StartDate = pcpDates.StartDate,
-                EndDate = pcpDates.EndDate,
-                IsActive = true,
-                CreatedBy = pcpDates.UserId,
-                CreatedOn = DateTime.Now,
-            };
+            StartDate = pcpDates.StartDate,
+            EndDate = pcpDates.EndDate,
+            IsActive = true,
+            CreatedBy = pcpDates.UserId,
+            CreatedOn = DateTime.Now,
+        };
 
-            await _genericRepository.InsertAsync(pcpDatesModel);
+        await _genericRepository.InsertAsync(pcpDatesModel);
+    }
+
+    public async Task UpdatePcpDatesStatus(int pcpDatesId)
+    {
+        var pcpDate = await _genericRepository.GetByIdAsync<tblPCPDate>(pcpDatesId);
+
+        if (pcpDate != null)
+        {
+            pcpDate.IsActive = !pcpDate.IsActive;
+
+            await _genericRepository.UpdateAsync(pcpDate);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Data.Persistence;
@@ -17,6 +16,8 @@ public partial class ApplicationDbContext : DbContext
     {
         _configuration = configuration;
     }
+
+    public virtual DbSet<tblChatBotMessage> tblChatBotMessages { get; set; }
 
     public virtual DbSet<tblCommon> tblCommons { get; set; }
 
@@ -50,6 +51,15 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<tblChatBotMessage>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tblChatB__3214EC0723128C88");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.LanguageId).HasColumnType("decimal(18, 0)");
+        });
+
         modelBuilder.Entity<tblCommon>(entity =>
         {
             entity.HasKey(e => new { e.CommonId, e.Flag, e.LanguageId }).HasName("PK_Common");
@@ -132,6 +142,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(200);
             entity.Property(e => e.Header).HasMaxLength(200);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.ValidFrom).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<tblNotification>(entity =>
@@ -146,6 +157,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.UploadedFileName).HasMaxLength(200);
             entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
+            entity.Property(e => e.ValidFrom).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<tblPCPDate>(entity =>

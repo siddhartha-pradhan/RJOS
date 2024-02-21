@@ -15,13 +15,13 @@ public class NewsAndAlertService : INewsAndAlertService
 
     public async Task<List<NewsAndAlertResponseDTO>> GetAllNewsAndAlert()
     {
-        var newsAndAlert = await _genericRepository.GetAsync<tblNewsAndAlert>(x => x.IsActive);
+        var newsAndAlert = await _genericRepository.GetAsync<tblNewsAndAlert>();
 
         return newsAndAlert.OrderByDescending(x => x.Id).Select(x => new NewsAndAlertResponseDTO
         {
             Id = x.Id,
-            Header = x.Header,
             Description = x.Description,
+            ValidFrom = x.ValidFrom,
             ValidTill = x.ValidTill,
             IsActive = x.IsActive ? 1 : 0,  
             CreatedOn = x.CreatedOn
@@ -31,13 +31,13 @@ public class NewsAndAlertService : INewsAndAlertService
     public async Task<List<NewsAndAlertResponseDTO>> GetAllValidNewsAndAlert()
     {
         var newsAndAlert = await _genericRepository.GetAsync<tblNewsAndAlert>(x =>
-            x.IsActive && x.ValidTill.Date >= DateTime.Now.Date);
+            x.IsActive && x.ValidFrom <= DateTime.Now && x.ValidTill >= DateTime.Now);
 
         return newsAndAlert.Select(x => new NewsAndAlertResponseDTO
         {
             Id = x.Id,
-            Header = x.Header,
             Description= x.Description,
+            ValidFrom = x.ValidFrom,
             ValidTill= x.ValidTill,
             IsActive = x.IsActive ? 1 : 0,
             CreatedOn = x.CreatedOn,
@@ -53,9 +53,9 @@ public class NewsAndAlertService : INewsAndAlertService
             return new NewsAndAlertResponseDTO()
             {
                 Id = newsAndAlert.Id,
-                Header = newsAndAlert.Header,
                 Description = newsAndAlert.Description,
                 ValidTill = newsAndAlert.ValidTill,
+                ValidFrom = newsAndAlert.ValidFrom,
             };
         }
 
@@ -66,8 +66,9 @@ public class NewsAndAlertService : INewsAndAlertService
     {
         var newsAndAlertModel = new tblNewsAndAlert()
         {
-            Header = newsAndAlert.Header,
+            Header = "",
             Description = newsAndAlert.Description,
+            ValidFrom = newsAndAlert.ValidFrom,
             ValidTill = newsAndAlert.ValidTill,
             IsActive = true,
             CreatedBy = newsAndAlert.UserId,
@@ -83,14 +84,27 @@ public class NewsAndAlertService : INewsAndAlertService
 
         if (newsAndAlertModel != null)
         {
-            newsAndAlertModel.Header = newsAndAlert.Header;
+            newsAndAlertModel.Header = "";
             newsAndAlertModel.Description = newsAndAlert.Description;
+            newsAndAlertModel.ValidFrom = newsAndAlert.ValidFrom;
             newsAndAlertModel.ValidTill = newsAndAlert.ValidTill;
 
             newsAndAlertModel.LastUpdatedBy = newsAndAlert.UserId;
             newsAndAlertModel.LastUpdatedOn = DateTime.Now;
 
             await _genericRepository.UpdateAsync(newsAndAlertModel);
+        }
+    }
+    
+    public async Task UpdateNewsAndAlertStatus(int newsAndAlertId)
+    {
+        var newsAndAlert = await _genericRepository.GetByIdAsync<tblNewsAndAlert>(newsAndAlertId);
+
+        if (newsAndAlert != null)
+        {
+            newsAndAlert.IsActive = !newsAndAlert.IsActive;
+
+            await _genericRepository.UpdateAsync(newsAndAlert);
         }
     }
 }

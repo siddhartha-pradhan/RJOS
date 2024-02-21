@@ -9,11 +9,6 @@
 
     #basic-datatable th:nth-child(2),
     #basic-datatable td:nth-child(2) {
-        max-width: 150px;
-    }
-
-    #basic-datatable th:nth-child(3),
-    #basic-datatable td:nth-child(3) {
         max-width: 300px;
     }
 </style>
@@ -41,40 +36,71 @@
             <thead>
                 <tr>
                     <th style="width:5%">#</th>
-                    <th style="width:30%">Header</th>
-                    <th style="width:30%">Description</th>
+                    <th style="width:40%">Description</th>
+                    <th style="width:15%">Valid From</th>
                     <th style="width:15%">Valid Till</th>
-                    <th style="width:15%">Created On</th>
+                    <th style="width:20%">Created On</th>
                     <th style="width:5%">Action</th>
                 </tr>
             </thead>
             <tbody>
                 @if (Model.Any())
                 {
-                    foreach (var notification in Model)
+                    foreach (var newsAndAlert in Model)
                     {
-                        <tr>
-                            <td>
-                                <span>@(Model.ToList().IndexOf(notification) + 1).</span>
-                            </td>
-                            <td>
-                                @Html.Raw(notification.Header)
-                            </td>
-                            <td>
-                                @Html.Raw(notification.Description)
-                            </td>
-                            <td>
-                                @notification.ValidTill.ToString("dd-MM-yyyy")
-                            </td>
-                            <td>
-                                @notification.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
-                            </td>
-                            <td>
-                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateNewsAndAlert(@notification.Id)">
-                                    <i class="fa-regular fa-pen-to-square"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        if (newsAndAlert.IsActive == 1)
+                        {
+                            <tr>
+                                <td>
+                                    <span>@(Model.ToList().IndexOf(newsAndAlert) + 1).</span>
+                                </td>
+                                <td>
+                                    @Html.Raw(newsAndAlert.Description)
+                                </td>
+                                <td>
+                                    @newsAndAlert.ValidFrom.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td>
+                                    @newsAndAlert.ValidTill.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td>
+                                    @newsAndAlert.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateNewsAndAlert(@newsAndAlert.Id)">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeNewsAndAlertStatus(@newsAndAlert.Id)">
+                                        <i class="fa-regular fa-circle-xmark"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="text-danger">
+                                    <span>@(Model.ToList().IndexOf(newsAndAlert) + 1).</span>
+                                </td>
+                                <td class="text-danger">
+                                    @Html.Raw(newsAndAlert.Description)
+                                </td>
+                                <td class="text-danger">
+                                    @newsAndAlert.ValidFrom.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td class="text-danger">
+                                    @newsAndAlert.ValidTill.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td class="text-danger">
+                                    @newsAndAlert.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td class="text-danger">
+                                    <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeNewsAndAlertStatus(@newsAndAlert.Id)">
+                                        <i class="fa-solid fa-check-double"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
                 }
             </tbody>
@@ -84,36 +110,10 @@
 
 
 <script type="text/javascript">
-    let quill = null;
     let editor = null;
 
     function onAddUpdateNewsAndAlert(index) {
-        if (!quill || !editor) {
-            quill = new Quill('.editor_header', {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        [{ font: [] }, { size: [] }],
-                        ["bold", "italic", "underline", "strike"],
-                        [{ color: [] }, { background: [] }],
-                        [{ script: "super" }, { script: "sub" }],
-                        [{ header: [!1, 1, 2, 3, 4, 5, 6] }],
-                        [{ list: "ordered" }, { list: "bullet" }],
-                        ["direction", { align: [] }],
-                        ["clean"]
-                    ],
-                    clipboard: {
-                        matchVisual: false,
-                    },
-                },
-            });
-
-            quill.on('text-change', function (delta, oldDelta, source) {
-                let content = quill.root.innerHTML;
-                let inputField = "#newsAndAlert-header";
-                $(inputField).val(content);
-            });
-
+        if (!editor) {
             editor = new Quill('.editor_description', {
                 theme: 'snow',
                 modules: {
@@ -146,10 +146,9 @@
             $('#newsAndAlert-description').val('');
             $('#validTill').val('');
             
-            let today = new Date().toISOString().split('T')[0];
-            $('#validTill').attr('min', today);
+            let today = new Date().toISOString().slice(0, 16);
+            $('#validFrom').attr('min', today);
                                 
-            quill.setText("");
             editor.setText("");
 
             $('#add-newsAndAlert').modal('show');
@@ -162,20 +161,14 @@
                 contentType: 'application/json',
                 dataType: "JSON",
                 success: function (result) {
-                    let datePart = result.data.validTill.split('T')[0];
                     $('#Id').val(result.data.id);
-                    $('#validTill').val(datePart);
+                    $('#validFrom').val(result.data.validFrom);
+                    $('#validTill').val(result.data.validTill);
                     $('#newsAndAlert-header').val(result.data.header);
                     $('#newsAndAlert-description').val(result.data.description);
                     
-                    let today = new Date().toISOString().split('T')[0];
-                    $('#validTill').attr('min', today);
-                    
-                    if (result.data.header !== undefined) {
-                        quill.clipboard.dangerouslyPasteHTML(result.data.header);
-                    } else {
-                        quill.setText("");
-                    }
+                    let today = new Date().toISOString().slice(0, 16);
+                    $('#validFrom').attr('min', today);
                     
                     if (result.data.description !== undefined) {
                         editor.clipboard.dangerouslyPasteHTML(result.data.description);
@@ -213,5 +206,23 @@
 
         $('#add-newsAndAlert').modal('hide');
         $('#newsAndAlert-list').html(data.htmlData);
+    }
+    
+    function changeNewsAndAlertStatus(index) {
+        $.ajax({
+            type: 'POST',
+            url: '/NewsAndAlert/UpdateNewsAndAlertStatus/',
+            data: { newsAndAlertsId: index },
+            contentType: 'application/x-www-form-urlencoded',
+            dataType: "JSON",
+            success: function(result) {
+                toastr.success(result.data);
+                $('#newsAndAlert-list').html(result.htmlData);
+            },
+            error: function(xhr, status, error) {           
+                let errorMessage = eval("(" + xhr.responseText + ")");
+                toastr.warning(errorMessage);
+            }
+        });
     }
 </script>

@@ -27,6 +27,7 @@ public static class InfrastructureService
         services.AddTransient<IGenericRepository, GenericRepository>();
 
         services.AddTransient<IAuthenticationService, AuthenticationService>();
+        services.AddTransient<IChatBotService, ChatBotService>();
         services.AddTransient<IConfigurationService, ConfigurationService>();
         services.AddTransient<IContentService, ContentService>();
         services.AddTransient<IDbInitializerService, DbInitializerService>();

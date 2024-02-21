@@ -19,4 +19,6 @@ public interface INewsAndAlertService
     Task InsertNewsAndAlert(NewsAndAlertRequestDTO newsAndAlert);
 
     Task UpdateNewsAndAlert(NewsAndAlertRequestDTO newsAndAlert);
+    
+    Task UpdateNewsAndAlertStatus(int newsAndAlertId);
 }

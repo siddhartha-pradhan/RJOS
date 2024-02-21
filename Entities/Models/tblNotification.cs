@@ -25,4 +25,6 @@ public partial class tblNotification
     public DateTime? LastUpdatedOn { get; set; }
 
     public bool IsTriggered { get; set; }
+
+    public DateTime ValidFrom { get; set; }
 }

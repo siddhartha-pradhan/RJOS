@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Application.DTOs.PcpDate
+namespace Application.DTOs.PcpDate;
+
+public class PcpDatesRequestDTO
 {
-    public class PcpDatesRequestDTO
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public int UserId { get; set; }
+    public int UserId { get; set; }
 
-        public DateTime StartDate { get; set; }
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yyyy HH:mm}")]
+    public DateTime StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
-
-    }
+    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yyyy HH:mm}")]
+    public DateTime EndDate { get; set; }
 }

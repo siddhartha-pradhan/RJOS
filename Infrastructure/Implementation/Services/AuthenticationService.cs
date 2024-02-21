@@ -113,8 +113,8 @@ public class AuthenticationService : IAuthenticationService
                             ApplicationToken = GenerateJwtToken(studentLoginData),
                             SecureRSOSToken = studentResponseData.secure_token,
                             ValidTill = studentResponseData.secure_token_valid_till,
-                            StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
-                            EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
+                            StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd h:mm:ss tt") : "",
+                            EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd h:mm:ss tt") : ""
                         };
 
                         studentLoginHistory.AttemptCount = 0;
@@ -147,8 +147,8 @@ public class AuthenticationService : IAuthenticationService
                         ApplicationToken = GenerateJwtToken(studentLoginData),
                         SecureRSOSToken = studentResponseData.secure_token,
                         ValidTill = studentResponseData.secure_token_valid_till,
-                        StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd") : "",
-                        EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd") : ""
+                        StartDate = maxPcpDate != null ? maxPcpDate.StartDate.ToString("yyyy-MM-dd h:mm:ss tt") : "",
+                        EndDate = maxPcpDate != null ? maxPcpDate!.EndDate.ToString("yyyy-MM-dd h:mm:ss tt") : ""
                     };
 
                     if (studentLoginHistory != null)

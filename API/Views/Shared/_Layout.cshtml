@@ -67,13 +67,10 @@
                     <a class="nav-link" asp-controller="NewsAndAlert" asp-action="Index">News And Alerts</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" asp-controller="PcpDates" asp-action="Index">PCP Dates</a>
+                    <a class="nav-link" asp-controller="PcpDates" asp-action="Index">ePCP Dates</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Home" asp-action="ChangePassword">Change Password</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="PrivacyPolicy" asp-action="Index">Privacy and Policy</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Home" asp-action="Logout">Log Out</a>
@@ -82,6 +79,7 @@
         </div>
     </nav>
     <div class="container-fluid-item">
+        <partial name="_SessionExpiry" />
         <div class="row m-0">
             @RenderBody()
         </div>
@@ -93,5 +91,106 @@
     <script src="~/lib/font-awesome-4.7.0/css/font-awesome.css"></script>
     <script src="~/lib/jquery.unobtrusive-ajax.min.js_3.2.6/cdnjs/jquery.unobtrusive-ajax.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
-</body>
+    
+    <script type="text/javascript">
+        let inactivityTime = function () {
+            let time;
+            const inactivityTimeOut = 900000; // 15 minutes to milliseconds
+    
+            function updateActivityTimestamp() {
+                localStorage.setItem('lastActivity', Date.now().toString());
+            }
+        
+            function checkInactivity() {
+                let lastActivity = parseInt(localStorage.getItem('lastActivity') || '0', 10);
+                let currentTime = Date.now();
+        
+                if (currentTime - lastActivity >= inactivityTimeOut) {
+                    logout();
+                }
+            }
+    
+            window.onload = function () {
+                updateActivityTimestamp();
+                resetTimer();
+            };
+    
+            document.onmousemove = function () {
+                updateActivityTimestamp();
+                resetTimer();
+            };
+        
+            document.onkeypress = function () {
+                updateActivityTimestamp();
+                resetTimer();
+            };
+    
+            window.addEventListener('scroll', function () {
+                updateActivityTimestamp();
+                resetTimer();
+            });
+    
+            function logout() {
+                $('#alert-logout-modal').modal('show');
+            }
+        
+            function resetTimer() {
+                clearTimeout(time);
+                time = setTimeout(checkInactivity, inactivityTimeOut);
+            }
+    
+            document.getElementById('refreshSession').addEventListener('click', function () {
+                updateActivityTimestamp();
+                resetTimer();
+            });
+    
+            setInterval(checkInactivity, 3000); 
+        };
+    
+        window.onload = function () {
+            inactivityTime();
+        };
+        
+        let initialCountdownTime = 300;
+        let countdownTime = initialCountdownTime;
+        
+        let countdownInterval;
+        
+        function updateCountdown() {
+            let minutes = Math.floor(countdownTime / 60);
+            let seconds = countdownTime % 60;
+
+            document.getElementById("countdown").textContent = minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+
+            countdownTime--;
+            if (countdownTime < 0) {
+                $.ajax({
+                    url: '@Url.Action("Logout", "Home")',
+                    type: 'GET',
+                    success: function (result) {
+                        window.location.href = '@Url.Action("Login", "Home")';
+                        localStorage.setItem('lastActivity', Date.now().toString());
+                    },
+                    failure: function (response) {
+                    }
+                });
+            } 
+        }
+        
+        function startCountdown() {
+            countdownTime = initialCountdownTime;
+            clearInterval(countdownInterval); 
+            updateCountdown(); 
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        $('#alert-logout-modal').on('shown.bs.modal', function () {
+            startCountdown();
+        });
+       
+        $('#alert-logout-modal').on('hidden.bs.modal', function () {
+            clearInterval(countdownInterval);
+        });
+    </script>
+    </body>
 </html>

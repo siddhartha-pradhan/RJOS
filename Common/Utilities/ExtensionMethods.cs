@@ -59,6 +59,14 @@ public static class ExtensionMethods
     {
         var encodedInput = HttpUtility.HtmlDecode(input);
         
+        if (input.Split('"').Length - 1 >= 2)
+        {
+            return true;
+        }
+        if (encodedInput.StartsWith($";"))
+        {
+            return true;
+        }
         if (encodedInput.Contains("<script>") || encodedInput.Contains("<img src=\"javascript:") || encodedInput.Contains("<a href=\"javascript:") || encodedInput.Contains("<iframe>"))
         {
             return true;

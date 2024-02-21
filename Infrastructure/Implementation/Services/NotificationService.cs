@@ -21,7 +21,7 @@ public class NotificationService : INotificationService
 
     public async Task<List<NotificationResponseDTO>> GetAllNotifications()
     {
-        var notifications = await _genericRepository.GetAsync<tblNotification>(x => x.IsActive);
+        var notifications = await _genericRepository.GetAsync<tblNotification>();
         
         return notifications.OrderByDescending(x => x.Id).Select(x => new NotificationResponseDTO
         {
@@ -30,6 +30,7 @@ public class NotificationService : INotificationService
             Description = x.Description,
             UploadedFileName = x.UploadedFileName,
             UploadedFileUrl = x.UploadedFileUrl,
+            ValidFrom = x.ValidFrom,
             ValidTill = x.ValidTill,
             IsTriggered = x.IsTriggered ? 1 : 0,
             IsActive = x.IsActive ? 1 : 0,
@@ -40,7 +41,7 @@ public class NotificationService : INotificationService
     public async Task<List<NotificationResponseDTO>> GetAllValidNotifications()
     {
         var notifications = await _genericRepository.GetAsync<tblNotification>(x => 
-            x.IsTriggered && x.IsActive && x.ValidTill.Date >= DateTime.Now.Date);
+            x.IsActive && x.ValidFrom <= DateTime.Now && x.ValidTill >= DateTime.Now);
         
         return notifications.Select(x => new NotificationResponseDTO
         {
@@ -50,6 +51,7 @@ public class NotificationService : INotificationService
             UploadedFileName = x.UploadedFileName,
             UploadedFileUrl = x.UploadedFileUrl,
             ValidTill = x.ValidTill,
+            ValidFrom = x.ValidFrom,
             IsActive = x.IsActive ? 1 : 0,
             IsTriggered = 1,
             CreatedOn = x.CreatedOn,
@@ -68,6 +70,7 @@ public class NotificationService : INotificationService
                 Title = notification.Header,
                 Description = notification.Description,
                 ValidTill = notification.ValidTill,
+                ValidFrom = notification.ValidFrom,
                 UploadedFileUrl = notification.UploadedFileUrl,
                 UploadedFileName = notification.UploadedFileName
             };
@@ -82,6 +85,7 @@ public class NotificationService : INotificationService
         {
             Header = notification.Title,
             Description = notification.Description,
+            ValidFrom = notification.ValidFrom,
             ValidTill = notification.ValidTill,
             UploadedFileName = notification.UploadedFileName,
             UploadedFileUrl = notification.UploadedFileUrl,
@@ -102,6 +106,7 @@ public class NotificationService : INotificationService
             notificationModel.Header = notification.Title;
             notificationModel.Description = notification.Description;
             notificationModel.ValidTill = notification.ValidTill;
+            notificationModel.ValidFrom = notification.ValidFrom;
 
             notificationModel.LastUpdatedBy = notification.UserId;
             notificationModel.LastUpdatedOn = DateTime.Now;
@@ -112,6 +117,18 @@ public class NotificationService : INotificationService
                 notificationModel.UploadedFileUrl = notification.UploadedFileUrl;
             }
 
+            await _genericRepository.UpdateAsync(notificationModel);
+        }
+    }
+
+    public async Task UpdateNotificationStatus(int notificationId)
+    {
+        var notificationModel = await _genericRepository.GetByIdAsync<tblNotification>(notificationId);
+        
+        if (notificationModel != null)
+        {
+            notificationModel.IsActive = !notificationModel.IsActive;
+            
             await _genericRepository.UpdateAsync(notificationModel);
         }
     }

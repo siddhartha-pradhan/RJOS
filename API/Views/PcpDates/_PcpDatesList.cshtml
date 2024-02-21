@@ -24,7 +24,7 @@
             <div class="col-6">
                 <div class="text-start">
                     <div class="page-title-box">
-                        <h4 class="page-title">PCP Dates</h4>
+                        <h4 class="page-title">ePCP Dates</h4>
                     </div>
                 </div>
             </div>
@@ -44,6 +44,7 @@
                     <th style="width:30%">Start Date</th>
                     <th style="width:30%">End Date</th>
                     <th style="width:15%">Created On</th>
+                    <th style="width:15%">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -51,20 +52,50 @@
                 {
                     foreach (var pcpDates in Model)
                     {
-                        <tr>
-                            <td>
-                                <span>@(Model.ToList().IndexOf(pcpDates) + 1).</span>
-                            </td>
-                            <td>
-                                @Html.Raw(pcpDates.StartDate.ToString("dd-MM-yyyy"))
-                            </td>
-                            <td>
-                                @Html.Raw(pcpDates.EndDate.ToString("dd-MM-yyyy"))
-                            </td>
-                            <td>
-                                @pcpDates.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
-                            </td>
-                        </tr>
+                        if (pcpDates.IsActive)
+                        {
+                            <tr>
+                                <td>
+                                    <span>@(Model.ToList().IndexOf(pcpDates) + 1).</span>
+                                </td>
+                                <td>
+                                    @Html.Raw(pcpDates.StartDate.ToString("dd-MM-yyyy h:mm:ss tt"))
+                                </td>
+                                <td>
+                                    @Html.Raw(pcpDates.EndDate.ToString("dd-MM-yyyy h:mm:ss tt"))
+                                </td>
+                                <td>
+                                    @pcpDates.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changePcpDatesStatus(@pcpDates.Id)">
+                                        <i class="fa-regular fa-circle-xmark"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="text-danger">
+                                    <span>@(Model.ToList().IndexOf(pcpDates) + 1).</span>
+                                </td>
+                                <td class="text-danger">
+                                    @Html.Raw(pcpDates.StartDate.ToString("dd-MM-yyyy h:mm:ss tt"))
+                                </td>
+                                <td class="text-danger">
+                                    @Html.Raw(pcpDates.EndDate.ToString("dd-MM-yyyy h:mm:ss tt"))
+                                </td>
+                                <td class="text-danger">
+                                    @pcpDates.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt")
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changePcpDatesStatus(@pcpDates.Id)">
+                                        <i class="fa-solid fa-check-double"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
                 }
             </tbody>
@@ -80,7 +111,7 @@
             $('#pcpDates-startDate').val('');
             $('#pcpDates-endDate').val('');
             
-            let today = new Date().toISOString().split('T')[0];
+            let today = new Date().toISOString().slice(0, 16);
             $('#pcpDates-startDate').attr('min', today);
             
             $('#add-pcpDates').modal('show');
@@ -105,5 +136,23 @@
         
         $('#add-pcpDates').modal('hide');
         $('#pcpDates-list').html(data.htmlData);
+    }
+    
+    function changePcpDatesStatus(index) {
+        $.ajax({
+            type: 'POST',
+            url: '/PcpDates/UpdatePcpDatesStatus/',
+            data: { pcpDatesId : index },
+            contentType: 'application/x-www-form-urlencoded',
+            dataType: "JSON",
+            success: function(result) {
+                toastr.success(result.data);
+                $('#pcpDates-list').html(result.htmlData);
+            },
+            error: function(xhr, status, error) {           
+                let errorMessage = eval("(" + xhr.responseText + ")");
+                toastr.warning(errorMessage);
+            }
+        });
     }
 </script>

@@ -23,6 +23,7 @@ public class PcpDatesController : BaseController<PcpDatesController>
     }
 
     [HttpPost]
+    [Authentication]
     public async Task<IActionResult> Insert(PcpDatesRequestDTO pcpDatesRequest)
     {
         var userId = HttpContext.Session.GetInt32("UserId");
@@ -38,7 +39,23 @@ public class PcpDatesController : BaseController<PcpDatesController>
 
         return Json(new
         {
-            htmlData = ConvertViewToString("_pcpDatesList", result, true)
+            htmlData = ConvertViewToString("_PcpDatesList", result, true)
+        });
+    }
+    
+    [HttpPost]
+    [Authentication]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> UpdatePcpDatesStatus(int pcpDatesId)
+    {
+        await _pcpDatesService.UpdatePcpDatesStatus(pcpDatesId);
+
+        var result = await _pcpDatesService.GetAllPcpDates();
+        
+        return Json(new
+        {
+            data = "ePCP Date's status successfully changed.",
+            htmlData = ConvertViewToString("_PcpDatesList", result, true)
         });
     }
 }
