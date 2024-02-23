@@ -175,7 +175,7 @@ public class NotificationController : BaseController<NotificationController>
 
         if (notification.Id == 0 || string.IsNullOrEmpty(notification.UploadedFileName) ||
             string.IsNullOrEmpty(notification.UploadedFileUrl))
-            return Content($"file not found.");
+            return Content($"File not found.");
         
         var filePath = DocumentUploadFilePath.NotificationDocumentFilePath;
 

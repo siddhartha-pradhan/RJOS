@@ -146,8 +146,14 @@
             $('#newsAndAlert-description').val('');
             $('#validTill').val('');
             
-            let today = new Date().toISOString().slice(0, 16);
-            $('#validFrom').attr('min', today);
+            let today = new Date();
+            let year = today.getFullYear();
+            let month = String(today.getMonth() + 1).padStart(2, '0'); 
+            let day = String(today.getDate()).padStart(2, '0');
+            let hours = String(today.getHours()).padStart(2, '0');
+            let minutes = String(today.getMinutes()).padStart(2, '0');
+            let formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            $('#validFrom').attr('min', formattedDateTime);
                                 
             editor.setText("");
 

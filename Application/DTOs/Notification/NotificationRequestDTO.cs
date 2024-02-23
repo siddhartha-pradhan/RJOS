@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Application.DTOs.Notification;
 
@@ -19,9 +18,7 @@ public class NotificationRequestDTO
 
     public IFormFile? UploadedFile { get; set; } = null!;
     
-    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yyyy HH:mm}")]
     public DateTime ValidFrom { get; set; } = DateTime.Now;
 
-    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yyyy HH:mm}")]
     public DateTime ValidTill { get; set; }
 }

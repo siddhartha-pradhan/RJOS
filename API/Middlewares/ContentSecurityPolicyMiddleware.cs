@@ -11,7 +11,11 @@ public class ContentSecurityPolicyMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; connect-src 'self';");
+        context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; " +
+                                                                   "style-src 'self' 'unsafe-inline'; " +
+                                                                   "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+                                                                   "font-src 'self'; " +
+                                                                   "img-src 'self' data:; ");
 
         await _next(context);
     }

@@ -27,6 +27,12 @@
         margin-left: 10px;
         cursor: pointer;
     }
+    
+    .protected {
+        -moz-user-select:none;
+        -webkit-user-select:none;
+        user-select:none;
+    }
 </style>
 
 <partial name="_Notification"/>
@@ -62,7 +68,7 @@
                 Show Password
             </p>
             <div class="captcha-container mb-2">
-                <span class="captcha-text" id="captcha-value">@ViewData["Captcha"]</span>
+                <span class="captcha-text protected" id="captcha-value">@ViewData["Captcha"]</span>
                 <span class="refresh-btn text-white" id="refreshCaptcha">&#8635;</span>
             </div>
             <div class="input-group mb-3">
@@ -97,6 +103,19 @@
     }
     
     document.addEventListener("DOMContentLoaded", function () {
+        $(document).keydown(function(event){
+            if(event.keyCode === 123){
+                return false;
+            }
+            else if(event.ctrlKey && event.shiftKey && event.keyCode === 73){        
+                return false;  
+            }
+        });
+        
+        $(document).on("contextmenu",function(e){        
+           e.preventDefault();
+        });
+        
         let loginButton = document.getElementById('login');
 
         loginButton.addEventListener('click', function (event) {

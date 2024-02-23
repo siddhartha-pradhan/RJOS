@@ -256,7 +256,7 @@ app.UseSwaggerUI();
 //         .AllowAnyHeader();
 // });
 
-// app.UseContentSecurityPolicy();
+app.UseContentSecurityPolicy();
 
 app.MapControllerRoute(
     name: "default",
