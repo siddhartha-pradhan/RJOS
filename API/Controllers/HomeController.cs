@@ -5,9 +5,8 @@ using Application.DTOs.Error;
 using Application.DTOs.Password;
 using Microsoft.AspNetCore.Mvc;
 using Application.Interfaces.Services;
-using DNTCaptcha.Core;
+using Edi.Captcha;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace RJOS.Controllers;
 
@@ -16,13 +15,13 @@ public class HomeController : BaseController<HomeController>
     private Guid UserSessionId;
     private readonly IUserService _userService;
     private readonly IMemoryCache _memoryCache;
-    private readonly IDNTCaptchaValidatorService _validatorService;
+    private readonly ISessionBasedCaptcha _captcha;
 
-    public HomeController(IUserService userService, IMemoryCache memoryCache, IDNTCaptchaValidatorService validatorService)
+    public HomeController(IUserService userService, IMemoryCache memoryCache, ISessionBasedCaptcha captcha)
     {
+        _captcha = captcha;
         _userService = userService;
         _memoryCache = memoryCache;
-        _validatorService = validatorService;
     }
 
     [HttpGet]
@@ -46,7 +45,7 @@ public class HomeController : BaseController<HomeController>
             return RedirectToAction("Login");
         }
         
-        if (!_validatorService.HasRequestValidCaptchaEntry())
+        if (!_captcha.Validate(userRequest.Captcha, HttpContext.Session))
         {
             TempData["Warning"] = "Invalid captcha, please try again.";
                     
@@ -142,5 +141,14 @@ public class HomeController : BaseController<HomeController>
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
         });
+    }
+    
+    [HttpGet]
+    [Route("get-captcha-image")]
+    public IActionResult GetCaptchaImage()
+    {
+        var captcha = _captcha.GenerateCaptchaImageFileStream(HttpContext.Session);
+        
+        return captcha;
     }
 }

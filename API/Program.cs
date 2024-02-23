@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
 using DNTCaptcha.Core;
+using Edi.Captcha;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
@@ -190,6 +191,14 @@ services.AddDNTCaptcha(options =>
         .Identifier("dntcaptha");
 });
 
+services.AddSessionBasedCaptcha(option =>
+{
+    option.Letters = "123467890ABCDEFGHJKLMNPRTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    option.SessionName = "CaptchaCode";
+    option.DrawLines = false;
+    option.CodeLength = 6;
+});
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -248,6 +257,13 @@ app.MapControllers();
 app.UseSwagger();
 
 app.UseSwaggerUI();
+
+app.UseSession().UseCaptchaImage(options =>
+{
+    options.RequestPath = "/captcha-image";
+    options.ImageHeight = 36;
+    options.ImageWidth = 100;
+});
 
 // app.UseCors(policyBuilder =>
 // {
