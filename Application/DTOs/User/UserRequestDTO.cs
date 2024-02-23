@@ -6,8 +6,6 @@ public class UserRequestDTO
 
     public string Password { get; set; }
 
-    public string Captcha { get; set; }
-    
     public string HdUserName { get; set; }
     
     public string HdPassword { get; set; }

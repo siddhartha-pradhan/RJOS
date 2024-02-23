@@ -16,11 +16,13 @@ public class HomeController : BaseController<HomeController>
     private Guid UserSessionId;
     private readonly IUserService _userService;
     private readonly IMemoryCache _memoryCache;
+    private readonly IDNTCaptchaValidatorService _validatorService;
 
-    public HomeController(IUserService userService, IMemoryCache memoryCache)
+    public HomeController(IUserService userService, IMemoryCache memoryCache, IDNTCaptchaValidatorService validatorService)
     {
         _userService = userService;
         _memoryCache = memoryCache;
+        _validatorService = validatorService;
     }
 
     [HttpGet]
@@ -30,12 +32,6 @@ public class HomeController : BaseController<HomeController>
         {
             return RedirectToAction("Index", "Notification");
         }
-        
-        var captcha = GenerateAlphanumericCaseSensitiveCaptcha(6);
-            
-        ViewData["Captcha"] = captcha;
-            
-        HttpContext.Session.SetString("Captcha", captcha);
             
         return View();
     }
@@ -50,9 +46,7 @@ public class HomeController : BaseController<HomeController>
             return RedirectToAction("Login");
         }
         
-        var captcha = HttpContext.Session.GetString("Captcha") ?? "";
-        
-        if (userRequest.Captcha != captcha)
+        if (!_validatorService.HasRequestValidCaptchaEntry())
         {
             TempData["Warning"] = "Invalid captcha, please try again.";
                     
@@ -141,21 +135,6 @@ public class HomeController : BaseController<HomeController>
         return View();
     }
 
-    [HttpGet]
-    public IActionResult RefreshCaptcha()
-    {
-        var captcha = GenerateAlphanumericCaseSensitiveCaptcha(6);
-            
-        ViewData["Captcha"] = captcha;
-            
-        HttpContext.Session.SetString("Captcha", captcha);
-
-        return Json(new
-        {
-            text = captcha
-        });
-    }
-    
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
@@ -163,13 +142,5 @@ public class HomeController : BaseController<HomeController>
         {
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
         });
-    }
-    
-    private string GenerateAlphanumericCaseSensitiveCaptcha(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        var random = new Random();
-        return new string(Enumerable.Repeat(chars, length)
-            .Select(s => s[random.Next(s.Length)]).ToArray());
     }
 }
