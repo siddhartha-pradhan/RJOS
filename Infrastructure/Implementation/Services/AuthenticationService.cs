@@ -99,7 +99,7 @@ public class AuthenticationService : IAuthenticationService
                 {
                     if (studentLoginHistory.LastAccessedTime.AddMinutes(5) <= DateTime.Now)
                     {
-                        var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>();
+                        var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>(x => x.IsActive);
 
                         var maxPcpDate = pcpDates.MaxBy(x => x.Id);
 

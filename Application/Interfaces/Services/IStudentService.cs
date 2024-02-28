@@ -11,4 +11,6 @@ public interface IStudentService
     Task InsertStudentResponse(List<StudentResponseRequestDTO> studentResponses);
     
     Task InsertStudentScore(List<StudentScoreRequestDTO> studentScores);
+
+    Task<StudentExamResponseDTO> GetStudentExamSubjects();
 }

@@ -165,4 +165,21 @@ public class StudentController : ControllerBase
 
         return BadRequest(errorResponse);
     }
+    
+    [Authorize]
+    [HttpPost("get-student-exam-details-authorize")]
+    public async Task<IActionResult> GetStudentExamDetailsAuthorize()
+    {
+        var details = await _studentService.GetStudentExamSubjects();
+
+        var result = new ResponseDTO<StudentExamResponseDTO>()
+        {
+            Status = "Success",
+            Message = "Successfully Retrieved",
+            StatusCode = HttpStatusCode.OK,
+            Result = details
+        };
+
+        return Ok(result);
+    }
 }

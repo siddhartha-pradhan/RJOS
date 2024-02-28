@@ -144,6 +144,7 @@
             $('#Id').val('');
             $('#newsAndAlert-header').val('');
             $('#newsAndAlert-description').val('');
+            $('#validFrom').val('');
             $('#validTill').val('');
             
             let today = new Date();
@@ -153,6 +154,7 @@
             let hours = String(today.getHours()).padStart(2, '0');
             let minutes = String(today.getMinutes()).padStart(2, '0');
             let formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            
             $('#validFrom').attr('min', formattedDateTime);
                                 
             editor.setText("");

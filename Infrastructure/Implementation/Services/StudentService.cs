@@ -150,4 +150,68 @@ public class StudentService : IStudentService
             }
         }
     }
+
+    public async Task<StudentExamResponseDTO> GetStudentExamSubjects()
+    {
+        var pcpDate = (await _genericRepository.GetAsync<tblPCPDate>(x => x.IsActive)).MaxBy(x => x.Id);
+
+        if (pcpDate == null)
+        {
+            return new StudentExamResponseDTO()
+            {
+                IsEligible = false,
+                Message = "There are no any active ePCP dates allocated at the moment.",
+                PCPEndDate = "",
+                PCPStartDate = "",
+                SubjectsList = [],
+            };
+        }
+
+        if (pcpDate.StartDate <= DateTime.Now && DateTime.Now <= pcpDate.EndDate)
+        {
+            var studentId = StudentId;
+        
+            var subjects = await _genericRepository.GetAsync<tblSubject>();
+
+            var studentVideoTrackingDetails = 
+                await _genericRepository.GetAsync<tblStudentVideoTracking>(x => 
+                    x.StudentId == studentId && x.PercentageCompleted >= 95 && x.VideoDurationInSeconds > 0);
+        
+            var studentScores = 
+                await _genericRepository.GetAsync<tblStudentScore>(x => 
+                    x.StudentId == studentId && x.TopicId == 0);
+        
+            var subjectIdsWithMatchingTracking = studentVideoTrackingDetails.Select(t => t.SubjectId).ToList();
+        
+            var subjectIdsWithZeroScore = studentScores.Select(s => s.SubjectId).ToList();
+
+            var result = subjects.Where(subject =>
+                    subjectIdsWithMatchingTracking.Contains(subject.Id) && !subjectIdsWithZeroScore.Contains(subject.Id))
+                .Select(subject => new SubjectDetails
+                {
+                    Id = subject.Id,
+                    Code = subject.SubjectCode ?? 0,
+                    Class = subject.Class ?? 10,
+                    Name = subject.Title
+                }).ToList();
+            
+            return new StudentExamResponseDTO()
+            {
+                IsEligible = true,
+                Message = $"The ePCP dates align with the allocated period of {pcpDate.StartDate:dd-MM-yyyy hh:mm:ss tt} to {pcpDate.EndDate:dd-MM-yyyy hh:mm:ss tt}. Hence you are eligible for the examination at the moment.",
+                PCPEndDate = pcpDate.StartDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+                PCPStartDate = pcpDate.EndDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+                SubjectsList = result,
+            };
+        }
+        
+        return new StudentExamResponseDTO()
+        {
+            IsEligible = false,
+            Message = $"The ePCP dates do not align with the allocated period of {pcpDate.StartDate:dd-MM-yyyy hh:mm:ss tt} to {pcpDate.EndDate:dd-MM-yyyy hh:mm:ss tt}. Hence you are not eligible for the examination at the moment.",
+            PCPEndDate = pcpDate.StartDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+            PCPStartDate = pcpDate.EndDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+            SubjectsList = [],
+        };
+    }
 }
