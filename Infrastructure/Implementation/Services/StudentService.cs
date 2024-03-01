@@ -1,20 +1,27 @@
 ﻿using System.Security.Claims;
+using System.Text;
+using Application.DTOs.Authentication;
 using Application.DTOs.Student;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using Common.Utilities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Data.Implementation.Services;
 
 public class StudentService : IStudentService
 {
+    private readonly RsosSettings _rsosSettings;
     private readonly IGenericRepository _genericRepository;
     private readonly IHttpContextAccessor _contextAccessor;
 
-    public StudentService(IGenericRepository genericRepository, IHttpContextAccessor contextAccessor)
+    public StudentService(IGenericRepository genericRepository, IHttpContextAccessor contextAccessor, IOptions<RsosSettings> rsosSettings)
     {
         _genericRepository = genericRepository;
         _contextAccessor = contextAccessor;
+        _rsosSettings = rsosSettings.Value;   
     }
 
     public int StudentId
@@ -26,7 +33,27 @@ public class StudentService : IStudentService
             return int.TryParse(userIdClaimValue, out var userId) ? userId : 0;
         }
     }
-    
+
+    public string StudentDateOfBirth
+    {
+        get
+        {
+            var userDobClaimValue = _contextAccessor.HttpContext?.User.FindFirstValue("dob");
+
+            return userDobClaimValue ?? "";
+        }
+    }
+
+    public string StudentSSOID
+    {
+        get
+        {
+            var userSSOIDClaimValue = _contextAccessor.HttpContext?.User.FindFirstValue("ssoid");
+
+            return userSSOIDClaimValue ?? "";
+        }
+    }
+
     public async Task<StudentResponseDTO> GetStudentRecords(int studentId)
     {
         var scores = await _genericRepository.GetAsync<tblStudentScore>(x => 
@@ -151,7 +178,7 @@ public class StudentService : IStudentService
         }
     }
 
-    public async Task<StudentExamResponseDTO> GetStudentExamSubjects()
+    public async Task<StudentExamResponseDTO> GetStudentExamSubjects(string secureToken)
     {
         var pcpDate = (await _genericRepository.GetAsync<tblPCPDate>(x => x.IsActive)).MaxBy(x => x.Id);
 
@@ -171,22 +198,73 @@ public class StudentService : IStudentService
         {
             var studentId = StudentId;
         
-            var subjects = await _genericRepository.GetAsync<tblSubject>();
+            var httpClient = new HttpClient();
 
-            var studentVideoTrackingDetails = 
-                await _genericRepository.GetAsync<tblStudentVideoTracking>(x => 
-                    x.StudentId == studentId && x.PercentageCompleted >= 95 && x.VideoDurationInSeconds > 0);
-        
-            var studentScores = 
-                await _genericRepository.GetAsync<tblStudentScore>(x => 
+            var rsosToken = _rsosSettings.Token;
+
+            var rsosUrl = _rsosSettings.URL;
+
+            var baseUrl = $"{rsosUrl}/new_api_student_exam_subjects";
+
+            var queryParams = new System.Collections.Specialized.NameValueCollection
+            {
+                { "ssoid", StudentSSOID },
+                { "dob", StudentDateOfBirth },
+                { "token", rsosToken },
+                { "secure_token", secureToken }
+            };
+
+            var uriBuilder = new UriBuilder(baseUrl)
+            {
+                Query = string.Join("&", Array.ConvertAll(queryParams.AllKeys,
+                    key => $"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(queryParams[key])}"))
+            };
+
+            var postData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync(uriBuilder.Uri, postData);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new StudentExamResponseDTO()
+                {
+                    IsEligible = false,
+                    Message = "Invalid User Credentials & Token.",
+                    PCPEndDate = pcpDate.StartDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+                    PCPStartDate = pcpDate.EndDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+                    SubjectsList = [],
+                };
+            }
+            
+            var responseData = await response.Content.ReadAsStringAsync();
+
+            var apiResponse = JsonConvert.DeserializeObject<StudentExamDetailsResponseDTO>(responseData);
+
+            if (apiResponse is not { Status: true })
+            {
+                return new StudentExamResponseDTO()
+                {
+                    IsEligible = false,
+                    Message = "Invalid User Credentials & Token.",
+                    PCPEndDate = pcpDate.StartDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+                    PCPStartDate = pcpDate.EndDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
+                    SubjectsList = [],
+                };
+            }
+            
+            var studentSubjects = apiResponse.Data.Exam_Subjects;
+
+            var subjects = await _genericRepository.GetAsync<tblSubject>(x =>
+                studentSubjects.Select(y => y.Subject_Id).Contains(x.Id));
+
+            var studentScores =
+                await _genericRepository.GetAsync<tblStudentScore>(x =>
                     x.StudentId == studentId && x.TopicId == 0);
-        
-            var subjectIdsWithMatchingTracking = studentVideoTrackingDetails.Select(t => t.SubjectId).ToList();
-        
+
             var subjectIdsWithZeroScore = studentScores.Select(s => s.SubjectId).ToList();
 
             var result = subjects.Where(subject =>
-                    subjectIdsWithMatchingTracking.Contains(subject.Id) && !subjectIdsWithZeroScore.Contains(subject.Id))
+                    !subjectIdsWithZeroScore.Contains(subject.Id))
                 .Select(subject => new SubjectDetails
                 {
                     Id = subject.Id,
@@ -194,21 +272,23 @@ public class StudentService : IStudentService
                     Class = subject.Class ?? 10,
                     Name = subject.Title
                 }).ToList();
-            
+
             return new StudentExamResponseDTO()
             {
                 IsEligible = true,
-                Message = $"The ePCP dates align with the allocated period of {pcpDate.StartDate:dd-MM-yyyy hh:mm:ss tt} to {pcpDate.EndDate:dd-MM-yyyy hh:mm:ss tt}. Hence you are eligible for the examination at the moment.",
+                Message =
+                    $"The ePCP dates align with the allocated period of {pcpDate.StartDate:dd-MM-yyyy hh:mm:ss tt} to {pcpDate.EndDate:dd-MM-yyyy hh:mm:ss tt}. Hence you are eligible for the examination at the moment.",
                 PCPEndDate = pcpDate.StartDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
                 PCPStartDate = pcpDate.EndDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
                 SubjectsList = result,
             };
+
         }
         
         return new StudentExamResponseDTO()
         {
             IsEligible = false,
-            Message = $"The ePCP dates do not align with the allocated period of {pcpDate.StartDate:dd-MM-yyyy hh:mm:ss tt} to {pcpDate.EndDate:dd-MM-yyyy hh:mm:ss tt}. Hence you are not eligible for the examination at the moment.",
+            Message = "अति महत्पूर्ण:E-Pcp पूर्व विषयवस्तु (E-content) व प्रश्नोत्तर का अध्यन करे। E-pcp की दिनाक (समय सारणी) शीघ्र ही आपको सूचित कर दी जाएगी।",
             PCPEndDate = pcpDate.StartDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
             PCPStartDate = pcpDate.EndDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
             SubjectsList = [],

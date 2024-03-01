@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Authentication;
+﻿using System.Globalization;
+using Application.DTOs.Authentication;
 using Application.DTOs.Student;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
@@ -247,8 +248,9 @@ public class AuthenticationService : IAuthenticationService
         var authClaims = new List<Claim>
         {
             new("studentid", studentInfo.Id.ToString()),
-            new("enrollment", studentInfo.Enrollment.ToString()),
-            new("ssoid", studentInfo.SsoId.ToString()),
+            new("enrollment", studentInfo.Enrollment),
+            new("dob", studentInfo.Dob.ToString("yyyy-MM-dd")),
+            new("ssoid", studentInfo.SsoId),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

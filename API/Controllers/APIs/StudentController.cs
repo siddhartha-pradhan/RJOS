@@ -168,9 +168,9 @@ public class StudentController : ControllerBase
     
     [Authorize]
     [HttpPost("get-student-exam-details-authorize")]
-    public async Task<IActionResult> GetStudentExamDetailsAuthorize()
+    public async Task<IActionResult> GetStudentExamDetailsAuthorize([FromForm]string secureToken)
     {
-        var details = await _studentService.GetStudentExamSubjects();
+        var details = await _studentService.GetStudentExamSubjects(secureToken);
 
         var result = new ResponseDTO<StudentExamResponseDTO>()
         {

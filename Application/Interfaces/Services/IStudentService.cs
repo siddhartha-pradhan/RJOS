@@ -5,6 +5,10 @@ namespace Application.Interfaces.Services;
 public interface IStudentService
 {
     int StudentId { get; }
+
+    string StudentDateOfBirth { get; }
+    
+    string StudentSSOID { get; }
     
     Task<StudentResponseDTO> GetStudentRecords(int studentId);
 
@@ -12,5 +16,5 @@ public interface IStudentService
     
     Task InsertStudentScore(List<StudentScoreRequestDTO> studentScores);
 
-    Task<StudentExamResponseDTO> GetStudentExamSubjects();
+    Task<StudentExamResponseDTO> GetStudentExamSubjects(string secureToken);
 }
