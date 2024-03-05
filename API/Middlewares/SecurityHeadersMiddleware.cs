@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 
-namespace RJOS.Middlewares;
+namespace RSOS.Middlewares;
 
 public class SecurityHeadersMiddleware
 {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.DTOs.NewsAndAlert;
 using Application.Interfaces.Services;
 
-namespace RJOS.Controllers;
+namespace RSOS.Controllers;
 
 public class NewsAndAlertController : BaseController<NewsAndAlertController>
 {

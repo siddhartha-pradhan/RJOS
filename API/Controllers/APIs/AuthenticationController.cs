@@ -4,7 +4,7 @@ using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
-namespace RJOS.Controllers.APIs;
+namespace RSOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/authentication")]

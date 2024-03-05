@@ -6,7 +6,7 @@ using Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace RJOS.Controllers.APIs;
+namespace RSOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/students")]

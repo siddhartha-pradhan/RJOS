@@ -8,7 +8,7 @@ using Application.Interfaces.Services;
 using Edi.Captcha;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace RJOS.Controllers;
+namespace RSOS.Controllers;
 
 public class HomeController : BaseController<HomeController>
 {

@@ -6,7 +6,7 @@ using Application.Interfaces.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.Authorization;
 
-namespace RJOS.Controllers.APIs;
+namespace RSOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/notifications")]

@@ -5,7 +5,7 @@ using Common.Utilities;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Mvc;
 
-namespace RJOS.Controllers;
+namespace RSOS.Controllers;
 
 public class NotificationController : BaseController<NotificationController>
 {

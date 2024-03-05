@@ -3,7 +3,7 @@ using Application.Interfaces.Services;
 using Common.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace RJOS.Controllers;
+namespace RSOS.Controllers;
 
 public class PcpDatesController : BaseController<PcpDatesController>
 {

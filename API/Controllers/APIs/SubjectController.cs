@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 
-namespace RJOS.Controllers.APIs;
+namespace RSOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/subjects")]

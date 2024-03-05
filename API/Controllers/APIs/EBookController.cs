@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
 using IPdfService = Application.Interfaces.Services.IPdfService;
 
-namespace RJOS.Controllers.APIs;
+namespace RSOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/ebooks")]

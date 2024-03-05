@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
-namespace RJOS.Controllers;
+namespace RSOS.Controllers;
 
 public class BaseController<T> : Controller where T : BaseController<T>
 {

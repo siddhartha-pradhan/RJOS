@@ -4,7 +4,7 @@ using Firebase.Auth;
 using FirebaseAdmin;
 using Data.Dependency;
 using Newtonsoft.Json;
-using RJOS.Middlewares;
+using RSOS.Middlewares;
 using Google.Apis.Auth.OAuth2;
 using Firebase.Auth.Providers;
 using Microsoft.OpenApi.Models;

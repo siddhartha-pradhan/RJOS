@@ -3,7 +3,7 @@ using Common.Utilities;
 using Serilog.Context;
 using UAParser;
 
-namespace RJOS.Middlewares;
+namespace RSOS.Middlewares;
 
 public class UserLogMiddleware
 {

@@ -6,7 +6,7 @@ using Application.DTOs.Enrollment;
 using Common.Utilities;
 using DocumentFormat.OpenXml.Vml.Spreadsheet;
 
-namespace RJOS.Controllers;
+namespace RSOS.Controllers;
 
 public class EnrollmentController : BaseController<EnrollmentController>
 {

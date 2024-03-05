@@ -3,7 +3,7 @@ using Application.DTOs.Base;
 using Application.Exceptions;
 using Newtonsoft.Json;
 
-namespace RJOS.Middlewares;
+namespace RSOS.Middlewares;
 
 public class ExceptionMiddleware
 {

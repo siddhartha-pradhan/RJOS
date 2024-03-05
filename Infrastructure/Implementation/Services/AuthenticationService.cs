@@ -250,7 +250,7 @@ public class AuthenticationService : IAuthenticationService
             new("studentid", studentInfo.Id.ToString()),
             new("enrollment", studentInfo.Enrollment),
             new("dob", studentInfo.Dob.ToString("yyyy-MM-dd")),
-            new("ssoid", studentInfo.SsoId),
+            new("ssoid", studentInfo.SsoId.ToUpper()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 

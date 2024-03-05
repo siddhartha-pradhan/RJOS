@@ -1,4 +1,4 @@
-﻿namespace RJOS.Middlewares;
+﻿namespace RSOS.Middlewares;
 
 public class ContentSecurityPolicyMiddleware
 {

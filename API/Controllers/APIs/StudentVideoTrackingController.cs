@@ -5,7 +5,7 @@ using Application.Interfaces.Services;
 using Application.DTOs.Tracking;
 using Microsoft.AspNetCore.Authorization;
 
-namespace RJOS.Controllers.APIs;
+namespace RSOS.Controllers.APIs;
 
 [ApiController]
 [Route("api/student-video-tracking")]
