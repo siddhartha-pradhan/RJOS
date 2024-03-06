@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "ePCP Questions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row p-4">
+    <div class="mb-3" id="questions-filter"> 
+        @{
+            await Html.RenderPartialAsync("_Filter");
+        }
+    </div>
+    
+    <div id="div-class-questions-list"></div>    
+        
+    <partial name="_UploadQuestions"/>
+    <partial name="_UploadedQuestionsList"/>
+</div>

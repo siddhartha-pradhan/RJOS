@@ -7,7 +7,7 @@ namespace Common.Utilities;
 
 public static class ExtensionMethods
 {
-    private static string[] MaliciousInputPattern =
+    private static string[] _maliciousInputPattern =
     [
         "<script>",
         "<img src=\"javascript:",

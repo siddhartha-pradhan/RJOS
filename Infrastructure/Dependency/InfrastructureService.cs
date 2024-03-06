@@ -37,6 +37,7 @@ public static class InfrastructureService
         services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
         services.AddTransient<INotificationService, NotificationService>();
         services.AddTransient<IPcpDatesService, PcpDatesService>();
+        services.AddTransient<IPCPService, PCPService>();
         services.AddTransient<IPdfService, PdfService>();
         services.AddTransient<IQuestionService, QuestionService>();
         services.AddTransient<ISubjectService, SubjectService>();

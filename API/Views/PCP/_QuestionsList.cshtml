@@ -1,0 +1,65 @@
+﻿@model Application.DTOs.PCP.PCPResponseDTO
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-6 col-md-6 col-sm-6 text-start">
+                <h4>
+                    @Model.PaperType
+                </h4>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 text-end">
+                <a class="btn d-w text-white" style="background-color: #DB4B73" asp-action="DownloadQuestionTemplate" asp-route-type="@Model.PaperTypeId">Download @Model.PaperType Template</a>
+            </div>
+        </div>
+
+        <table class="basic-datatable table table-hover dt-responsive nowrap w-100">
+            <thead>
+            <tr>
+                <th style="width: 5%">Code</th>
+                <th>Subject</th>
+                <th>Paper Uploaded Date</th>
+                <th style="width: 20%">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Questions)
+            {
+                <tr>
+                    <td>@item.SubjectId</td>
+                    <td>
+                        @item.SubjectName
+                    </td>
+                    <td>
+                        @if (item.PaperLastUploadedDate != null)
+                        {
+                            <span>@item.PaperLastUploadedDate</span>
+                        }
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="viewUploadedQuestions()">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                        <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="uploadedQuestions()">
+                            <i class="fa-solid fa-upload"></i>
+                        </a>
+                        <a class="btn btn-sm btn-outline-pink btn-rounded">
+                            <i class="fa-solid fa-filter-circle-xmark"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function viewUploadedQuestions(){
+        $("#uploaded-questions-list").modal("show");
+    }
+    
+    function uploadedQuestions(){
+        $("#upload-questions").modal("show");
+    }
+</script>
