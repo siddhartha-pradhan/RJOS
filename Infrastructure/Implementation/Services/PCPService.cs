@@ -2,7 +2,6 @@
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using ClosedXML.Excel;
-using Microsoft.AspNetCore.Http;
 
 namespace Data.Implementation.Services;
 

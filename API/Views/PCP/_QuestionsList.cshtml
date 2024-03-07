@@ -20,7 +20,9 @@
                 <th style="width: 5%">Code</th>
                 <th>Subject</th>
                 <th>Paper Uploaded Date</th>
-                <th style="width: 20%">Action</th>
+                <th style="width: 20%">Download</th>
+                <th style="width: 20%">Upload</th>
+                <th style="width: 20%">Archive</th>
             </tr>
             </thead>
             <tbody>
@@ -40,9 +42,13 @@
                         <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="viewUploadedQuestions(@subject.SubjectId, @Model.PaperTypeId)">
                             <i class="fa-solid fa-download"></i>
                         </a>
+                    </td>
+                    <td>
                         <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="uploadQuestions(@subject.SubjectId, @Model.PaperTypeId)">
                             <i class="fa-solid fa-upload"></i>
                         </a>
+                    </td>
+                    <td>
                         @if (subject.PaperLastUploadedDate != null)
                         {
                             <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="archiveQuestions(@Model.ClassId, @subject.SubjectId, @Model.PaperTypeId)">
