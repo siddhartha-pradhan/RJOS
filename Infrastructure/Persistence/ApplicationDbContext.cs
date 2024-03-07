@@ -21,6 +21,8 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblCommon> tblCommons { get; set; }
 
+    public virtual DbSet<tblCommonsArchive> tblCommonsArchives { get; set; }
+
     public virtual DbSet<tblContent> tblContents { get; set; }
 
     public virtual DbSet<tblEbook> tblEbooks { get; set; }
@@ -33,11 +35,17 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblNotification> tblNotifications { get; set; }
 
-    public virtual DbSet<tblPCPDate> tblPcpDates { get; set; }
+    public virtual DbSet<tblPCPDate> tblPCPDates { get; set; }
 
     public virtual DbSet<tblQuestion> tblQuestions { get; set; }
 
+    public virtual DbSet<tblQuestionPaperSheet> tblQuestionPaperSheets { get; set; }
+
+    public virtual DbSet<tblQuestionsArchive> tblQuestionsArchives { get; set; }
+
     public virtual DbSet<tblStudentLoginDetail> tblStudentLoginDetails { get; set; }
+
+    public virtual DbSet<tblStudentLoginHistory> tblStudentLoginHistories { get; set; }
 
     public virtual DbSet<tblStudentResponse> tblStudentResponses { get; set; }
 
@@ -65,6 +73,22 @@ public partial class ApplicationDbContext : DbContext
             entity.HasKey(e => new { e.CommonId, e.Flag, e.LanguageId }).HasName("PK_Common");
 
             entity.HasIndex(e => new { e.Flag, e.CommonId }, "Idx_Commons");
+
+            entity.HasIndex(e => new { e.Flag, e.CommonId }, "Idx_CommonsArchive");
+
+            entity.Property(e => e.Flag).HasDefaultValue(1);
+            entity.Property(e => e.CorrectAnswer).HasDefaultValue(0);
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Score).HasColumnType("decimal(18, 0)");
+        });
+
+        modelBuilder.Entity<tblCommonsArchive>(entity =>
+        {
+            entity.HasKey(e => new { e.CommonId, e.Flag, e.LanguageId }).HasName("PK_CommonArchive");
+
+            entity.ToTable("tblCommonsArchive");
 
             entity.Property(e => e.Flag).HasDefaultValue(1);
             entity.Property(e => e.CorrectAnswer).HasDefaultValue(0);
@@ -182,6 +206,32 @@ public partial class ApplicationDbContext : DbContext
             entity.HasIndex(e => new { e.Class, e.SubjectId }, "Idx_Questions");
 
             entity.HasIndex(e => e.Flag, "Idx_Questions_Flag");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.Flag).HasDefaultValue(1);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsMandatory).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<tblQuestionPaperSheet>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_QuestionSheet");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.UploadedFileName).HasMaxLength(200);
+            entity.Property(e => e.UploadedFileUrl).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<tblQuestionsArchive>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_QuestionArchive");
+
+            entity.ToTable("tblQuestionsArchive");
+
+            entity.HasIndex(e => new { e.Class, e.SubjectId }, "Idx_QuestionsArchive");
+
+            entity.HasIndex(e => e.Flag, "Idx_QuestionsArchive_Flag");
 
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Flag).HasDefaultValue(1);

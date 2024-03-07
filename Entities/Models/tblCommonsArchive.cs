@@ -3,15 +3,19 @@ using System.Collections.Generic;
 
 namespace Data;
 
-public partial class tblNewsAndAlert
+public partial class tblCommonsArchive
 {
     public int Id { get; set; }
 
-    public string Header { get; set; } = null!;
+    public int CommonId { get; set; }
 
-    public string Description { get; set; } = null!;
+    public int Flag { get; set; }
 
-    public DateTime ValidTill { get; set; }
+    public string? Value { get; set; }
+
+    public int LanguageId { get; set; }
+
+    public decimal? Score { get; set; }
 
     public bool IsActive { get; set; }
 
@@ -23,5 +27,5 @@ public partial class tblNewsAndAlert
 
     public DateTime? LastUpdatedOn { get; set; }
 
-    public DateTime ValidFrom { get; set; }
+    public int? CorrectAnswer { get; set; }
 }

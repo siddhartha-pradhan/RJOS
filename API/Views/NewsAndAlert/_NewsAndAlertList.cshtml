@@ -213,7 +213,7 @@
         }
 
         $('#add-newsAndAlert').modal('hide');
-        $('#newsAndAlert-list').html(data.htmlData);
+        $('#news-and-alerts-list').html(data.htmlData);
     }
     
     function changeNewsAndAlertStatus(index) {
@@ -225,7 +225,7 @@
             dataType: "JSON",
             success: function(result) {
                 toastr.success(result.data);
-                $('#newsAndAlert-list').html(result.htmlData);
+                $('#news-and-alerts-list').html(result.htmlData);
             },
             error: function(xhr, status, error) {           
                 let errorMessage = eval("(" + xhr.responseText + ")");

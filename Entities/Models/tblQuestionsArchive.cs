@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Data;
 
-public partial class tblQuestion
+public partial class tblQuestionsArchive
 {
-    [Key]
     public int Id { get; set; }
 
     public int QuestionTypeId { get; set; }

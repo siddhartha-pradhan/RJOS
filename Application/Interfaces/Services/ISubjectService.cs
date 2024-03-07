@@ -1,16 +1,12 @@
-﻿using Application.DTOs.Notification;
-using Application.DTOs.Student;
-using Application.DTOs.Subject;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.DTOs.Subject;
 
-namespace Application.Interfaces.Services
+namespace Application.Interfaces.Services;
+
+public interface ISubjectService
 {
-    public interface ISubjectService
-    {
-        Task<List<SubjectResponseDTO>> GetAllSubjects(int? @class);
-    }
+    Task<SubjectResponseDTO> GetSubjectById(int subjectId);
+
+    Task<SubjectResponseDTO> GetSubjectByCode(int subjectCode);
+
+    Task<List<SubjectResponseDTO>> GetAllSubjects(int? @class);
 }

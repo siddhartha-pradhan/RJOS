@@ -3,15 +3,19 @@ using System.Collections.Generic;
 
 namespace Data;
 
-public partial class tblNewsAndAlert
+public partial class tblQuestionPaperSheet
 {
     public int Id { get; set; }
 
-    public string Header { get; set; } = null!;
+    public int PaperType { get; set; }
 
-    public string Description { get; set; } = null!;
+    public int Class { get; set; }
 
-    public DateTime ValidTill { get; set; }
+    public int SubjectId { get; set; }
+
+    public string UploadedFileName { get; set; } = null!;
+
+    public string UploadedFileUrl { get; set; } = null!;
 
     public bool IsActive { get; set; }
 
@@ -22,6 +26,4 @@ public partial class tblNewsAndAlert
     public int? LastUpdatedBy { get; set; }
 
     public DateTime? LastUpdatedOn { get; set; }
-
-    public DateTime ValidFrom { get; set; }
 }

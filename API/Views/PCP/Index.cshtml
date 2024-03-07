@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Application.DTOs.PCP
+@{
     ViewData["Title"] = "ePCP Questions";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -12,6 +13,15 @@
     
     <div id="div-class-questions-list"></div>    
         
-    <partial name="_UploadQuestions"/>
-    <partial name="_UploadedQuestionsList"/>
+    <div id="upload-questions-view"> 
+        @{
+            await Html.RenderPartialAsync("_UploadQuestions", new PCPQuestionRequestDTO());
+        }
+    </div>
+    
+    <div id="uploaded-questions-list-view"> 
+        @{
+            await Html.RenderPartialAsync("_UploadedQuestionsList", new List<PCPQuestionResponseDTO>());
+        }
+    </div>
 </div>

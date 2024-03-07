@@ -2,6 +2,8 @@
 
 public class PCPResponseDTO
 {
+    public int ClassId { get; set; }
+
     public int PaperTypeId { get; set; }
 
     public string PaperType { get; set; }
@@ -12,6 +14,8 @@ public class PCPResponseDTO
 public class Question
 {
     public int SubjectId { get; set; }
+
+    public int SubjectCode { get; set; }
     
     public string SubjectName { get; set; }
     
