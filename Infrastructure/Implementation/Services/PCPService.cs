@@ -164,6 +164,14 @@ public class PCPService : IPCPService
                 
                 foreach (var item in questionsList)
                 {
+                    var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
+                        x.ChapterName == item.ChapterName && x.PartNo == item.PartNumber);
+
+                    if (content == null)
+                    {
+                        return (false, $"No any content has been entered to the system with the name of {item.ChapterName} and Part {item.PartNumber}.");
+                    }
+                    
                     if (item.ClassId != question.Class)
                         return (false, "Please insert the same value of class for all the columns in the following sheet.");
                 
