@@ -19,5 +19,7 @@ public class Question
     
     public string SubjectName { get; set; }
     
+    public int AttachmentId { get; set; }
+    
     public string? PaperLastUploadedDate { get; set; }
 }

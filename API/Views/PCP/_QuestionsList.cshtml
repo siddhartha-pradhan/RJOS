@@ -39,9 +39,12 @@
                         }
                     </td>
                     <td>
-                        <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="viewUploadedQuestions(@subject.SubjectId, @Model.PaperTypeId)">
-                            <i class="fa-solid fa-download"></i>
-                        </a>
+                        @if (subject.AttachmentId is not 0)
+                        {
+                            <a asp-controller="PCP" asp-action="DownloadQuestionSheet" asp-route-questionSheetId="@subject.AttachmentId" class="btn btn-sm btn-outline-pink btn-rounded">
+                                <i class="fa-solid fa-download"></i>
+                            </a>   
+                        }
                     </td>
                     <td>
                         <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="uploadQuestions(@subject.SubjectId, @Model.PaperTypeId)">

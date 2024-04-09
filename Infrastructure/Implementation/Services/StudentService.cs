@@ -187,7 +187,7 @@ public class StudentService : IStudentService
             return new StudentExamResponseDTO()
             {
                 IsEligible = false,
-                Message = "There are no any active ePCP dates allocated at the moment.",
+                Message = "इस समय ePCP के लिए कोई भी तिथियां आवंटित नहीं की गई हैं।",
                 PCPEndDate = "",
                 PCPStartDate = "",
                 SubjectsList = [],
