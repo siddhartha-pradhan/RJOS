@@ -81,9 +81,13 @@ public class PCPService : IPCPService
         {
             var subject = await _genericRepository.GetFirstOrDefaultAsync<tblSubject>(x => 
                 x.SubjectCode == question.Code);
-
+            
             if (subject == null) return (false, "Subject with the respective code could not be found.");
-        
+
+            var allNumbers = Enumerable.Range(1, 1000).ToList();
+
+            var random = new Random();
+
             using var workbook = new XLWorkbook(question.QuestionSheet.OpenReadStream());
    
             var worksheet = workbook.Worksheet(1);
@@ -95,18 +99,18 @@ public class PCPService : IPCPService
                 {
                     ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
                     SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
-                    IsMandatory = row.Cell(3).GetValue<string?>()?.ToUpper() == "YES", 
-                    SequenceNumber = row.Cell(4).GetValue<int?>() ?? 0, 
-                    Question = row.Cell(5).GetValue<string?>(),
+                    IsMandatory = row.Cell(3).GetValue<string?>()?.Trim().ToUpper() == "YES", 
+                    SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
+                    Question = row.Cell(7).GetValue<string?>()?.Trim(),
                     Commons = new List<string>()
                     {
-                        row.Cell(6).GetValue<string?>() ?? "",
-                        row.Cell(7).GetValue<string?>() ?? "",
                         row.Cell(8).GetValue<string?>() ?? "",
                         row.Cell(9).GetValue<string?>() ?? "",
+                        row.Cell(10).GetValue<string?>() ?? "",
+                        row.Cell(11).GetValue<string?>() ?? "",
                     },
-                    Language = row.Cell(10).GetValue<string?>() is "Hindi" or "हिंदी" ? 1 : 2,
-                    CorrectAnswer = row.Cell(11).GetValue<string?>()?.ToUpper() ?? "A"
+                    Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "Hindi" or "हिंदी" ? 1 : 2,
+                    CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
                 }).ToList();
 
                 var isValid = questionsList.Any(x =>
@@ -138,10 +142,10 @@ public class PCPService : IPCPService
                         ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
                         SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
                         IsMandatory = row.Cell(3).GetValue<string?>()?.ToUpper() == "YES", 
-                        ChapterName = row.Cell(4).GetValue<string?>() ?? "", 
+                        ChapterName = row.Cell(4).GetValue<string?>()?.Trim() ?? "", 
                         PartNumber = row.Cell(5).GetValue<int?>() ?? 0, 
                         SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
-                        Question = row.Cell(7).GetValue<string?>(),
+                        Question = row.Cell(7).GetValue<string?>()?.Trim(),
                         Commons = new List<string>()
                         {
                             row.Cell(8).GetValue<string?>() ?? "",
@@ -149,8 +153,8 @@ public class PCPService : IPCPService
                             row.Cell(10).GetValue<string?>() ?? "",
                             row.Cell(11).GetValue<string?>() ?? "",
                         },
-                        Language = row.Cell(12).GetValue<string?>() is "Hindi" or "हिंदी" ? 1 : 2,
-                        CorrectAnswer = row.Cell(13).GetValue<string?>()?.ToUpper() ?? "A"
+                        Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "Hindi" or "हिंदी" ? 1 : 2,
+                        CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
                     }).ToList();
                 
                 var isValid = questionsList.Any(x =>
@@ -169,7 +173,36 @@ public class PCPService : IPCPService
 
                     if (content == null)
                     {
-                        return (false, $"No any content has been entered to the system with the name of {item.ChapterName} and Part {item.PartNumber}.");
+                        var contents = await _genericRepository.GetAsync<tblContent>(x => 
+                            x.SubjectId == subject.Id);
+        
+                        var contentsList = contents as tblContent[] ?? contents.ToArray();
+                        
+                        var existingChapterNumbers = contentsList.Select(x => x.ChapterNo);
+                    
+                        var availableNumbers = allNumbers.Except(existingChapterNumbers).ToList();
+                    
+                        var randomChapterNumber = availableNumbers[random.Next(availableNumbers.Count)];
+                        
+                        var contentModel = new tblContent()
+                        {
+                            SubjectId = subject.Id,
+                            ChapterName = item.ChapterName,
+                            ChapterNo = randomChapterNumber,
+                            PartNo = item.PartNumber,
+                            CreatedBy = 1,
+                            CreatedOn = DateTime.Now,
+                            IsActive = true,
+                            Class = question.Class,
+                            Sequence = contentsList.Any() ? contentsList.Max(x => x.Sequence) + 5 : 5,
+                            Description = $"RSOS Class {question.Class} {subject.Title} Chapter 1 {item.ChapterName} | Rajasthan State Open School Class {question.Class} {subject.Title}",
+                            Faculty = "",
+                            PartName = $"Part {item.PartNumber}",
+                            TimeInSeconds = 0,
+                            YouTubeLink = "-"
+                        };
+
+                        await _genericRepository.InsertAsync(contentModel);
                     }
                     
                     if (item.ClassId != question.Class)

@@ -56,46 +56,48 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-light p-0">
-        <div class="container-fluid p-0 header-container">
-            <img src="~/images/navbar.png" alt="logo" class="logo">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Notification" asp-action="Index">Notification</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="NewsAndAlert" asp-action="Index">News And Alerts</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="PCP" asp-action="Index">Questions</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="PcpDates" asp-action="Index">ePCP Dates</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="ChangePassword">Change Password</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Home" asp-action="Logout">Log Out</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
-    <div class="container-fluid-item">
-        <partial name="_SessionExpiry" />
-        <div class="row m-0">
-            @RenderBody()
-        </div>
+<partial name="_LoadingPanel"/>
+<nav class="navbar navbar-light p-0">
+    <div class="container-fluid p-0 header-container">
+        <img src="~/images/navbar.png" alt="logo" class="logo">
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Notification" asp-action="Index">Notification</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="NewsAndAlert" asp-action="Index">News And Alerts</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="PCP" asp-action="Index">Questions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="PcpDates" asp-action="Index">ePCP Dates</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="ChangePassword">Change Password</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Logout">Log Out</a>
+            </li>
+        </ul>
     </div>
+</nav>
+<div class="container-fluid-item">
+    <partial name="_SessionExpiry"/>
+    <div class="row m-0">
+        @RenderBody()
+    </div>
+</div>
 
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/bootstrap-4.5.3-dist/js/bootstrap.min.js"></script>
-    <script src="~/lib/DataTables/datatables.min.js"></script>
-    <script src="~/lib/font-awesome-4.7.0/css/font-awesome.css"></script>
-    <script src="~/lib/jquery.unobtrusive-ajax.min.js_3.2.6/cdnjs/jquery.unobtrusive-ajax.min.js"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-    
-    <script type="text/javascript">
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/lib/bootstrap-4.5.3-dist/js/bootstrap.min.js"></script>
+<script src="~/lib/DataTables/datatables.min.js"></script>
+<script src="~/lib/font-awesome-4.7.0/css/font-awesome.css"></script>
+<script src="~/lib/jquery.unobtrusive-ajax.min.js_3.2.6/cdnjs/jquery.unobtrusive-ajax.min.js"></script>
+<script src="~/js/ajax.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+
+<script type="text/javascript">
         let inactivityTime = function () {
             let time;
             const inactivityTimeOut = 900000; // 15 minutes to milliseconds
@@ -195,5 +197,5 @@
             clearInterval(countdownInterval);
         });
     </script>
-    </body>
+</body>
 </html>
