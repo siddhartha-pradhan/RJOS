@@ -41,7 +41,7 @@ public class PCPController : BaseController<PCPController>
     {
         var wwwRootPath = _webHostEnvironment.WebRootPath;
 
-        var questionSheet = type == 1 ? "ePCP Questions Format Sheet.xlsx" : "Practice Paper Questions Format Sheet.xlsx";
+        var questionSheet = type == 1 ? "Practice Paper Questions Format Sheet.xlsx" : "ePCP Questions Format Sheet.xlsx";
         
         var filePath = Path.Combine(wwwRootPath, "documents", "templates", questionSheet);
         
@@ -68,7 +68,7 @@ public class PCPController : BaseController<PCPController>
         {
             Code = subject.SubjectCode ?? 0,
             PaperTypeId = type,
-            PaperType = type == 1 ? "ePCP Final Paper" : "Practice Paper",
+            PaperType = type == 1 ? "Practice Paper" : "ePCP Final Paper",
             Class = subject.Class,
             Subject = subject.Title
         };
