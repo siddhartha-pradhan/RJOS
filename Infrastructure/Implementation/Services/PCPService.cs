@@ -246,17 +246,17 @@ public class PCPService : IPCPService
                 ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
                 SubjectId = subject.Id, 
                 IsMandatory = row.Cell(3).GetValue<string?>()?.ToUpper() == "YES", 
-                SequenceNumber = row.Cell(4).GetValue<int?>() ?? 0, 
-                Question = row.Cell(5).GetValue<string?>(),
+                SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
+                Question = row.Cell(7).GetValue<string?>(),
                 Commons = new List<string>()
                 {
-                    row.Cell(6).GetValue<string?>() ?? "",
-                    row.Cell(7).GetValue<string?>() ?? "",
                     row.Cell(8).GetValue<string?>() ?? "",
                     row.Cell(9).GetValue<string?>() ?? "",
+                    row.Cell(10).GetValue<string?>() ?? "",
+                    row.Cell(11).GetValue<string?>() ?? "",
                 },
-                Language = row.Cell(10).GetValue<string?>() is "Hindi" or "हिंदी" ? 1 : 2,
-                CorrectAnswer = row.Cell(11).GetValue<string?>()?.ToUpper() ?? "A"
+                Language = row.Cell(12).GetValue<string?>() is "Hindi" or "हिंदी" ? 1 : 2,
+                CorrectAnswer = row.Cell(13).GetValue<string?>()?.ToUpper() ?? "A"
             }).ToList();
 
             foreach (var item in questionsList)
