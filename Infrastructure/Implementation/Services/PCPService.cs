@@ -252,19 +252,19 @@ public class PCPService : IPCPService
                 ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
                 SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
                 IsMandatory = row.Cell(3).GetValue<string?>()?.ToUpper() == "YES", 
-                ChapterName = row.Cell(4).GetValue<string?>() ?? "", 
+                ChapterName = row.Cell(4).GetValue<string?>()?.Trim() ?? "", 
                 PartNumber = row.Cell(5).GetValue<int?>() ?? 0, 
                 SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
-                Question = row.Cell(7).GetValue<string?>(),
+                Question = row.Cell(7).GetValue<string?>()?.Trim(),
                 Commons = new List<string>()
                 {
-                    row.Cell(8).GetValue<string?>() ?? "",
-                    row.Cell(9).GetValue<string?>() ?? "",
-                    row.Cell(10).GetValue<string?>() ?? "",
-                    row.Cell(11).GetValue<string?>() ?? "",
+                    row.Cell(8).GetValue<string?>()?.Trim() ?? "",
+                    row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                    row.Cell(10).GetValue<string?>()?.Trim() ?? "",
+                    row.Cell(11).GetValue<string?>()?.Trim() ?? "",
                 },
-                Language = row.Cell(12).GetValue<string?>() is "Hindi" or "हिंदी" ? 1 : 2,
-                CorrectAnswer = row.Cell(13).GetValue<string?>()?.ToUpper() ?? "A"
+                Language = row.Cell(12).GetValue<string?>()?.Trim() is "Hindi" or "हिंदी" ? 1 : 2,
+                CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
             }).ToList();
 
             foreach (var item in questionsList)
@@ -333,18 +333,18 @@ public class PCPService : IPCPService
             {
                 ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
                 SubjectId = subject.Id, 
-                IsMandatory = row.Cell(3).GetValue<string?>()?.ToUpper() == "YES", 
+                IsMandatory = row.Cell(3).GetValue<string?>()?.Trim()?.ToUpper() == "YES", 
                 SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
-                Question = row.Cell(7).GetValue<string?>(),
+                Question = row.Cell(7).GetValue<string?>()?.Trim(),
                 Commons = new List<string>()
                 {
-                    row.Cell(8).GetValue<string?>() ?? "",
-                    row.Cell(9).GetValue<string?>() ?? "",
-                    row.Cell(10).GetValue<string?>() ?? "",
-                    row.Cell(11).GetValue<string?>() ?? "",
+                    row.Cell(8).GetValue<string?>()?.Trim() ?? "",
+                    row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                    row.Cell(10).GetValue<string?>()?.Trim() ?? "",
+                    row.Cell(11).GetValue<string?>()?.Trim() ?? "",
                 },
-                Language = row.Cell(12).GetValue<string?>() is "Hindi" or "हिंदी" ? 1 : 2,
-                CorrectAnswer = row.Cell(13).GetValue<string?>()?.ToUpper() ?? "A"
+                Language = row.Cell(12).GetValue<string?>()?.Trim() is "Hindi" or "हिंदी" ? 1 : 2,
+                CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
             }).ToList();
 
             foreach (var item in questionsList)

@@ -116,7 +116,7 @@ public class PCPController : BaseController<PCPController>
         {
             valid = 1,
             htmlData = ConvertViewToString("_QuestionsList", subjectQuestions, true),
-            message = pcpQuestion.PaperTypeId == 1 ? "ePCP Questions successfully uploaded" : "Practice paper successfully uploaded"
+            message = pcpQuestion.PaperTypeId == 1 ? "Practice Papers successfully uploaded" : "ePCP Question Papers successfully uploaded"
         });
     }
     
@@ -133,7 +133,7 @@ public class PCPController : BaseController<PCPController>
 
         var sPhysicalPath = Path.Combine(_webHostEnvironment.WebRootPath, filePath + questionSheet.Item2);
 
-        return !System.IO.File.Exists(sPhysicalPath) ? Content($"file not found.") : DownloadAnyFile(questionSheet.Item1 ?? "", sPhysicalPath, null);
+        return !System.IO.File.Exists(sPhysicalPath) ? Content($"File not found.") : DownloadAnyFile(questionSheet.Item1 ?? "", sPhysicalPath, null);
     }
     
     [HttpGet]
