@@ -312,7 +312,7 @@ public class PCPService : IPCPService
                     {
                         Flag = questionId,
                         Score = 1,
-                        LanguageId = item.Language,
+                        LanguageId = 1,
                         Value = item.Commons[i],
                         CommonId = i + 1,
                         IsActive = true,
@@ -389,7 +389,7 @@ public class PCPService : IPCPService
                     {
                         Flag = questionId,
                         Score = 1,
-                        LanguageId = item.Language,
+                        LanguageId = 1,
                         Value = item.Commons[i],
                         CommonId = i + 1,
                         IsActive = true,
