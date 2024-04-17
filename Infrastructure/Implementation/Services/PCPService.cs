@@ -86,10 +86,6 @@ public class PCPService : IPCPService
             
             if (subject == null) return (false, "Subject with the respective code could not be found.");
 
-            var allNumbers = Enumerable.Range(1, 1000).ToList();
-
-            var random = new Random();
-
             using var workbook = new XLWorkbook(question.QuestionSheet.OpenReadStream());
    
             var worksheet = workbook.Worksheet(1);
@@ -113,7 +109,7 @@ public class PCPService : IPCPService
                             row.Cell(10).GetValue<string?>() ?? "",
                             row.Cell(11).GetValue<string?>() ?? "",
                         },
-                        Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "Hindi" or "हिंदी" ? 1 : 2,
+                        Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
                         CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
                     }).ToList();
                 
@@ -128,6 +124,18 @@ public class PCPService : IPCPService
                 
                 foreach (var item in questionsList)
                 {
+                    if (item.ClassId != question.Class)
+                        return (false, "Please insert the same value of class for all the columns in the following sheet.");
+                
+                    if (item.SubjectCode != question.Code)
+                        return (false, "Please insert the same value of subject code for all the columns in the following sheet.");
+                
+                    if (item.CorrectAnswer != "A" && item.CorrectAnswer != "B" && item.CorrectAnswer != "C" && item.CorrectAnswer != "D")
+                        return (false, "Please insert a valid correct option value from the provided options.");
+                    
+                    if (item.Language == 0)
+                        return (false, "Please insert a valid language value, only Hindi, हिंदी or English are accepted.");
+
                     var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
                         x.ChapterName == item.ChapterName && x.PartNo == item.PartNumber);
 
@@ -139,23 +147,23 @@ public class PCPService : IPCPService
                         var contentsList = contents as tblContent[] ?? contents.ToArray();
                         
                         var existingChapterNumbers = contentsList.Select(x => x.ChapterNo);
-                    
-                        var availableNumbers = allNumbers.Except(existingChapterNumbers).ToList();
-                    
-                        var randomChapterNumber = availableNumbers[random.Next(availableNumbers.Count)];
+
+                        var chapterNumbers = existingChapterNumbers as int[] ?? existingChapterNumbers.ToArray();
+                        
+                        var maxChapterNumber = chapterNumbers.Any() ? chapterNumbers.Max() : 0;
                         
                         var contentModel = new tblContent()
                         {
                             SubjectId = subject.Id,
                             ChapterName = item.ChapterName,
-                            ChapterNo = randomChapterNumber,
+                            ChapterNo = maxChapterNumber + 1,
                             PartNo = item.PartNumber,
                             CreatedBy = 1,
                             CreatedOn = DateTime.Now,
                             IsActive = true,
                             Class = question.Class,
                             Sequence = contentsList.Any() ? contentsList.Max(x => x.Sequence) + 5 : 5,
-                            Description = $"RSOS Class {question.Class} {subject.Title} Chapter 1 {item.ChapterName} | Rajasthan State Open School Class {question.Class} {subject.Title}",
+                            Description = $"RSOS Class {question.Class} {subject.Title} Chapter {maxChapterNumber + 1} | Rajasthan State Open School Class {question.Class} {subject.Title}",
                             Faculty = "",
                             PartName = $"Part {item.PartNumber}",
                             TimeInSeconds = 0,
@@ -164,15 +172,6 @@ public class PCPService : IPCPService
 
                         await _genericRepository.InsertAsync(contentModel);
                     }
-                    
-                    if (item.ClassId != question.Class)
-                        return (false, "Please insert the same value of class for all the columns in the following sheet.");
-                
-                    if (item.SubjectCode != question.Code)
-                        return (false, "Please insert the same value of subject code for all the columns in the following sheet.");
-                
-                    if (item.CorrectAnswer != "A" && item.CorrectAnswer != "B" && item.CorrectAnswer != "C" && item.CorrectAnswer != "D")
-                        return (false, "Please insert a valid correct option value from the provided options.");
                 }
         
                 return (true, "Sheet successfully validated.");
@@ -194,7 +193,7 @@ public class PCPService : IPCPService
                             row.Cell(10).GetValue<string?>() ?? "",
                             row.Cell(11).GetValue<string?>() ?? "",
                         },
-                        Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "Hindi" or "हिंदी" ? 1 : 2,
+                        Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
                         CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
                     }).ToList();
 
@@ -220,6 +219,9 @@ public class PCPService : IPCPService
                     if (item.CorrectAnswer != "A" && item.CorrectAnswer != "B" && item.CorrectAnswer != "C" &&
                         item.CorrectAnswer != "D")
                         return (false, "Please insert a valid correct option value from the provided options.");
+                    
+                    if (item.Language == 0)
+                        return (false, "Please insert a valid language value, only Hindi, हिंदी or English are accepted.");
                 }
 
                 return (true, "Sheet successfully validated.");
@@ -263,7 +265,7 @@ public class PCPService : IPCPService
                     row.Cell(10).GetValue<string?>()?.Trim() ?? "",
                     row.Cell(11).GetValue<string?>()?.Trim() ?? "",
                 },
-                Language = row.Cell(12).GetValue<string?>()?.Trim() is "Hindi" or "हिंदी" ? 1 : 2,
+                Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
                 CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
             }).ToList();
 
@@ -312,7 +314,7 @@ public class PCPService : IPCPService
                     {
                         Flag = questionId,
                         Score = 1,
-                        LanguageId = 1,
+                        LanguageId = item.Language,
                         Value = item.Commons[i],
                         CommonId = i + 1,
                         IsActive = true,
@@ -343,7 +345,7 @@ public class PCPService : IPCPService
                     row.Cell(10).GetValue<string?>()?.Trim() ?? "",
                     row.Cell(11).GetValue<string?>()?.Trim() ?? "",
                 },
-                Language = row.Cell(12).GetValue<string?>()?.Trim() is "Hindi" or "हिंदी" ? 1 : 2,
+                Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
                 CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
             }).ToList();
 
@@ -389,7 +391,7 @@ public class PCPService : IPCPService
                     {
                         Flag = questionId,
                         Score = 1,
-                        LanguageId = 1,
+                        LanguageId = item.Language,
                         Value = item.Commons[i],
                         CommonId = i + 1,
                         IsActive = true,
