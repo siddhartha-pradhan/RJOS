@@ -14,7 +14,7 @@ public class PCPService : IPCPService
         _genericRepository = genericRepository;
     }
 
-    public async Task<PCPResponseDTO> GetPCPQuestionsByClass(int classId, int type)
+    public async Task<PCPQuestionsResponseDTO> GetPCPQuestionsByClass(int classId, int type)
     {
         var subjects = await _genericRepository.GetAsync<tblSubject>(x => x.Class == classId);
 
@@ -40,7 +40,7 @@ public class PCPService : IPCPService
             });
         }
         
-        var result = new PCPResponseDTO()
+        var result = new PCPQuestionsResponseDTO()
         {
             ClassId = classId,
             PaperTypeId = type,
@@ -184,17 +184,17 @@ public class PCPService : IPCPService
                         ClassId = row.Cell(1).GetValue<int?>() ?? 0,
                         SubjectCode = row.Cell(2).GetValue<int?>() ?? 0,
                         IsMandatory = row.Cell(3).GetValue<string?>()?.Trim().ToUpper() == "YES",
-                        SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0,
-                        Question = row.Cell(7).GetValue<string?>()?.Trim(),
+                        SequenceNumber = row.Cell(4).GetValue<int?>() ?? 0,
+                        Question = row.Cell(5).GetValue<string?>()?.Trim(),
                         Commons = new List<string>()
                         {
+                            row.Cell(6).GetValue<string?>() ?? "",
+                            row.Cell(7).GetValue<string?>() ?? "",
                             row.Cell(8).GetValue<string?>() ?? "",
                             row.Cell(9).GetValue<string?>() ?? "",
-                            row.Cell(10).GetValue<string?>() ?? "",
-                            row.Cell(11).GetValue<string?>() ?? "",
                         },
-                        Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
-                        CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
+                        Language = row.Cell(10).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
+                        CorrectAnswer = row.Cell(11).GetValue<string?>()?.Trim().ToUpper() ?? "A"
                     }).ToList();
 
                 var isInValid = questionsList.Any(x =>
@@ -233,179 +233,187 @@ public class PCPService : IPCPService
         }
     }
 
-    public async Task UploadQuestions(PCPQuestionRequestDTO question)
+    public async Task<bool> UploadQuestions(PCPQuestionRequestDTO question)
     {
-        var subject = await _genericRepository.GetFirstOrDefaultAsync<tblSubject>(x => 
+        try
+        {
+            var subject = await _genericRepository.GetFirstOrDefaultAsync<tblSubject>(x => 
             x.SubjectCode == question.Code);
 
-        if(subject == null) return;
-        
-        using var workbook = new XLWorkbook(question.QuestionSheet.OpenReadStream());
-   
-        var worksheet = workbook.Worksheet(1);
-        
-        await UploadQuestionsToArchive(subject.Id, question.PaperTypeId);
+            if(subject == null) return false;
+            
+            using var workbook = new XLWorkbook(question.QuestionSheet.OpenReadStream());
+       
+            var worksheet = workbook.Worksheet(1);
+            
+            await UploadQuestionsToArchive(subject.Id, question.PaperTypeId);
 
-        if (question.PaperTypeId == 1)
-        {
-            var questionsList = worksheet.Rows().Skip(1)
-            .Select(row => new 
+            if (question.PaperTypeId == 1)
             {
-                ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
-                SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
-                IsMandatory = row.Cell(3).GetValue<string?>()?.ToUpper() == "YES", 
-                ChapterName = row.Cell(4).GetValue<string?>()?.Trim() ?? "", 
-                PartNumber = row.Cell(5).GetValue<int?>() ?? 0, 
-                SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
-                Question = row.Cell(7).GetValue<string?>()?.Trim(),
-                Commons = new List<string>()
+                var questionsList = worksheet.Rows().Skip(1)
+                .Select(row => new 
                 {
-                    row.Cell(8).GetValue<string?>()?.Trim() ?? "",
-                    row.Cell(9).GetValue<string?>()?.Trim() ?? "",
-                    row.Cell(10).GetValue<string?>()?.Trim() ?? "",
-                    row.Cell(11).GetValue<string?>()?.Trim() ?? "",
-                },
-                Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
-                CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
-            }).ToList();
-
-            foreach (var item in questionsList)
-            {
-                var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
-                    x.ChapterName == item.ChapterName && x.PartNo == item.PartNumber);
-                
-                var questionModel = new tblQuestion()
-                {
-                    Class = item.ClassId,
-                    SubjectId = subject.Id,
-                    TopicId = content?.Id ?? 0,
-                    Question = item.Question,
-                    IsMandatory = item.IsMandatory,
-                    Sequence = item.SequenceNumber,
-                    QuestionTypeId = 1,
-                    PaperType = question.PaperTypeId,
-                    IsActive = true,
-                    CreatedBy = 1,
-                    CreatedOn = DateTime.Now,
-                };
-
-                var questionId = await _genericRepository.InsertAsync(questionModel);
-
-                var insertedQuestionModel = await _genericRepository.GetByIdAsync<tblQuestion>(questionId);
-
-                if (insertedQuestionModel == null) continue;
-                
-                insertedQuestionModel.Flag = questionId;
-                    
-                await _genericRepository.UpdateAsync(insertedQuestionModel);
-
-                var correctAnswer = item.CorrectAnswer switch
-                {
-                    "A" => 0,
-                    "B" => 1,
-                    "C" => 2,
-                    "D" => 3,
-                    _ => 0
-                };
-                
-                for (var i = 0; i < item.Commons.Count; i++)
-                {
-                    var commonModel = new tblCommon()
+                    ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
+                    SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
+                    IsMandatory = row.Cell(3).GetValue<string?>()?.ToUpper() == "YES", 
+                    ChapterName = row.Cell(4).GetValue<string?>()?.Trim() ?? "", 
+                    PartNumber = row.Cell(5).GetValue<int?>() ?? 0, 
+                    SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
+                    Question = row.Cell(7).GetValue<string?>()?.Trim(),
+                    Commons = new List<string>()
                     {
-                        Flag = questionId,
-                        Score = 1,
-                        LanguageId = item.Language,
-                        Value = item.Commons[i],
-                        CommonId = i + 1,
+                        row.Cell(8).GetValue<string?>()?.Trim() ?? "",
+                        row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                        row.Cell(10).GetValue<string?>()?.Trim() ?? "",
+                        row.Cell(11).GetValue<string?>()?.Trim() ?? "",
+                    },
+                    Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
+                    CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
+                }).ToList();
+
+                foreach (var item in questionsList)
+                {
+                    var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
+                        x.ChapterName == item.ChapterName && x.PartNo == item.PartNumber);
+                    
+                    var questionModel = new tblQuestion()
+                    {
+                        Class = item.ClassId,
+                        SubjectId = subject.Id,
+                        TopicId = content?.Id ?? 0,
+                        Question = item.Question,
+                        IsMandatory = item.IsMandatory,
+                        Sequence = item.SequenceNumber,
+                        QuestionTypeId = 1,
+                        PaperType = question.PaperTypeId,
                         IsActive = true,
-                        CorrectAnswer = correctAnswer == i ? 1 : 0,
                         CreatedBy = 1,
                         CreatedOn = DateTime.Now,
                     };
+
+                    var questionId = await _genericRepository.InsertAsync(questionModel);
+
+                    var insertedQuestionModel = await _genericRepository.GetByIdAsync<tblQuestion>(questionId);
+
+                    if (insertedQuestionModel == null) continue;
                     
-                    await _genericRepository.InsertAsync(commonModel);
+                    insertedQuestionModel.Flag = questionId;
+                        
+                    await _genericRepository.UpdateAsync(insertedQuestionModel);
+
+                    var correctAnswer = item.CorrectAnswer switch
+                    {
+                        "A" => 0,
+                        "B" => 1,
+                        "C" => 2,
+                        "D" => 3,
+                        _ => 0
+                    };
                     
+                    for (var i = 0; i < item.Commons.Count; i++)
+                    {
+                        var commonModel = new tblCommon()
+                        {
+                            Flag = questionId,
+                            Score = 1,
+                            LanguageId = item.Language,
+                            Value = item.Commons[i],
+                            CommonId = i + 1,
+                            IsActive = true,
+                            CorrectAnswer = correctAnswer == i ? 1 : 0,
+                            CreatedBy = 1,
+                            CreatedOn = DateTime.Now,
+                        };
+                        
+                        await _genericRepository.InsertAsync(commonModel);
+                        
+                    }
                 }
             }
-        }
-        else
-        {
-            var questionsList = worksheet.Rows().Skip(1)
-            .Select(row => new 
+            else
             {
-                ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
-                SubjectId = subject.Id, 
-                IsMandatory = row.Cell(3).GetValue<string?>()?.Trim()?.ToUpper() == "YES", 
-                SequenceNumber = row.Cell(6).GetValue<int?>() ?? 0, 
-                Question = row.Cell(7).GetValue<string?>()?.Trim(),
-                Commons = new List<string>()
+                var questionsList = worksheet.Rows().Skip(1)
+                .Select(row => new 
                 {
-                    row.Cell(8).GetValue<string?>()?.Trim() ?? "",
-                    row.Cell(9).GetValue<string?>()?.Trim() ?? "",
-                    row.Cell(10).GetValue<string?>()?.Trim() ?? "",
-                    row.Cell(11).GetValue<string?>()?.Trim() ?? "",
-                },
-                Language = row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
-                CorrectAnswer = row.Cell(13).GetValue<string?>()?.Trim().ToUpper() ?? "A"
-            }).ToList();
-
-            foreach (var item in questionsList)
-            {
-                var questionModel = new tblQuestion()
-                {
-                    Class = item.ClassId,
-                    SubjectId = subject.Id,
-                    TopicId = 0,
-                    Question = item.Question,
-                    IsMandatory = item.IsMandatory,
-                    Sequence = item.SequenceNumber,
-                    QuestionTypeId = 1,
-                    PaperType = question.PaperTypeId,
-                    IsActive = true,
-                    CreatedBy = 1,
-                    CreatedOn = DateTime.Now,
-                };
-
-                var questionId = await _genericRepository.InsertAsync(questionModel);
-
-                var insertedQuestionModel = await _genericRepository.GetByIdAsync<tblQuestion>(questionId);
-
-                if (insertedQuestionModel == null) continue;
-                
-                insertedQuestionModel.Flag = questionId;
-                    
-                await _genericRepository.UpdateAsync(insertedQuestionModel);
-
-                var correctAnswer = item.CorrectAnswer switch
-                {
-                    "A" => 0,
-                    "B" => 1,
-                    "C" => 2,
-                    "D" => 3,
-                    _ => 0
-                };
-                
-                for (var i = 0; i < item.Commons.Count; i++)
-                {
-                    var commonModel = new tblCommon()
+                    ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
+                    SubjectId = subject.Id, 
+                    IsMandatory = row.Cell(3).GetValue<string?>()?.Trim()?.ToUpper() == "YES", 
+                    SequenceNumber = row.Cell(4).GetValue<int?>() ?? 0, 
+                    Question = row.Cell(5).GetValue<string?>()?.Trim(),
+                    Commons = new List<string>()
                     {
-                        Flag = questionId,
-                        Score = 1,
-                        LanguageId = item.Language,
-                        Value = item.Commons[i],
-                        CommonId = i + 1,
+                        row.Cell(6).GetValue<string?>()?.Trim() ?? "",
+                        row.Cell(7).GetValue<string?>()?.Trim() ?? "",
+                        row.Cell(8).GetValue<string?>()?.Trim() ?? "",
+                        row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                    },
+                    Language = row.Cell(10).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
+                    CorrectAnswer = row.Cell(11).GetValue<string?>()?.Trim().ToUpper() ?? "A"
+                }).ToList();
+
+                foreach (var item in questionsList)
+                {
+                    var questionModel = new tblQuestion()
+                    {
+                        Class = item.ClassId,
+                        SubjectId = subject.Id,
+                        TopicId = 0,
+                        Question = item.Question,
+                        IsMandatory = item.IsMandatory,
+                        Sequence = item.SequenceNumber,
+                        QuestionTypeId = 1,
+                        PaperType = question.PaperTypeId,
                         IsActive = true,
-                        CorrectAnswer = correctAnswer == i ? 1 : 0,
                         CreatedBy = 1,
                         CreatedOn = DateTime.Now,
                     };
+
+                    var questionId = await _genericRepository.InsertAsync(questionModel);
+
+                    var insertedQuestionModel = await _genericRepository.GetByIdAsync<tblQuestion>(questionId);
+
+                    if (insertedQuestionModel == null) continue;
                     
-                    await _genericRepository.InsertAsync(commonModel);
+                    insertedQuestionModel.Flag = questionId;
+                        
+                    await _genericRepository.UpdateAsync(insertedQuestionModel);
+
+                    var correctAnswer = item.CorrectAnswer switch
+                    {
+                        "A" => 0,
+                        "B" => 1,
+                        "C" => 2,
+                        "D" => 3,
+                        _ => 0
+                    };
                     
+                    for (var i = 0; i < item.Commons.Count; i++)
+                    {
+                        var commonModel = new tblCommon()
+                        {
+                            Flag = questionId,
+                            Score = 1,
+                            LanguageId = item.Language,
+                            Value = item.Commons[i],
+                            CommonId = i + 1,
+                            IsActive = true,
+                            CorrectAnswer = correctAnswer == i ? 1 : 0,
+                            CreatedBy = 1,
+                            CreatedOn = DateTime.Now,
+                        };
+                        
+                        await _genericRepository.InsertAsync(commonModel);
+                        
+                    }
                 }
             }
+
+            return true;
         }
-        
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
     public async Task UploadQuestionsWorksheet(PCPQuestionSheetRequestDTO questionSheet)

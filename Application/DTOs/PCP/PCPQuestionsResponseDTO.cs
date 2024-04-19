@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs.PCP;
 
-public class PCPResponseDTO
+public class PCPQuestionsResponseDTO
 {
     public int ClassId { get; set; }
 

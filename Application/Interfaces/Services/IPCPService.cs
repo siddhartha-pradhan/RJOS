@@ -6,7 +6,7 @@ namespace Application.Interfaces.Services;
 
 public interface IPCPService
 {
-    Task<PCPResponseDTO> GetPCPQuestionsByClass(int classId, int type);
+    Task<PCPQuestionsResponseDTO> GetPCPQuestionsByClass(int classId, int type);
 
     Task<List<PCPQuestionResponseDTO>> GetUploadedQuestionSheets(int subjectCode, int type);
     
@@ -14,7 +14,7 @@ public interface IPCPService
 
     Task<(bool, string)> IsUploadedSheetValid(PCPQuestionRequestDTO question);
 
-    Task UploadQuestions(PCPQuestionRequestDTO question);
+    Task<bool> UploadQuestions(PCPQuestionRequestDTO question);
 
     Task UploadQuestionsWorksheet(PCPQuestionSheetRequestDTO questionSheet);
     

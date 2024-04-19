@@ -93,8 +93,17 @@ public class PCPController : BaseController<PCPController>
             });
         }
         
-        await _pcpService.UploadQuestions(pcpQuestion);
+        var isUploaded = await _pcpService.UploadQuestions(pcpQuestion);
 
+        if (!isUploaded)
+        {
+            return Json(new
+            {
+                valid = 0,
+                message = "Please make sure the excel sheet is in correct format and a correct subject code is provided"
+            });
+        }
+        
         var questionsSheetPath = DocumentUploadFilePath.QuestionsExcelDocumentFilePath;
             
         var serverDocName = await UploadDocument(questionsSheetPath, pcpQuestion.QuestionSheet);
