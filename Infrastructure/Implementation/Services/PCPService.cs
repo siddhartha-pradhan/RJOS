@@ -193,7 +193,7 @@ public class PCPService : IPCPService
                             row.Cell(8).GetValue<string?>() ?? "",
                             row.Cell(9).GetValue<string?>() ?? "",
                         },
-                        Language = row.Cell(10).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(12).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
+                        Language = row.Cell(10).GetValue<string?>()?.Trim().ToUpper() is "HINDI" or "हिंदी" or "1" ? 1 : row.Cell(10).GetValue<string?>()?.Trim().ToUpper() is "ENGLISH" or "2" ? 2 : 0,
                         CorrectAnswer = row.Cell(11).GetValue<string?>()?.Trim().ToUpper() ?? "A"
                     }).ToList();
 

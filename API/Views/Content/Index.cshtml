@@ -1,0 +1,14 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "eContents";
+}
+
+<div class="row p-4">
+    <div class="mb-3" id="contents-filter">
+        @{
+            await Html.RenderPartialAsync("_Filter");
+        }
+    </div>
+
+    <div id="div-class-contents-list"></div>    
+</div>

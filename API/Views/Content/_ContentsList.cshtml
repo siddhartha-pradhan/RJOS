@@ -1,0 +1,81 @@
+﻿@model Application.DTOs.Content.EContentResponseDTO
+
+<style>
+    #basic-datatable th,
+    #basic-datatable td {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    #basic-datatable th:nth-child(3),
+    #basic-datatable td:nth-child(3) {
+        max-width: 150px;
+    }
+
+    #basic-datatable th:nth-child(5),
+    #basic-datatable td:nth-child(5) {
+        max-width: 300px;
+    }
+</style>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="col-6">
+                <div class="text-start">
+                    <div class="page-title-box">
+                        <h4 class="page-title">eContents for @Model.SubjectName</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-end">
+                    <button type="button" class="btn w-b btn-outline-pink btn-sm btn-rounded" style="border: #DB4B73 1px solid;" onclick="onAddUpdateContent(0)">
+                        Add new eContent
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
+            <thead>
+                <tr>
+                    <th style="width: 5%">#</th>
+                    <th style="width: 5%">Subject (Code)</th>
+                    <th>Faculty</th>
+                    <th>Chapter No</th>
+                    <th>Chapter Name</th>
+                    <th>Part No</th>
+                    <th>Part Name</th>
+                    <th>YouTube Link (Time in Seconds)</th>
+                    <th style="width: 10%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var content in Model.ContentsList)
+            {
+                <tr>
+                    <td>
+                        <span>@(Model.ContentsList.ToList().IndexOf(content) + 1).</span>
+                    </td>
+                    <td>@content.SubjectName (@content.SubjectCode)</td>
+                    <td>@content.Faculty</td>
+                    <td>@content.ChapterNo</td>
+                    <td>@content.ChapterName</td>
+                    <td>@content.PartNo</td>
+                    <td>@content.PartName</td>
+                    <td>@content.YouTubeLink (@content.TimeInSeconds)</td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="onAddUpdateContent(@content.Id)">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </a>
+                        <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeContentStatus(@content.Id)">
+                            <i class="fa-regular fa-circle-xmark"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
