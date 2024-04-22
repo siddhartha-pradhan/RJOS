@@ -56,25 +56,34 @@ public class ContentService : IContentService
                 contentList.Where(x => x.YouTubeLink != "-") : 
                 contentList.Where(x => x.YouTubeLink == "-");
         }
+
+        contentList = contentList.OrderBy(x => x.ChapterNo)
+            .ThenBy(x => x.PartNo);
+
+        var result = new List<Contents>();
         
-        var result = contentList.OrderBy(x => x.ChapterNo).ThenBy(x => x.PartNo).Select(x => new Contents()
+        foreach (var contentItem in contentList)
         {
-            Id = x.Id,
-            Class = x.Class,
-            SubjectId = x.SubjectId,
-            SubjectName = subject?.Title ?? "",
-            Faculty = x.Faculty ?? "",
-            ChapterName = x.ChapterName,
-            Description = x.Description,
-            PartName = x.PartName,
-            ChapterNo = x.ChapterNo,
-            PartNo = x.PartNo,
-            TimeInSeconds = x.TimeInSeconds,
-            YouTubeLink = x.YouTubeLink,
-            Sequence = x.Sequence ?? 0,
-            SubjectCode = subject?.SubjectCode ?? 0,
-            IsActive = x.IsActive
-        }).ToList();
+            result.Add(new Contents()
+            {
+                Id = contentItem.Id,
+                Class = contentItem.Class,
+                SubjectId = contentItem.SubjectId,
+                SubjectName = subject?.Title ?? "",
+                Faculty = contentItem.Faculty ?? "",
+                ChapterName = contentItem.ChapterName,
+                Description = contentItem.Description,
+                PartName = contentItem.PartName,
+                ChapterNo = contentItem.ChapterNo,
+                PartNo = contentItem.PartNo,
+                TimeInSeconds = contentItem.TimeInSeconds,
+                YouTubeLink = contentItem.YouTubeLink,
+                Sequence = contentItem.Sequence ?? 0,
+                SubjectCode = subject?.SubjectCode ?? 0,
+                IsActive = contentItem.IsActive,
+                IsDeletable = content.ContentType == 1 || await _genericRepository.GetFirstOrDefaultAsync<tblQuestion>(z => z.TopicId == contentItem.Id) == null
+            });
+        }
 
         var eContent = new EContentResponseDTO()
         {

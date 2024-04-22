@@ -32,6 +32,9 @@
                 <div class="text-end">
                     @if (Model.ContentType == 1)
                     {
+                        <a type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" asp-action="DownloadSheet" asp-route-classId="@Model.Class" asp-route-activeStatus="true" asp-route-contentType="@Model.ContentType" asp-route-subjectId="@Model.SubjectId">
+                            Download Sheet
+                        </a>
                         <button type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" onclick="onAddUpdateContent(0, @Model.Class, @Model.SubjectId, @Model.ContentType)">
                             Add new eContent
                         </button>
@@ -40,7 +43,7 @@
             </div>
         </div>
         
-        <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
+        <table class="basic-datatable table table-hover dt-responsive nowrap w-100">
             <thead>
                 <tr>
                     <th style="width: 5%">#</th>
@@ -85,11 +88,14 @@
                                 <i class="fa-regular fa-pen-to-square"></i>
                             </a>
                         }
-                        @if (content.IsActive)
+                        @if (content is { IsActive: true })
                         {
-                            <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeContentStatus(@content.Id, @Model.Class, @Model.SubjectId, @Model.ContentType)">
-                                <i class="fa-regular fa-circle-xmark"></i>
-                            </a>
+                            if (content.IsDeletable)
+                            {
+                                <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeContentStatus(@content.Id, @Model.Class, @Model.SubjectId, @Model.ContentType)">
+                                    <i class="fa-regular fa-circle-xmark"></i>
+                                </a>
+                            }
                         }
                         else
                         {
@@ -123,6 +129,19 @@
     }
 
     function changeContentStatus(contentId, classId, subjectId, contentType){
+        $("#contentId").val(contentId);
+        $("#classId").val(classId);
+        $("#subjectId").val(subjectId);
+        $("#contentType").val(contentType);
+        $("#info-header-modal").modal("show");
+    }
+    
+    function ActivateDeactivate(){
+        let contentId = $("#contentId").val();
+        let classId = $("#classId").val();
+        let subjectId = $("#subjectId").val();
+        let contentType = $("#contentType").val();
+        
         $.ajax({
             type: 'GET',
             dataType: 'JSON',

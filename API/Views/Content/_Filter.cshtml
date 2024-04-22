@@ -18,7 +18,7 @@
                 <label class="col-lg-2 col-md-4 col-sm-4 col-form-label">Subject</label>
                 <div class="col-lg-3 col-md-4 col-sm-4">
                     <select asp-for="SubjectId" asp-items="@(new SelectList(string.Empty,"Id","Value"))" class="form-select" data-bs-drop="down" data-bs-display="static" required>
-                        <option value="0" selected>Select a Subject (Auto Bind as per Class)</option>
+                        <option value="0" selected>Select a Subject</option>
                     </select>
                 </div>
                 <div class="col-lg-1 col-md-4 col-sm-4"></div>
@@ -60,7 +60,7 @@
             url: '/Content/GetSubjectsByClass/',
             data: { classId: $('#ClassId').val() },
             success: function (data) {
-                let items = "<option value=''>Select a Subject (Auto Bind as per Class)</option>";
+                let items = "<option value=''>Select a Subject</option>";
                 $('#SubjectId').empty();
 
                 $.each(data, function (key, value) {

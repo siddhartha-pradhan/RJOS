@@ -1,0 +1,97 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Application.DTOs.EContentBooks.EContentBookRequestDTO
+
+<form data-ajax="true" data-ajax-mode="replace" data-ajax-method="POST" enctype="multipart/form-data" asp-controller="EContentBook" asp-action="SaveEBook" data-ajax-success="onSuccessSaveEBooks">
+    <div id="addUpdateEBook" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="info-header-modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #DB4B73">
+                    <h4 class="modal-title text-white">Upload E-Books</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <input type="hidden" asp-for="Id" class="form-control" required />
+                        <div class="col-md-3">
+                            <label class="form-label required">Class</label>
+                            <select asp-for="ClassId" aria-required="true" class="form-select" required onchange="bindSubjects()">
+                                <option disabled="" label="Select a Class" selected="" value=""></option>
+                                <option label="10" value="10">10</option>
+                                <option label="12" value="12">12</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">Subject</label>
+                            <select asp-for="SubjectId" class="form-select" data-bs-drop="down" data-bs-display="static" required>
+                                <option value="" selected>Select a Subject</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">Name Of Book</label>
+                            <input type="text" asp-for="NameOfBook" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label required">Volume</label>
+                            <select asp-for="Volume" aria-required="true" class="form-select" required>
+                                <option disabled="" label="Select a Volume" selected="" value=""></option>
+                                <option label="VOL I" value="VOL I">VOL I</option>
+                                <option label="VOL II" value="VOL II">VOL II</option>
+                                <option label="VOL III" value="VOL III">VOL III</option>
+                                <option label="VOL IV" value="VOL IV">VOL IV</option>
+                                <option label="VOL V" value="VOL V">VOL V</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mt-2">
+                            <div class="col-md-4 mt-2">
+                                <label class="form-label required">Select a File</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="file" asp-for="EBookFile" class="form-control" required="required">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-md-4 text-md-end">
+                        <button type="submit" class="btn text-white mt-2" style="background-color: #DB4B73" value="Save">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    // function onSuccessSaveContent(data) {
+    //     if (data.valid === 0) {
+    //         toastr.warning(data.message);
+    //     }
+    //     else {
+    //         toastr.success(data.message);
+    //         // $("#div-class-content-list").html(data.htmlData);
+    //         $("#addUpdateContent").modal("hide");
+    //     }
+    // }
+
+    function bindSubjects(){
+        $.ajax({
+            type: 'GET',
+            dataType: 'JSON',
+            url: '/Content/GetSubjectsByClass/',
+            data: { classId: $('#ClassId').val() },
+            success: function (data) {
+                let items = "<option value=''>Select a Subject</option>";
+                $('#SubjectId').empty();
+
+                $.each(data, function (key, value) {
+                    items += "<option value='" + value.value + "'>" + value.text + "</option>"
+                });
+
+                $('#SubjectId').html(items);
+            },
+            error: function (response) {
+                toastr.warning('Error occurred while binding class dropdown.');
+            }
+        });
+    }
+</script>

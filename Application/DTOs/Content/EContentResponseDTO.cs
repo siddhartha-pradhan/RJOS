@@ -24,4 +24,6 @@ public class Contents : ContentResponseDTO
     public int ContentType { get; set; }
     
     public bool IsActive { get; set; }
+    
+    public bool IsDeletable { get; set; }
 }
