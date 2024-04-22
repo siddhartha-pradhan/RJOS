@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.Content;
+using Application.DTOs.Dropdown;
 using Application.DTOs.Subject;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
@@ -41,15 +42,22 @@ public class ContentService : IContentService
         return result;
     }
 
-    public async Task<EContentResponseDTO> GetAllContents(ContentRequestDTO content)
+    public async Task<EContentResponseDTO> GetAllContents(EContentRequestDTO content)
     {
-        var subject = content.SubjectId.HasValue ? await _genericRepository.GetByIdAsync<tblSubject>(content.SubjectId) : new tblSubject();
+        var subject = await _genericRepository.GetByIdAsync<tblSubject>(content.SubjectId);
         
         var contentList = await _genericRepository.GetAsync<tblContent>(x => 
-            (!content.ClassId.HasValue || x.Class == content.ClassId) && 
-            (!content.SubjectId.HasValue || x.SubjectId == content.SubjectId) && x.IsActive);
+            x.Class == content.ClassId && 
+            x.SubjectId == content.SubjectId);
 
-        var result = contentList.OrderBy(x => x.Sequence).Select(x => new Contents()
+        if (content.ContentType != 0)
+        {
+            contentList = content.ContentType == 1 ? 
+                contentList.Where(x => x.YouTubeLink != "-") : 
+                contentList.Where(x => x.YouTubeLink == "-");
+        }
+        
+        var result = contentList.OrderBy(x => x.ChapterNo).ThenBy(x => x.PartNo).Select(x => new Contents()
         {
             Id = x.Id,
             Class = x.Class,
@@ -64,16 +72,18 @@ public class ContentService : IContentService
             TimeInSeconds = x.TimeInSeconds,
             YouTubeLink = x.YouTubeLink,
             Sequence = x.Sequence ?? 0,
-            SubjectCode = subject?.SubjectCode ?? 0
+            SubjectCode = subject?.SubjectCode ?? 0,
+            IsActive = x.IsActive
         }).ToList();
 
         var eContent = new EContentResponseDTO()
         {
-            SubjectId = subject?.Id ?? 0,
-            Class = content.ClassId ?? 10,
-            SubjectCode = subject?.SubjectCode ?? 0,
-            SubjectName = subject?.Title ?? "",
-            ContentsList = result
+            SubjectId = subject!.Id,
+            Class = content.ClassId,
+            SubjectCode = subject.SubjectCode ?? 0,
+            SubjectName = subject.Title ?? "",
+            ContentsList = result,
+            ContentType = content.ContentType
         };
         
         return eContent;
@@ -81,37 +91,47 @@ public class ContentService : IContentService
 
     public async Task<(bool, string)> UpsertContents(Contents content)
     {
-        var existingContent = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
-            x.Class == content.Class && x.SubjectId == content.SubjectId &&
-            x.ChapterNo == content.ChapterNo && x.PartNo == content.PartNo);
-
-        if (existingContent != null)
+        if (content.YouTubeLink == "-" || content.TimeInSeconds == 0)
         {
-            return (false, "An existing eContent on the same subject and class exists with the same chapter number and part number");
+            return (false, "Please insert a valid YouTube link and time frame in seconds for the link.");
         }
         
-        if (content.Id == 0)
+        if (content.Id != 0)
         {
-            var contentModel = await _genericRepository.GetByIdAsync<tblContent>(content.Id);
+            var contentModel = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x => x.Id == content.Id);
 
             if (contentModel == null) return (false, "eContent not found.");
             
             contentModel.Faculty = content.Faculty;
             contentModel.ChapterName = content.ChapterName;
-            contentModel.ChapterNo = content.ChapterNo;
             contentModel.Description = "RSOS Content Model";
             contentModel.PartName = content.PartName;
-            contentModel.PartNo = content.PartNo;
             contentModel.TimeInSeconds = content.TimeInSeconds;
             contentModel.YouTubeLink = content.YouTubeLink;
 
             await _genericRepository.UpdateAsync(contentModel);
 
             return (true, "eContent successfully updated.");
-
         }
         else
         {
+            var existingContent = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
+                x.Class == content.Class && x.SubjectId == content.SubjectId &&
+                x.ChapterNo == content.ChapterNo && x.PartNo == content.PartNo);
+
+            if (existingContent != null)
+            {
+                return (false, "An existing eContent on the same subject and class exists with the same chapter number and part number");
+            }
+
+            var contents =
+                await _genericRepository.GetAsync<tblContent>(x =>
+                    x.Class == content.Class && x.SubjectId == content.SubjectId);
+
+            var contentsList = contents as tblContent[] ?? contents.ToArray();
+            
+            var maxSequence = contentsList.Any() ? contentsList.Select(x => x.Sequence).Max() ?? 0 : 0;
+            
             var contentModel = new tblContent()
             {
                 Faculty = content.Faculty,
@@ -126,7 +146,7 @@ public class ContentService : IContentService
                 CreatedOn = DateTime.Now,
                 SubjectId = content.SubjectId,
                 Class = content.Class,
-                Sequence = content.Sequence,
+                Sequence = maxSequence + 5,
                 IsActive = true,
             };
 
@@ -136,31 +156,76 @@ public class ContentService : IContentService
         }
     }
 
-    public async Task<bool> UpdateContentStatus(int contentId)
+    public async Task<(bool, bool)> UpdateContentStatus(int contentId)
     {
-        var content = await _genericRepository.GetByIdAsync<tblContent>(contentId);
+        var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x => x.Id == contentId);
 
-        if (content == null) return false;
+        if (content == null) return (false, false);
+
+        if (content.YouTubeLink == "-")
+        {
+            var questionPaper = await _genericRepository.GetFirstOrDefaultAsync<tblQuestion>(x => x.TopicId == content.Id);
+
+            if (questionPaper != null) return (false, false);
+        }
         
         content.IsActive = !content.IsActive;
 
         await _genericRepository.UpdateAsync(content);
 
-        return true;
+        return (true, !content.IsActive);
     }
 
-    public async Task<List<SubjectResponseDTO>> GetSubjectsByClass(int classId)
+    public async Task<List<SelectListModel>> GetSubjectsByClass(int classId)
     {
         var subjects = await _genericRepository.GetAsync<tblSubject>(x => x.Class == classId);
 
-        var result = subjects.Select(x => new SubjectResponseDTO()
+        var result = subjects.Select(x => new SelectListModel()
         {
             Id = x.Id,
-            Class = x.Class ?? classId,
-            Title = x.Title,
-            SubjectCode = x.SubjectCode,
-            TitleInHindi = x.TitleInHindi
+            Value = $"({x.SubjectCode}) {x.Title}"
         }).ToList();
+
+        return result;
+    }
+
+    public async Task<SubjectResponseDTO> GetSubjectById(int subjectId)
+    {
+        var subject = await _genericRepository.GetByIdAsync<tblSubject>(subjectId);
+
+        return new SubjectResponseDTO()
+        {
+            Id = subject!.Id,
+            Class = subject.Class ?? 0,
+            SubjectCode = subject.SubjectCode,
+            Title = subject.Title,
+            TitleInHindi = subject.TitleInHindi
+        };
+    }
+    
+    public async Task<Contents> GetContentById(int contentId)
+    {
+        var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x => x.Id == contentId);
+
+        var subject = await _genericRepository.GetByIdAsync<tblSubject>(content!.SubjectId);
+        
+        var result = new Contents()
+        {
+            Id = content.Id,
+            Class = content.Class,
+            SubjectId = content.SubjectId,
+            SubjectName = subject!.Title,
+            SubjectCode = subject.SubjectCode ?? 0,
+            ChapterName = content.ChapterName,
+            ChapterNo = content.ChapterNo,
+            PartNo = content.PartNo,
+            TimeInSeconds = content.TimeInSeconds,
+            Sequence = content.Sequence ?? 0,
+            PartName = content.PartName,
+            Faculty = content.Faculty ?? "",
+            YouTubeLink = content.YouTubeLink,
+            ContentType = content.YouTubeLink == "-" ? 2 : 1
+        };
 
         return result;
     }

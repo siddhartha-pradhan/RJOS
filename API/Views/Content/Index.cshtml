@@ -1,4 +1,7 @@
-﻿@{
+﻿@using Application.DTOs.Content
+@model Application.DTOs.Content.EContentResponseDTO
+
+@{
     Layout = "_Layout";
     ViewData["Title"] = "eContents";
 }
@@ -11,4 +14,10 @@
     </div>
 
     <div id="div-class-contents-list"></div>    
+</div>
+
+<div id="subject-content">
+    @{
+        await Html.RenderPartialAsync("_UploadEContents", new Contents());
+    }
 </div>

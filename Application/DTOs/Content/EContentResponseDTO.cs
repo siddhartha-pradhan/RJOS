@@ -10,6 +10,8 @@ public class EContentResponseDTO
 
     public string SubjectName { get; set; }
     
+    public int ContentType { get; set; }
+
     public List<Contents> ContentsList { get; set; }
 }
 
@@ -18,4 +20,8 @@ public class Contents : ContentResponseDTO
     public int Sequence { get; set; }
 
     public int SubjectCode { get; set; }
+    
+    public int ContentType { get; set; }
+    
+    public bool IsActive { get; set; }
 }
