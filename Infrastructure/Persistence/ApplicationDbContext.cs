@@ -25,7 +25,11 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<tblContent> tblContents { get; set; }
 
+    public virtual DbSet<tblContentArchive> tblContentArchives { get; set; }
+
     public virtual DbSet<tblEbook> tblEbooks { get; set; }
+
+    public virtual DbSet<tblEbookArchive> tblEbookArchives { get; set; }
 
     public virtual DbSet<tblEnrollmentStatus> tblEnrollmentStatuses { get; set; }
 
@@ -61,7 +65,7 @@ public partial class ApplicationDbContext : DbContext
     {
         modelBuilder.Entity<tblChatBotMessage>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__tblChatB__3214EC0723128C88");
+            entity.HasKey(e => e.Id).HasName("PK__tblChatB__3214EC07D950FF27");
 
             entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -72,9 +76,7 @@ public partial class ApplicationDbContext : DbContext
         {
             entity.HasKey(e => new { e.CommonId, e.Flag, e.LanguageId }).HasName("PK_Common");
 
-            entity.HasIndex(e => new { e.Flag, e.CommonId }, "Idx_Commons");
-
-            entity.HasIndex(e => new { e.Flag, e.CommonId }, "Idx_CommonsArchive");
+            entity.HasIndex(e => new { e.Flag, e.IsActive }, "Idx_Commons").IsDescending(false, true);
 
             entity.Property(e => e.Flag).HasDefaultValue(1);
             entity.Property(e => e.CorrectAnswer).HasDefaultValue(0);
@@ -114,6 +116,17 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.YouTubeLink).IsUnicode(false);
         });
 
+        modelBuilder.Entity<tblContentArchive>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tblConte__3214EC0729D280F6");
+
+            entity.ToTable("tblContentArchive");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.YouTubeLink).IsUnicode(false);
+        });
+
         modelBuilder.Entity<tblEbook>(entity =>
         {
             entity.HasKey(e => new { e.Class, e.CodeNo, e.Volume }).HasName("PK_Ebook");
@@ -130,6 +143,23 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.NameOfBook).HasMaxLength(150);
+        });
+
+        modelBuilder.Entity<tblEbookArchive>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tblEbook__3214EC073C6733F0");
+
+            entity.ToTable("tblEbookArchive");
+
+            entity.Property(e => e.CreatedOn).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.FileName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.NameOfBook).HasMaxLength(150);
+            entity.Property(e => e.Volume)
+                .HasMaxLength(20)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<tblEnrollmentStatus>(entity =>

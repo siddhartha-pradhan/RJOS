@@ -12,5 +12,7 @@ public class EContentBookResponseDTO
     
     public string FileName { get; set; }
     
+    public string UploadedDate { get; set; }
+    
     public bool IsActive { get; set; }
 }

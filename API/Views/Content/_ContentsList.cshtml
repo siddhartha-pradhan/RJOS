@@ -63,7 +63,19 @@
                     {
                         <th>YouTube Link (Time in Seconds)</th>
                     }
-                    <th style="width: 10%">Action</th>
+                    <th style="width: 10%">
+                        @if (Model.ContentsList.Any())
+                        {
+                            if (Model.ContentsList.Any(x => x.IsActive))
+                            {
+                                <span>Active</span>
+                            }
+                            else
+                            {
+                                <span>Deleted Time Span</span>
+                            }
+                        }
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -103,9 +115,7 @@
                         }
                         else
                         {
-                            <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeContentStatus(@content.Id, @Model.Class, @Model.SubjectId, @Model.ContentType)">
-                                <i class="fa-solid fa-check-double"></i>
-                            </a>
+                            @content.UploadedDate
                         }
                     </td>
                 </tr>
@@ -158,7 +168,7 @@
                 }
                 else {
                     toastr.success('The status of the following content has been successfully changed.');
-                    $("#div-class-contents-list").html(data.htmlData);
+                    $("#filter-content").trigger('click');
                     BasicDatatable();
                 }
             },

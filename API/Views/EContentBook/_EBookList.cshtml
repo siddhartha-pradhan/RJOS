@@ -37,11 +37,23 @@
                 <tr>
                     <th style="width:5%">#</th>
                     <th style="width:15%">Subject</th>
-                    <th style="width:15%">Name Of Book</th>
+                    <th style="width:15%">Name of the Book</th>
                     <th style="width:10%">Volume</th>
                     <th style="width:30%">File Name</th>
                     <th style="width:5%">Download</th>
-                    <th style="width:5%">Action</th>
+                    <th style="width:10%">
+                        @if (Model.Any())
+                        {
+                            if (Model.Any(x => x.IsActive))
+                            {
+                                <span>Active</span>
+                            }
+                            else
+                            {
+                                <span>Deleted Time Span</span>
+                            }
+                        }
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -74,12 +86,15 @@
                                 }
                             </td>
                             <td class="text-center">
-                                @if (eBook.Id > 0)
+                                @if (eBook is { IsActive: true, Id: > 0 })
                                 {
                                     if (eBook.IsActive)
                                     {
                                         <a class="btn btn-sm btn-outline-pink btn-rounded float-end" onclick="changeEBooksStatus(@eBook.Id)">
                                             <i class="fa-regular fa-circle-xmark"></i>
+                                        </a>
+                                        <a class="btn btn-sm btn-outline-pink btn-rounded float-end" onclick="onAddUpdateEBook(@eBook.Id)">
+                                            <i class="fa-regular fa-pen-to-square"></i>
                                         </a>
                                     }
                                     else
@@ -88,6 +103,10 @@
                                             <i class="fa-solid fa-check-double"></i>
                                         </a>
                                     }
+                                }
+                                else
+                                {
+                                    @eBook.UploadedDate
                                 }
                             </td>
                         </tr>                      
@@ -103,30 +122,28 @@
     let editor = null;
 
     function onAddUpdateEBook(index) {  
-        if (index === 0) {
-            $('#Id').val('');
-            $('#ClassId').val('');
-            $('#SubjectId').val('');
-            $('#NameOfBook').val('');
-            $('#Volume').val('');
-            $('#EBookFile').val('');
-            $('#addUpdateEBook').modal('show');
-        }
-        else {
-            $.ajax({
-                type: 'GET',
-                url: '/EBooks/GetEBookById',
-                data: { contentId: index },
-                contentType: 'application/json',
-                dataType: "JSON",
-                success: function (result) {
+        $.ajax({
+            type: 'GET',
+            url: '/EContentBook/GetEBookById',
+            data: { ebookId: index },
+            contentType: 'application/json',
+            dataType: "JSON",
+            success: function (result) {
+                if (result.isNew === 1){
+                    $("#upload-questions-view").html(result.data);
+                }
+                else {
                     $('#Id').val(result.data.id);
                     $('#SubjectId').val(result.data.subjectId);
-                    $('#Volume').val(result.data.class);
-                    $('#addUpdateEBook').modal('show');
+                    $('#SubjectName').val(result.data.subjectName);
+                    $('#ClassId').val(result.data.classId);
+                    $('#Volume').val(result.data.volume);
+                    $('#NameOfBook').val(result.data.nameOfBook);
                 }
-            });
-        }
+                
+                $('#upload-ebook').modal('show');
+            }
+        });
     }
 
     toastr.options = {
@@ -136,8 +153,8 @@
     function onSuccessSaveEBooks(data) {
         if (data.valid){
             toastr.success("eBook Successfully Uploaded");
-            $('#addUpdateEBook').modal('hide');
-            $("#filterEBooksBtn").trigger('click');
+            $('#upload-ebook').modal('hide');
+            $("#filter-ebooks").trigger('click');
         }
         else {
             toastr.warning("There is an existing book under the same subject, class and volume.");
@@ -159,7 +176,7 @@
             dataType: "JSON",
             success: function(result) {
                 toastr.success(result.data);
-                $("#filterEBooksBtn").trigger('click');
+                $("#filter-ebooks").trigger('click');
             },
             error: function(xhr, status, error) {           
                 let errorMessage = eval("(" + xhr.responseText + ")");

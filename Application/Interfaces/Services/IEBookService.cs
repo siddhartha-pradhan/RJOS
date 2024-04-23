@@ -11,5 +11,7 @@ public interface IEBookService
     
     Task<bool> UploadEContentBook(EContentBookRequestDTO eBookRequest);
 
+    Task<EContentBookRequestDTO> GetEBookById(int ebookId);
+
     Task DeleteEBook(int ebookId);
 }

@@ -45,57 +45,115 @@ public class ContentService : IContentService
     public async Task<EContentResponseDTO> GetAllContents(EContentRequestDTO content)
     {
         var subject = await _genericRepository.GetByIdAsync<tblSubject>(content.SubjectId);
-        
-        var contentList = await _genericRepository.GetAsync<tblContent>(x => 
-            x.Class == content.ClassId && 
-            x.SubjectId == content.SubjectId);
 
-        if (content.ContentType != 0)
+        if (content.IsActive)
         {
-            contentList = content.ContentType == 1 ? 
-                contentList.Where(x => x.YouTubeLink != "-") : 
-                contentList.Where(x => x.YouTubeLink == "-");
-        }
+            var contentList = await _genericRepository.GetAsync<tblContent>(x => 
+                x.Class == content.ClassId && 
+                x.SubjectId == content.SubjectId);
 
-        contentList = contentList.OrderBy(x => x.ChapterNo)
-            .ThenBy(x => x.PartNo);
-
-        var result = new List<Contents>();
-        
-        foreach (var contentItem in contentList)
-        {
-            result.Add(new Contents()
+            if (content.ContentType != 0)
             {
-                Id = contentItem.Id,
-                Class = contentItem.Class,
-                SubjectId = contentItem.SubjectId,
-                SubjectName = subject?.Title ?? "",
-                Faculty = contentItem.Faculty ?? "",
-                ChapterName = contentItem.ChapterName,
-                Description = contentItem.Description,
-                PartName = contentItem.PartName,
-                ChapterNo = contentItem.ChapterNo,
-                PartNo = contentItem.PartNo,
-                TimeInSeconds = contentItem.TimeInSeconds,
-                YouTubeLink = contentItem.YouTubeLink,
-                Sequence = contentItem.Sequence ?? 0,
-                SubjectCode = subject?.SubjectCode ?? 0,
-                IsActive = contentItem.IsActive,
-                IsDeletable = content.ContentType == 1 || await _genericRepository.GetFirstOrDefaultAsync<tblQuestion>(z => z.TopicId == contentItem.Id) == null
-            });
-        }
+                contentList = content.ContentType == 1 ? 
+                    contentList.Where(x => x.YouTubeLink != "-") : 
+                    contentList.Where(x => x.YouTubeLink == "-");
+            }
 
-        var eContent = new EContentResponseDTO()
+            contentList = contentList.OrderBy(x => x.ChapterNo)
+                .ThenBy(x => x.PartNo);
+
+            var result = new List<Contents>();
+            
+            foreach (var contentItem in contentList)
+            {
+                result.Add(new Contents()
+                {
+                    Id = contentItem.Id,
+                    Class = contentItem.Class,
+                    SubjectId = contentItem.SubjectId,
+                    SubjectName = subject?.Title ?? "",
+                    Faculty = contentItem.Faculty ?? "",
+                    ChapterName = contentItem.ChapterName ?? "",
+                    Description = contentItem.Description ?? "",
+                    PartName = contentItem.PartName ?? "",
+                    ChapterNo = contentItem.ChapterNo,
+                    PartNo = contentItem.PartNo,
+                    TimeInSeconds = contentItem.TimeInSeconds,
+                    YouTubeLink = contentItem.YouTubeLink,
+                    Sequence = contentItem.Sequence ?? 0,
+                    SubjectCode = subject?.SubjectCode ?? 0,
+                    IsActive = contentItem.IsActive,
+                    UploadedDate = contentItem.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt"),
+                    IsDeletable = content.ContentType == 1 || await _genericRepository.GetFirstOrDefaultAsync<tblQuestion>(z => z.TopicId == contentItem.Id) == null
+                });
+            }
+
+            var eContent = new EContentResponseDTO()
+            {
+                SubjectId = subject!.Id,
+                Class = content.ClassId,
+                SubjectCode = subject.SubjectCode ?? 0,
+                SubjectName = subject.Title ?? "",
+                ContentsList = result,
+                ContentType = content.ContentType
+            };
+            
+            return eContent;
+        }
+        else
         {
-            SubjectId = subject!.Id,
-            Class = content.ClassId,
-            SubjectCode = subject.SubjectCode ?? 0,
-            SubjectName = subject.Title ?? "",
-            ContentsList = result,
-            ContentType = content.ContentType
-        };
-        
-        return eContent;
+            var contentList = await _genericRepository.GetAsync<tblContentArchive>(x => 
+                x.Class == content.ClassId && 
+                x.SubjectId == content.SubjectId);
+
+            if (content.ContentType != 0)
+            {
+                contentList = content.ContentType == 1 ? 
+                    contentList.Where(x => x.YouTubeLink != "-") : 
+                    contentList.Where(x => x.YouTubeLink == "-");
+            }
+
+            contentList = contentList.OrderBy(x => x.ChapterNo)
+                .ThenBy(x => x.PartNo);
+
+            var result = new List<Contents>();
+            
+            foreach (var contentItem in contentList)
+            {
+                result.Add(new Contents()
+                {
+                    Id = contentItem.Id,
+                    Class = contentItem.Class,
+                    SubjectId = contentItem.SubjectId,
+                    SubjectName = subject?.Title ?? "",
+                    Faculty = contentItem.Faculty ?? "",
+                    ChapterName = contentItem.ChapterName ?? "",
+                    Description = contentItem.Description ?? "",
+                    PartName = contentItem.PartName ?? "",
+                    ChapterNo = contentItem.ChapterNo,
+                    PartNo = contentItem.PartNo,
+                    TimeInSeconds = contentItem.TimeInSeconds,
+                    YouTubeLink = contentItem.YouTubeLink,
+                    Sequence = contentItem.Sequence ?? 0,
+                    SubjectCode = subject?.SubjectCode ?? 0,
+                    IsActive = false,
+                    UploadedDate = contentItem.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt"),
+                    IsDeletable = content.ContentType == 1 || await _genericRepository.GetFirstOrDefaultAsync<tblQuestion>(z => z.TopicId == contentItem.Id) == null
+                });
+            }
+
+            var eContent = new EContentResponseDTO()
+            {
+                SubjectId = subject!.Id,
+                Class = content.ClassId,
+                SubjectCode = subject.SubjectCode ?? 0,
+                SubjectName = subject.Title ?? "",
+                ContentsList = result,
+                ContentType = content.ContentType
+            };
+            
+            return eContent;
+        }
     }
 
     public async Task<(bool, string)> UpsertContents(Contents content)
@@ -177,10 +235,28 @@ public class ContentService : IContentService
 
             if (questionPaper != null) return (false, false);
         }
-        
-        content.IsActive = !content.IsActive;
 
-        await _genericRepository.UpdateAsync(content);
+        var contentArchive = new tblContentArchive()
+        {
+            SubjectId = content.SubjectId,
+            Class = content.Class,
+            Sequence = content.Sequence,
+            Description = content.Description,
+            PartName = content.PartName,
+            ChapterNo = content.ChapterNo,
+            PartNo = content.PartNo,
+            TimeInSeconds = content.TimeInSeconds,
+            YouTubeLink = content.YouTubeLink,
+            CreatedBy = content.CreatedBy,
+            CreatedOn = DateTime.Now,
+            ChapterName = content.ChapterName,
+            Faculty = content.Faculty,
+            IsActive = true
+        };
+
+        await _genericRepository.InsertAsync(contentArchive);
+        
+        await _genericRepository.DeleteAsync(content);
 
         return (true, !content.IsActive);
     }

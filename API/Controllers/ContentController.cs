@@ -27,8 +27,6 @@ public class ContentController : BaseController<ContentController>
     {
         var contents = await _contentService.GetAllContents(content);
 
-        contents.ContentsList = contents.ContentsList.Where(x => x.IsActive == content.IsActive).ToList();
-        
         var data = ConvertViewToString("_ContentsList", contents, true);
         
         return Json(data);

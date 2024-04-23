@@ -23,19 +23,9 @@ public class EContentBookController : BaseController<EContentBookController>
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public Task<IActionResult> Index()
     {
-        var subject = await _subjectService.GetAllSubjects(10);
-        
-        var subjects = subject.Select(x => new SelectListModel()
-        {
-            Id = x.Id,
-            Value = x.Title
-        });
-        
-        ViewBag.ddlSubjectEBook = new SelectList(subjects, "Id", "Value");
-
-        return View();
+        return Task.FromResult<IActionResult>(View());
     }
 
     [HttpGet]
@@ -90,13 +80,21 @@ public class EContentBookController : BaseController<EContentBookController>
 
         if (isValid)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            
-            eBookRequest.CreatedBy = userId ?? 1;
-            
-            var eBookPath = DocumentUploadFilePath.EBooksDocumentFilePath;
+            if (eBookRequest is { Id: 0, EBookFile: not null })
+            {
+                var eBookPath = DocumentUploadFilePath.EBooksDocumentFilePath;
 
-            await UploadDocument(eBookPath, eBookRequest.EBookFile);
+                await UploadDocument(eBookPath, eBookRequest.EBookFile);
+            }
+            else
+            {
+                if (eBookRequest.EBookFile != null)
+                {
+                    var eBookPath = DocumentUploadFilePath.EBooksDocumentFilePath;
+
+                    await UploadDocument(eBookPath, eBookRequest.EBookFile);
+                }
+            }
         }
 
         return Json(new
@@ -105,6 +103,30 @@ public class EContentBookController : BaseController<EContentBookController>
         });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetEBookById(int ebookId)
+    {
+        if (ebookId == 0)
+        {
+            return Json(new
+            {
+                isNew = 1,
+                data = ConvertViewToString("_AddUpdateEBook", new EContentBookRequestDTO()
+                {
+                    Id = 0
+                }, true)
+            });
+        }
+        
+        var eBook = await _eBookService.GetEBookById(ebookId);
+
+        return Json(new
+        {
+            isNew = 0,
+            data = eBook
+        });
+    }
+    
     [NonAction]
     private async Task UploadDocument(string folderPath, IFormFile file)
     {

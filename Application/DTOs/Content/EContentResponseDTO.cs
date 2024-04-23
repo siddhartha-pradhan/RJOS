@@ -26,4 +26,6 @@ public class Contents : ContentResponseDTO
     public bool IsActive { get; set; }
     
     public bool IsDeletable { get; set; }
+    
+    public string UploadedDate { get; set; }
 }

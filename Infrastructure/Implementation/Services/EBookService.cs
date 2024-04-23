@@ -36,61 +36,139 @@ public class EBookService : IEBookService
     {
         var allSubjects = await _genericRepository.GetAsync<tblSubject>(x=> x.Class == classId);
 
-        var ebooks = await _genericRepository.GetAsync<tblEbook>(
-            x => (x.Class == classId) && x.IsActive == isActive);
+        if (isActive)
+        {
+            var ebooks = await _genericRepository.GetAsync<tblEbook>(
+                x => (x.Class == classId) && x.IsActive == isActive);
 
-        var combinedList = allSubjects
-            .Select(subject => new
-            {
-                Subject = subject,
-                Ebooks = ebooks.Where(ebook => ebook.CodeNo == subject.Id).ToList()
-            })
-            .SelectMany(result => result.Ebooks.DefaultIfEmpty(), (result, ebook) => new EContentBookResponseDTO
-            {
-                Id = ebook?.Id ?? 0,
-                SubjectName = result?.Subject.Title ?? "",
-                NameOfBook = ebook?.NameOfBook ?? "-",
-                Volume = ebook?.Volume ?? "-",
-                FileName = ebook?.FileName ?? "-",
-                IsActive = ebook?.IsActive ?? false
-            }).ToList();
+            var combinedList = allSubjects
+                .Select(subject => new
+                {
+                    Subject = subject,
+                    Ebooks = ebooks.Where(ebook => ebook.CodeNo == subject.Id).ToList()
+                })
+                .SelectMany(result => result.Ebooks.DefaultIfEmpty(), (result, ebook) => new EContentBookResponseDTO
+                {
+                    Id = ebook?.Id ?? 0,
+                    SubjectName = result?.Subject.Title ?? "",
+                    NameOfBook = ebook?.NameOfBook ?? "-",
+                    Volume = ebook?.Volume ?? "-",
+                    FileName = ebook?.FileName ?? "-",
+                    IsActive = ebook?.IsActive ?? false,
+                    UploadedDate = ebook?.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt") ?? ""
+                }).ToList();
 
-        return combinedList;
+            return combinedList;
+        }
+        else
+        {
+            var ebooks = await _genericRepository.GetAsync<tblEbookArchive>(
+                x => x.Class == classId);
+
+            var combinedList = allSubjects
+                .Select(subject => new
+                {
+                    Subject = subject,
+                    Ebooks = ebooks.Where(ebook => ebook.CodeNo == subject.Id).ToList()
+                })
+                .SelectMany(result => result.Ebooks.DefaultIfEmpty(), (result, ebook) => new EContentBookResponseDTO
+                {
+                    Id = ebook?.Id ?? 0,
+                    SubjectName = result.Subject.Title ?? "",
+                    NameOfBook = ebook?.NameOfBook ?? "-",
+                    Volume = ebook?.Volume ?? "-",
+                    FileName = ebook?.FileName ?? "-",
+                    IsActive = false,
+                    UploadedDate = ebook?.CreatedOn.ToString("dd-MM-yyyy h:mm:ss tt") ?? ""
+                }).ToList();
+
+            return combinedList;   
+        }
+        
     }
 
     public async Task<bool> UploadEContentBook(EContentBookRequestDTO eBookRequest)
     {
-        var existingEBook = await _genericRepository.GetFirstOrDefaultAsync<tblEbook>(x =>
-            x.CodeNo == eBookRequest.SubjectId && x.Class == eBookRequest.ClassId && x.Volume == eBookRequest.Volume);
-
-        if (existingEBook != null) return false;
-        
-        var model = new tblEbook
+        if (eBookRequest.Id == 0)
         {
-            CodeNo = eBookRequest.SubjectId ?? 0,
-            NameOfBook = eBookRequest.NameOfBook,
-            Volume = eBookRequest.Volume ?? "",
-            FileName = eBookRequest.EBookFile.FileName ,
-            Class = eBookRequest.ClassId ?? 0,
-            IsActive = true,
-            CreatedBy = eBookRequest.CreatedBy ?? 0,
-            CreatedOn = DateTime.Now,
-        };
+            var existingEBook = await _genericRepository.GetFirstOrDefaultAsync<tblEbook>(x =>
+                x.CodeNo == eBookRequest.SubjectId && x.Class == eBookRequest.ClassId && x.Volume == eBookRequest.Volume);
 
-        await _genericRepository.InsertAsync(model);
+            if (existingEBook != null) return false;
+            
+            var model = new tblEbook
+            {
+                CodeNo = eBookRequest.SubjectId ?? 0,
+                NameOfBook = eBookRequest.NameOfBook,
+                Volume = eBookRequest.Volume ?? "",
+                FileName = eBookRequest.EBookFile?.FileName ,
+                Class = eBookRequest.ClassId ?? 0,
+                IsActive = true,
+                CreatedBy = eBookRequest.CreatedBy ?? 1,
+                CreatedOn = DateTime.Now,
+            };
 
+            await _genericRepository.InsertAsync(model);
+        }
+        else
+        {
+            var eBook = await _genericRepository.GetFirstOrDefaultAsync<tblEbook>(x => x.Id == eBookRequest.Id);
+
+            if (eBook == null) return false;
+
+            eBook.NameOfBook = eBookRequest.NameOfBook;
+
+            if (eBookRequest.EBookFile != null)
+            {
+                eBook.FileName = eBookRequest.EBookFile?.FileName;
+            }
+
+            await _genericRepository.UpdateAsync(eBook);
+        }
+        
         return true;
     }
 
+    public async Task<EContentBookRequestDTO> GetEBookById(int ebookId)
+    {
+        var eBook = await _genericRepository.GetFirstOrDefaultAsync<tblEbook>(x => x.Id == ebookId);
+
+        var result = new EContentBookRequestDTO()
+        {
+            Id = eBook!.Id,
+            SubjectId = eBook.CodeNo,
+            NameOfBook = eBook.NameOfBook,
+            Volume = eBook.Volume ?? "",
+            ClassId = eBook.Class,
+            SubjectName = (await _genericRepository.GetFirstOrDefaultAsync<tblSubject>(x => x.Id == eBook.CodeNo))!
+                .Title
+        };
+
+        return result;
+    }
+    
     public async Task DeleteEBook(int ebookId)
     {
-        var data = await _genericRepository.GetFirstOrDefaultAsync<tblEbook>(x => x.Id == ebookId);
+        var ebook = await _genericRepository.GetFirstOrDefaultAsync<tblEbook>(x => x.Id == ebookId);
 
-        if (data != null)
+        if (ebook != null)
         {
-            data.IsActive = !data.IsActive;
+            var ebookArchive = new tblEbookArchive()
+            {
+                Class = ebook.Class,
+                Volume = ebook.Volume,
+                FileName = ebook.FileName,
+                IsActive = true,
+                CreatedBy = ebook.CreatedBy,
+                CreatedOn = DateTime.Now,
+                NameOfBook = ebook.NameOfBook,
+                Sequence = ebook.Sequence,
+                CodeNo = ebook.CodeNo
+            };
             
-            await _genericRepository.UpdateAsync(data);
+            await _genericRepository.InsertAsync(ebookArchive);
+            
+            await _genericRepository.DeleteAsync(ebook);
         }
     }
 }

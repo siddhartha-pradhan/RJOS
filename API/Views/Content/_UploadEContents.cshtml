@@ -84,7 +84,7 @@
         }
         else {
             toastr.success(data.message);
-            $("#div-class-contents-list").html(data.htmlData);
+            $("#filter-content").trigger('click');
             $("#upload-content").modal("hide");
             BasicDatatable();
         }
