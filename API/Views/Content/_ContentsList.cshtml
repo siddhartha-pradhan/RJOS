@@ -21,7 +21,7 @@
 <div class="card">
     <div class="card-body">
         <div class="row mb-2">
-            <div class="col-6">
+            <div class="col-4">
                 <div class="text-start">
                     <div class="page-title-box">
                         <h4 class="page-title">
@@ -33,28 +33,27 @@
                     </div>
                 </div>
             </div>
-            <div class="col-6">
+            <div class="col-8">
                 <div class="text-end">
                     @if (Model.ContentType == 1)
                     {
                         <div class="row mb-2">
                             <div class="col">
+                                @if (Model.IsActive)
+                                {
+                                    <a type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" asp-action="DownloadContentTemplate">
+                                        Download Content Template Sheet
+                                    </a>
+                                    <button type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" onclick="getUploadedContent(@Model.SubjectId)">
+                                        Upload Content Sheet
+                                    </button>
+                                    <button type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" onclick="onAddUpdateContent(0, @Model.Class, @Model.SubjectId, @Model.ContentType)">
+                                        Add new eContent
+                                    </button>
+                                }
                                 <a type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" asp-action="DownloadSheet" asp-route-classId="@Model.Class" asp-route-activeStatus="@Model.IsActive" asp-route-contentType="@Model.ContentType" asp-route-subjectId="@Model.SubjectId">
                                     Download Data Sheet
                                 </a>
-                                <button type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" onclick="onAddUpdateContent(0, @Model.Class, @Model.SubjectId, @Model.ContentType)">
-                                    Add new eContent
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <a type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" asp-action="DownloadContentTemplate">
-                                    Download Content Template Sheet
-                                </a>
-                                <button type="button" class="btn w-b text-white btn-sm btn-rounded" style="background-color: #DB4B73" onclick="getUploadedContent(@Model.SubjectId)">
-                                    Upload Content Sheet
-                                </button>
                             </div>
                         </div>
                     }
@@ -86,7 +85,7 @@
                             }
                             else
                             {
-                                <span>Deleted Time Span</span>
+                                <span>Deleted Time</span>
                             }
                         }
                     </th>

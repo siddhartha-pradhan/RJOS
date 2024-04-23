@@ -23,11 +23,11 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label required">Faculty</label>
-                            <input type="text" asp-for="Faculty" class="form-control" required min="3" max="60">
+                            <input type="text" asp-for="Faculty" class="form-control" required minlength="3" maxlength="60">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label required">Chapter Name</label>
-                            <input type="text" asp-for="ChapterName" class="form-control" required min="3" max="60">
+                            <input type="text" asp-for="ChapterName" class="form-control" required minlength="3" maxlength="60">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -55,15 +55,15 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label required">Part Name</label>
-                            <input type="text" asp-for="PartName" class="form-control" min="1" max="60">
+                            <input type="text" asp-for="PartName" class="form-control" minlength="1" maxlength="60" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label required">Time (In Second)</label>
-                            <input type="number" asp-for="TimeInSeconds" class="form-control" required min="1" max="5">
+                            <input type="number" asp-for="TimeInSeconds" class="form-control" required min="1" max="1000">
                         </div>
                         <div class="col-md-12">
                             <label class="form-label required">YouTube Link</label>
-                            <input type="text" asp-for="YouTubeLink" class="form-control" required min="5" max="200">
+                            <input type="text" asp-for="YouTubeLink" class="form-control" required minlength="5" maxlength="200">
                         </div>
                     </div>
                 </div>

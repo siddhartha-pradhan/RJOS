@@ -352,13 +352,14 @@ public class ContentService : IContentService
                 {
                     ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
                     SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
-                    Faculty = row.Cell(3).GetValue<string?>() ?? "", 
-                    ChapterNo = row.Cell(4).GetValue<int?>() ?? 0, 
-                    ChapterName = row.Cell(5).GetValue<string?>()?.Trim() ?? "", 
-                    PartNo = row.Cell(6).GetValue<int?>() ?? 0, 
-                    PartName = row.Cell(7).GetValue<string?>()?.Trim() ?? "", 
-                    TimeInSeconds = row.Cell(8).GetValue<int?>() ?? 0,
-                    YouTubeLink = row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                    SubjectName = row.Cell(3).GetValue<string?>() ?? "", 
+                    Faculty = row.Cell(4).GetValue<string?>() ?? "", 
+                    ChapterNo = row.Cell(5).GetValue<int?>() ?? 0, 
+                    ChapterName = row.Cell(6).GetValue<string?>()?.Trim() ?? "", 
+                    PartNo = row.Cell(7).GetValue<int?>() ?? 0, 
+                    PartName = row.Cell(8).GetValue<string?>()?.Trim() ?? "", 
+                    TimeInSeconds = row.Cell(9).GetValue<int?>() ?? 0,
+                    YouTubeLink = row.Cell(10).GetValue<string?>()?.Trim() ?? "",
                 }).ToList();
             
             var isInValid = contentsList.Any(x =>
@@ -376,7 +377,11 @@ public class ContentService : IContentService
                     return (false,
                         "Please insert the same value of class for all the columns in the following sheet.");
 
-                if (item.SubjectCode != content.SubjectCode)
+                if (item.SubjectCode != subject.SubjectCode)
+                    return (false,
+                        "Please insert the same value of subject code for all the columns in the following sheet.");
+                
+                if (item.SubjectName != subject.Title)
                     return (false,
                         "Please insert the same value of subject code for all the columns in the following sheet.");
             }
@@ -407,13 +412,14 @@ public class ContentService : IContentService
                 {
                     ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
                     SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
-                    Faculty = row.Cell(3).GetValue<string?>() ?? "", 
-                    ChapterNo = row.Cell(4).GetValue<int?>() ?? 0, 
-                    ChapterName = row.Cell(5).GetValue<string?>()?.Trim() ?? "", 
-                    PartNo = row.Cell(6).GetValue<int?>() ?? 0, 
-                    PartName = row.Cell(7).GetValue<string?>()?.Trim() ?? "", 
-                    TimeInSeconds = row.Cell(8).GetValue<int?>() ?? 0,
-                    YouTubeLink = row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                    SubjectName = row.Cell(3).GetValue<string?>() ?? "", 
+                    Faculty = row.Cell(4).GetValue<string?>() ?? "", 
+                    ChapterNo = row.Cell(5).GetValue<int?>() ?? 0, 
+                    ChapterName = row.Cell(6).GetValue<string?>()?.Trim() ?? "", 
+                    PartNo = row.Cell(7).GetValue<int?>() ?? 0, 
+                    PartName = row.Cell(8).GetValue<string?>()?.Trim() ?? "", 
+                    TimeInSeconds = row.Cell(9).GetValue<int?>() ?? 0,
+                    YouTubeLink = row.Cell(10).GetValue<string?>()?.Trim() ?? "",
                 }).ToList();
 
             var index = 0;
