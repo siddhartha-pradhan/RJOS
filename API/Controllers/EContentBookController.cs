@@ -110,7 +110,6 @@ public class EContentBookController : BaseController<EContentBookController>
         {
             return Json(new
             {
-                isNew = 1,
                 data = ConvertViewToString("_AddUpdateEBook", new EContentBookRequestDTO()
                 {
                     Id = 0
@@ -122,8 +121,7 @@ public class EContentBookController : BaseController<EContentBookController>
 
         return Json(new
         {
-            isNew = 0,
-            data = eBook
+            data = ConvertViewToString("_AddUpdateEBook", eBook, true)
         });
     }
     

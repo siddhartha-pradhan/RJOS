@@ -129,18 +129,7 @@
             contentType: 'application/json',
             dataType: "JSON",
             success: function (result) {
-                if (result.isNew === 1){
-                    $("#upload-questions-view").html(result.data);
-                }
-                else {
-                    $('#Id').val(result.data.id);
-                    $('#SubjectId').val(result.data.subjectId);
-                    $('#SubjectName').val(result.data.subjectName);
-                    $('#ClassId').val(result.data.classId);
-                    $('#Volume').val(result.data.volume);
-                    $('#NameOfBook').val(result.data.nameOfBook);
-                }
-                
+                $("#upload-questions-view").html(result.data);
                 $('#upload-ebook').modal('show');
             }
         });

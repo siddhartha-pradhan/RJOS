@@ -22,4 +22,10 @@
     }
 </div>
 
+<div id="div-upload-content">
+    @{
+    await Html.RenderPartialAsync("_UploadContents", new EContentUploadDTO());
+    }
+</div>
+
 <partial name="_Confirmation"/>

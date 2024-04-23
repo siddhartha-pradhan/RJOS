@@ -12,6 +12,8 @@ public class EContentResponseDTO
     
     public int ContentType { get; set; }
 
+    public bool IsActive { get; set; }
+    
     public List<Contents> ContentsList { get; set; }
 }
 

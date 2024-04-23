@@ -3,6 +3,7 @@ using Application.DTOs.Dropdown;
 using Application.DTOs.Subject;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using ClosedXML.Excel;
 
 namespace Data.Implementation.Services;
 
@@ -95,6 +96,7 @@ public class ContentService : IContentService
                 SubjectCode = subject.SubjectCode ?? 0,
                 SubjectName = subject.Title ?? "",
                 ContentsList = result,
+                IsActive = true,
                 ContentType = content.ContentType
             };
             
@@ -149,6 +151,7 @@ public class ContentService : IContentService
                 SubjectCode = subject.SubjectCode ?? 0,
                 SubjectName = subject.Title ?? "",
                 ContentsList = result,
+                IsActive = false,
                 ContentType = content.ContentType
             };
             
@@ -313,5 +316,152 @@ public class ContentService : IContentService
         };
 
         return result;
+    }
+
+    public async Task<EContentUploadDTO> GetContentsDetails(int subjectId)
+    {
+        var subject = await _genericRepository.GetByIdAsync<tblSubject>(subjectId);
+
+        if (subject == null) return new EContentUploadDTO();
+
+        var result = new EContentUploadDTO()
+        {
+            ClassId = subject.Class ?? 10,
+            SubjectCode = subject.SubjectCode ?? 0,
+            Subject = subject.Title
+        };
+
+        return result;
+    }
+    
+    public async Task<(bool, string)> IsUploadedSheetValid(EContentUploadDTO content)
+    {
+        try
+        {
+            var subject = await _genericRepository.GetFirstOrDefaultAsync<tblSubject>(x => 
+                x.SubjectCode == content.SubjectCode);
+
+            if(subject == null) return (false, "Could not find a valid subject based on the entry.");
+            
+            using var workbook = new XLWorkbook(content.Contents.OpenReadStream());
+       
+            var worksheet = workbook.Worksheet(1);
+            
+            var contentsList = worksheet.Rows().Skip(1)
+                .Select(row => new 
+                {
+                    ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
+                    SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
+                    Faculty = row.Cell(3).GetValue<string?>() ?? "", 
+                    ChapterNo = row.Cell(4).GetValue<int?>() ?? 0, 
+                    ChapterName = row.Cell(5).GetValue<string?>()?.Trim() ?? "", 
+                    PartNo = row.Cell(6).GetValue<int?>() ?? 0, 
+                    PartName = row.Cell(7).GetValue<string?>()?.Trim() ?? "", 
+                    TimeInSeconds = row.Cell(8).GetValue<int?>() ?? 0,
+                    YouTubeLink = row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                }).ToList();
+            
+            var isInValid = contentsList.Any(x =>
+                x.ClassId == 0 || x.SubjectCode == 0 || x.ChapterNo == 0 || x.PartNo == 0 || x.TimeInSeconds == 0 ||
+                string.IsNullOrEmpty(x.ChapterName) || string.IsNullOrEmpty(x.PartName) || string.IsNullOrEmpty(x.Faculty) || string.IsNullOrEmpty(x.YouTubeLink));
+
+            if (isInValid)
+            {
+                return (false, "Please do not leave any fields empty.");
+            }
+            
+            foreach (var item in contentsList)
+            {
+                if (item.ClassId != content.ClassId)
+                    return (false,
+                        "Please insert the same value of class for all the columns in the following sheet.");
+
+                if (item.SubjectCode != content.SubjectCode)
+                    return (false,
+                        "Please insert the same value of subject code for all the columns in the following sheet.");
+            }
+            
+            return (true, "Sheet successfully validated.");
+        }
+        catch (Exception e)
+        {
+            return (false, "An exception occured while processing your request, please upload a valid file");
+        }
+    }
+
+    public async Task<(int, int)> UploadContents(EContentUploadDTO content)
+    {
+        try
+        {
+            var subject = await _genericRepository.GetFirstOrDefaultAsync<tblSubject>(x => 
+                x.SubjectCode == content.SubjectCode);
+
+            if(subject == null) return (0, 0);
+            
+            using var workbook = new XLWorkbook(content.Contents.OpenReadStream());
+       
+            var worksheet = workbook.Worksheet(1);
+            
+            var contentsList = worksheet.Rows().Skip(1)
+                .Select(row => new 
+                {
+                    ClassId = row.Cell(1).GetValue<int?>() ?? 0, 
+                    SubjectCode = row.Cell(2).GetValue<int?>() ?? 0, 
+                    Faculty = row.Cell(3).GetValue<string?>() ?? "", 
+                    ChapterNo = row.Cell(4).GetValue<int?>() ?? 0, 
+                    ChapterName = row.Cell(5).GetValue<string?>()?.Trim() ?? "", 
+                    PartNo = row.Cell(6).GetValue<int?>() ?? 0, 
+                    PartName = row.Cell(7).GetValue<string?>()?.Trim() ?? "", 
+                    TimeInSeconds = row.Cell(8).GetValue<int?>() ?? 0,
+                    YouTubeLink = row.Cell(9).GetValue<string?>()?.Trim() ?? "",
+                }).ToList();
+
+            var index = 0;
+            
+            var totalContents = contentsList.Count;
+            
+            foreach (var contentModule in contentsList)
+            {
+                var existingContent = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
+                    x.SubjectId == subject.Id && x.Class == content.ClassId && x.PartNo == contentModule.PartNo &&
+                    x.ChapterNo == contentModule.ChapterNo);
+
+                if (existingContent != null) continue;
+                {
+                    var contents = await _genericRepository.GetAsync<tblContent>(x => 
+                        x.SubjectId == subject.Id);
+        
+                    var contentsModuleList = contents as tblContent[] ?? contents.ToArray();
+                        
+                    var contentModel = new tblContent()
+                    {
+                        SubjectId = subject.Id,
+                        ChapterName = contentModule.ChapterName,
+                        ChapterNo = contentModule.ChapterNo,
+                        PartNo = contentModule.PartNo,
+                        CreatedBy = 1,
+                        CreatedOn = DateTime.Now,
+                        IsActive = true,
+                        Class = contentModule.ClassId,
+                        Sequence = contentsModuleList.Any() ? contentsModuleList.Max(x => x.Sequence) + 5 : 5,
+                        Description = $"RSOS Class {contentModule.ClassId} {subject.Title}",
+                        Faculty = contentModule.Faculty,
+                        PartName = $"Part {contentModule.PartNo}",
+                        TimeInSeconds = contentModule.TimeInSeconds,
+                        YouTubeLink = contentModule.YouTubeLink
+                    };
+
+                    await _genericRepository.InsertAsync(contentModel);
+
+                    index++;
+                }
+            }
+
+            return (index, totalContents);
+        }
+        catch (Exception e)
+        {
+            return (0, 0);
+        }
     }
 }

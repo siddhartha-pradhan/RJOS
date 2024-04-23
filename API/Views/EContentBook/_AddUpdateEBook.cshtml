@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Application.DTOs.EContentBooks.EContentBookRequestDTO
 
-<form data-ajax="true" data-ajax-mode="replace" data-ajax-method="POST" enctype="multipart/form-data" asp-controller="EContentBook" asp-action="SaveEBook" data-ajax-success="onSuccessSaveEBooks">
+<form data-ajax="true" data-ajax-mode="replace" data-ajax-method="POST" enctype="multipart/form-data" autocomplete="off" asp-controller="EContentBook" asp-action="SaveEBook" data-ajax-success="onSuccessSaveEBooks">
     <div id="upload-ebook" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="info-header-modalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -61,20 +61,27 @@
                         </div>
                         <div class="col-md-4 mt-2">
                             <label class="form-label mt-2 required">Name of the Book</label>
-                            <input type="text" asp-for="NameOfBook" class="form-control">
+                            <input type="text" asp-for="NameOfBook" class="form-control" required min="3" max="50">
                         </div>
                         <div class="col-md-8 mt-2">
                             <div class="col-md-4 mt-2">
-                                <label class="form-label required">Select a File</label>
+                                @if (Model.Id == 0)
+                                {
+                                    <label class="form-label required">Select a File</label>
+                                }
+                                else
+                                {
+                                    <label class="form-label">Select a File</label>
+                                }
                             </div>
                             <div class="col-md-8">
                                 @if (Model.Id == 0)
                                 {
-                                    <input type="file" asp-for="EBookFile" class="form-control" required="required">
+                                    <input type="file" asp-for="EBookFile" class="form-control" required="required" accept="application/pdf">
                                 }
                                 else
                                 {
-                                    <input type="file" asp-for="EBookFile" class="form-control">
+                                    <input type="file" asp-for="EBookFile" class="form-control" accept="application/pdf">
                                 }
                             </div>
                         </div>

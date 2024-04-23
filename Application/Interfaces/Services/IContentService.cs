@@ -19,4 +19,10 @@ public interface IContentService
     Task<SubjectResponseDTO> GetSubjectById(int subjectId);
 
     Task<Contents> GetContentById(int contentId);
+    
+    Task<EContentUploadDTO> GetContentsDetails(int subjectId);
+
+    Task<(bool, string)> IsUploadedSheetValid(EContentUploadDTO content);
+
+    Task<(int, int)> UploadContents(EContentUploadDTO content);
 }
