@@ -39,9 +39,9 @@ public class EContentBookController : BaseController<EContentBookController>
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetEbooksList(int classId)
+    public async Task<IActionResult> GetEbooksList(int classId, bool isActive)
     {       
-        var result = await _eBookService.GetAllEBooks(classId);
+        var result = await _eBookService.GetAllEBooks(classId, isActive);
         
         return Json(new
         {
@@ -77,12 +77,9 @@ public class EContentBookController : BaseController<EContentBookController>
     {
         await _eBookService.DeleteEBook(eBookId);
 
-        var result = await _eBookService.GetAllEBooks(10);
-
         return Json(new
         {
-            data = "E-Book Successfully Deleted.",
-            htmlData = ConvertViewToString("_EBookList", result, true)
+            data = "E-Book Successfully Deleted."
         });
     }
 

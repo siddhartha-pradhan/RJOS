@@ -32,12 +32,12 @@ public class EBookService : IEBookService
         }).ToList();
     }
     
-    public async Task<List<EContentBookResponseDTO>> GetAllEBooks(int classId)
+    public async Task<List<EContentBookResponseDTO>> GetAllEBooks(int classId, bool isActive)
     {
         var allSubjects = await _genericRepository.GetAsync<tblSubject>(x=> x.Class == classId);
 
         var ebooks = await _genericRepository.GetAsync<tblEbook>(
-            x => (x.Class == classId) && x.IsActive);
+            x => (x.Class == classId) && x.IsActive == isActive);
 
         var combinedList = allSubjects
             .Select(subject => new
@@ -51,7 +51,8 @@ public class EBookService : IEBookService
                 SubjectName = result?.Subject.Title ?? "",
                 NameOfBook = ebook?.NameOfBook ?? "-",
                 Volume = ebook?.Volume ?? "-",
-                FileName = ebook?.FileName ?? "-"
+                FileName = ebook?.FileName ?? "-",
+                IsActive = ebook?.IsActive ?? false
             }).ToList();
 
         return combinedList;

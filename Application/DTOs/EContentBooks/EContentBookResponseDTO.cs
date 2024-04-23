@@ -4,10 +4,6 @@ public class EContentBookResponseDTO
 {
     public int Id { get; set; }
     
-    public int Code { get; set; }
-
-    public int Class { get; set; }
-    
     public string NameOfBook { get; set; } = string.Empty;
     
     public string SubjectName { get; set; } = string.Empty;
@@ -15,4 +11,6 @@ public class EContentBookResponseDTO
     public string Volume { get; set; } = string.Empty;
     
     public string FileName { get; set; }
+    
+    public bool IsActive { get; set; }
 }

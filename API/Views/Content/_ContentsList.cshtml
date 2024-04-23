@@ -24,7 +24,12 @@
             <div class="col-6">
                 <div class="text-start">
                     <div class="page-title-box">
-                        <h4 class="page-title">eContents for @Model.SubjectName</h4>
+                        <h4 class="page-title">
+                            @{
+                                var title = Model.ContentType == 1 ? "eContents" : "Practice Paper";
+                            }
+                            @title for @Model.SubjectName
+                        </h4>
                     </div>
                 </div>
             </div>
@@ -42,8 +47,7 @@
                 </div>
             </div>
         </div>
-        
-        <table class="basic-datatable table table-hover dt-responsive nowrap w-100">
+        <table id="basic-datatable" class="basic-datatable table table-hover dt-responsive nowrap w-100">
             <thead>
                 <tr>
                     <th style="width: 5%">#</th>
@@ -121,6 +125,7 @@
             success: function (data) {
                 $("#subject-content").html(data.htmlData);
                 $("#upload-content").modal("show");
+                BasicDatatable();
             },
             error: function (response) {
                 toastr.warning('Error occurred while binding contents data.');
@@ -154,6 +159,7 @@
                 else {
                     toastr.success('The status of the following content has been successfully changed.');
                     $("#div-class-contents-list").html(data.htmlData);
+                    BasicDatatable();
                 }
             },
             error: function (response) {
@@ -161,4 +167,8 @@
             }
         });
     }
+
+    $(document).ready(function () {
+        BasicDatatable();
+    });
 </script>

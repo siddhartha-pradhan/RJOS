@@ -6,12 +6,19 @@
                 <div class="col-lg-1 col-md-4 col-sm-4 col-form-label">
                     <i class="fa-solid fa-filter me-2"></i> <label class="text-dark">Filter By:</label>
                 </div>
-                <label class="col-lg-2 col-md-4 col-sm-4 col-form-label">Class</label>
-                <div class="col-lg-3 col-md-4 col-sm-4 me-4">
+                <label class="col-lg-1 col-md-4 col-sm-4 col-form-label">Class</label>
+                <div class="col-lg-2 col-md-4 col-sm-4 me-4">
                     <select name="classId" aria-required="true" class="form-select" required>
                         <option disabled="" label="Select a Class" selected="" value=""></option>
                         <option label="10" value="10">10</option>
                         <option label="12" value="12">12</option>
+                    </select>
+                </div>
+                <label class="col-lg-1 col-md-4 col-sm-4 col-form-label">Status</label>
+                <div class="col-lg-2 col-md-4 col-sm-4">
+                    <select name="isActive" class="form-select" data-bs-drop="down" data-bs-display="static">
+                        <option value="true">Active</option>
+                        <option value="false">In-Active</option>
                     </select>
                 </div>
                 <div class="col-lg-2 col-md-12 col-sm-12 text-end">
@@ -27,5 +34,6 @@
 <script type="text/javascript">
     function onSuccess(data){
         $("#div-ebook-list").html(data.htmlData);
+        BasicDatatable();
     }
 </script>

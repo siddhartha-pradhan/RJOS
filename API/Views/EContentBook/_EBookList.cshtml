@@ -76,9 +76,18 @@
                             <td class="text-center">
                                 @if (eBook.Id > 0)
                                 {
-                                    <a class="btn btn-sm btn-outline-pink btn-rounded float-end" onclick="changeEBooksStatus(@eBook.Id)">
-                                        <i class="fa-regular fa-circle-xmark"></i>
-                                    </a>
+                                    if (eBook.IsActive)
+                                    {
+                                        <a class="btn btn-sm btn-outline-pink btn-rounded float-end" onclick="changeEBooksStatus(@eBook.Id)">
+                                            <i class="fa-regular fa-circle-xmark"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-sm btn-outline-pink btn-rounded" onclick="changeEBooksStatus(@eBook.Id)">
+                                            <i class="fa-solid fa-check-double"></i>
+                                        </a>
+                                    }
                                 }
                             </td>
                         </tr>                      
@@ -136,6 +145,12 @@
     }
     
     function changeEBooksStatus(index) {
+        $("#ebookId").val(index);
+        $("#info-header-modal").modal("show");
+    }
+
+    function ActivateDeactivate(){
+        let index = $("#ebookId").val();  
         $.ajax({
             type: 'GET',
             url: '@Url.Action("DeleteEBook", "EContentBook")',
@@ -152,4 +167,8 @@
             }
         });
     }
+
+    $(document).ready(function () {
+        BasicDatatable();
+    });
 </script>
