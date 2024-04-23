@@ -151,6 +151,11 @@ public class PCPService : IPCPService
                         var chapterNumbers = existingChapterNumbers as int[] ?? existingChapterNumbers.ToArray();
                         
                         var maxChapterNumber = chapterNumbers.Any() ? chapterNumbers.Max() : 0;
+
+                        if (maxChapterNumber < 1000)
+                        {
+                            maxChapterNumber = 1000;
+                        }
                         
                         var contentModel = new tblContent()
                         {
