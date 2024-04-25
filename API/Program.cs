@@ -14,6 +14,7 @@ using DNTCaptcha.Core;
 using Edi.Captcha;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -22,6 +23,11 @@ using Serilog;
 using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = long.MaxValue;
+});
 
 var services = builder.Services;
 
@@ -47,6 +53,14 @@ services.AddMvc(options =>
 // {
 //     options.MultipartBodyLengthLimit = 31457280; // Set the limit to 30 MB => 31457280 Bytes (in binary)
 // });
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.ValueCountLimit = int.MaxValue;
+    options.KeyLengthLimit = int.MaxValue;
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 52428800;
+});
 
 services.AddHsts(options =>
 {

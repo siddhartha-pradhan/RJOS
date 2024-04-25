@@ -112,7 +112,7 @@ public class ContentService : IContentService
             {
                 contentList = content.ContentType == 1 ? 
                     contentList.Where(x => x.YouTubeLink != "-") : 
-                    contentList.Where(x => x.YouTubeLink == "-");
+                    [];
             }
 
             contentList = contentList.OrderBy(x => x.ChapterNo)
@@ -194,14 +194,6 @@ public class ContentService : IContentService
                 return (false, "An existing eContent on the same subject and class exists with the same chapter number and part number");
             }
 
-            var contents =
-                await _genericRepository.GetAsync<tblContent>(x =>
-                    x.Class == content.Class && x.SubjectId == content.SubjectId);
-
-            var contentsList = contents as tblContent[] ?? contents.ToArray();
-            
-            var maxSequence = contentsList.Any() ? contentsList.Select(x => x.Sequence).Max() ?? 0 : 0;
-            
             var contentModel = new tblContent()
             {
                 Faculty = content.Faculty,
@@ -216,7 +208,7 @@ public class ContentService : IContentService
                 CreatedOn = DateTime.Now,
                 SubjectId = content.SubjectId,
                 Class = content.Class,
-                Sequence = maxSequence + 5,
+                Sequence = content.ChapterNo * 5 + content.PartNo,
                 IsActive = true,
             };
 
@@ -434,11 +426,6 @@ public class ContentService : IContentService
 
                 if (existingContent != null) continue;
                 {
-                    var contents = await _genericRepository.GetAsync<tblContent>(x => 
-                        x.SubjectId == subject.Id);
-        
-                    var contentsModuleList = contents as tblContent[] ?? contents.ToArray();
-                        
                     var contentModel = new tblContent()
                     {
                         SubjectId = subject.Id,
@@ -449,7 +436,7 @@ public class ContentService : IContentService
                         CreatedOn = DateTime.Now,
                         IsActive = true,
                         Class = contentModule.ClassId,
-                        Sequence = contentsModuleList.Any() ? contentsModuleList.Max(x => x.Sequence) + 5 : 5,
+                        Sequence = contentModule.ChapterNo * 1000 + contentModule.PartNo,
                         Description = $"RSOS Class {contentModule.ClassId} {subject.Title}",
                         Faculty = contentModule.Faculty,
                         PartName = $"Part {contentModule.PartNo}",

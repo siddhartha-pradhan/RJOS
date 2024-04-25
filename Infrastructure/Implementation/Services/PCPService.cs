@@ -122,6 +122,8 @@ public class PCPService : IPCPService
                     return (false, "Please do not leave any fields empty.");
                 }
                 
+                await DeletePracticeContents(subject.Id);
+                
                 foreach (var item in questionsList)
                 {
                     if (item.ClassId != question.Class)
@@ -139,6 +141,7 @@ public class PCPService : IPCPService
                     var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
                         x.ChapterName == item.ChapterName && x.PartNo == item.PartNumber);
 
+                    
                     if (content == null)
                     {
                         var contents = await _genericRepository.GetAsync<tblContent>(x => 
@@ -167,7 +170,7 @@ public class PCPService : IPCPService
                             CreatedOn = DateTime.Now,
                             IsActive = true,
                             Class = question.Class,
-                            Sequence = contentsList.Any() ? contentsList.Max(x => x.Sequence) + 5 : 5,
+                            Sequence = (maxChapterNumber + 1) * 5 + item.PartNumber,
                             Description = $"RSOS Class {question.Class} {subject.Title} Chapter {maxChapterNumber + 1} | Rajasthan State Open School Class {question.Class} {subject.Title}",
                             Faculty = "",
                             PartName = $"Part {item.PartNumber}",
@@ -441,6 +444,8 @@ public class PCPService : IPCPService
     public async Task ArchiveQuestions(int subjectId, int type)
     {
         await UploadQuestionsToArchive(subjectId, type);
+        
+        await DeletePracticeContents(subjectId);
     }
     
     private async Task UploadQuestionsToArchive(int subjectId, int type)
@@ -501,6 +506,19 @@ public class PCPService : IPCPService
             sheet.IsActive = false;
 
             await _genericRepository.UpdateAsync(sheet);
+        }
+    }
+
+    private async Task DeletePracticeContents(int subjectId)
+    {
+        var subject = await _genericRepository.GetFirstOrDefaultAsync<tblSubject>(x => x.Id == subjectId);
+
+        if (subject != null)
+        {
+            var contents =
+                await _genericRepository.GetAsync<tblContent>(x => x.SubjectId == subject.Id && x.YouTubeLink == "-");
+
+            await _genericRepository.RemoveMultipleEntityAsync(contents);
         }
     }
 }

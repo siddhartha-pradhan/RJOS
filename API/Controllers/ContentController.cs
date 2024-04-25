@@ -192,8 +192,8 @@ public class ContentController : BaseController<ContentController>
         worksheet.Cell("F1").Value = "Chapter Name";
         worksheet.Cell("G1").Value = "Part No";
         worksheet.Cell("H1").Value = "Part Name";
-        worksheet.Cell("I1").Value = "YouTube Link";
-        worksheet.Cell("J1").Value = "Time In Seconds";
+        worksheet.Cell("I1").Value = "Time In Seconds";
+        worksheet.Cell("J1").Value = "YouTube Link";
 
         for (var i = 0; i < contents.Count; i++)
         {
