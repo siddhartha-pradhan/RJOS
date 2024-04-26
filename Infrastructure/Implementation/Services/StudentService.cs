@@ -152,7 +152,7 @@ public class StudentService : IStudentService
                     TopicId = studentScore.TopicId,
                     Score = studentScore.Score ?? "0",
                     IsEdited = studentScore.IsEdited == 1,
-                    IsUploaded = studentScore.IsUploaded == 1,
+                    IsUploaded = false,
                     IsActive = true,
                     CreatedBy = studentScore.CreatedBy,
                     CreatedOn = DateTime.Now
@@ -293,5 +293,91 @@ public class StudentService : IStudentService
             PCPStartDate = pcpDate.EndDate.ToString("dd-MM-yyyy hh:mm:ss tt"),
             SubjectsList = [],
         };
+    }
+
+    public async Task UploadStudentScores(string ssoid, string dateOfBirth)
+    {
+        var students = await _genericRepository.GetAsync<tblStudentLoginHistory>(x => x.AttemptCount == 0);
+
+        foreach (var student in students)
+        {
+            if (student.SSOID == null || student.DateOfBirth == null) continue;
+            
+            var httpClient = new HttpClient();
+
+            var rsosToken = _rsosSettings.Token;
+
+            var rsosUrl = _rsosSettings.URL;
+
+            var loginBaseUrl = $"{rsosUrl}/new_api_student_login";
+
+            var loginQueryParams = new System.Collections.Specialized.NameValueCollection
+            {
+                { "ssoid", student.SSOID },
+                { "dob", student.DateOfBirth },
+                { "token", rsosToken }
+            };
+
+            var loginUriBuilder = new UriBuilder(loginBaseUrl)
+            {
+                Query = string.Join("&", Array.ConvertAll(loginQueryParams.AllKeys,
+                    key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(loginQueryParams[key]!)}"))
+            };
+
+            var loginPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+
+            var loginResponse = await httpClient.PostAsync(loginUriBuilder.Uri, loginPostData);
+
+            if (loginResponse.IsSuccessStatusCode)
+            {
+                var loginResponseData = await loginResponse.Content.ReadAsStringAsync();
+
+                var loginApiResponse = JsonConvert.DeserializeObject<RSOSLoginResponse>(loginResponseData);
+
+                if (loginApiResponse is { Status: true })
+                {
+                    var studentResponseData = JsonConvert.DeserializeObject<LoginResponseDTO>(loginResponseData);
+
+                    var studentLoginData = studentResponseData!.Data.Student;
+
+                    var secureToken = studentResponseData.secure_token;
+                    
+                    var pcpBaseUrl = $"{rsosUrl}/new_api_set_student_sessional_exam_subject_marks";
+
+                    var pcpStudentScores = await _genericRepository.GetAsync<tblStudentScore>(x =>
+                        x.StudentId == studentLoginData.Id && x.TopicId == 0 && !x.IsUploaded);
+
+                    foreach (var score in pcpStudentScores)
+                    {
+                        var pcpQueryParams = new System.Collections.Specialized.NameValueCollection
+                        {
+                            { "token", rsosToken },
+                            { "secure_token", secureToken},
+                            { "enrollment", studentLoginData.Enrollment },
+                            { "ssoid", student.SSOID },
+                            { "subject_id", score.SubjectId.ToString() },
+                            { "obtained_marks", score.Score }
+                        };
+                        
+                        var pcpUriBuilder = new UriBuilder(pcpBaseUrl)
+                        {
+                            Query = string.Join("&", Array.ConvertAll(pcpQueryParams.AllKeys,
+                                key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(pcpQueryParams[key]!)}"))
+                        };
+
+                        var pcpPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+
+                        var pcpResponse = await httpClient.PostAsync(pcpUriBuilder.Uri, pcpPostData);
+
+                        score.LastUpdatedOn = DateTime.Now;
+                        score.IsUploaded = pcpResponse.IsSuccessStatusCode;
+
+                        await _genericRepository.UpdateAsync(score);
+                    }
+
+                }
+
+            }
+        }
     }
 }

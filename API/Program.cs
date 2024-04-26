@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Application.Interfaces.Services;
 using DNTCaptcha.Core;
 using Edi.Captcha;
+using Hangfire;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
@@ -152,6 +153,7 @@ var firebaseProjectName = JsonConvert.DeserializeObject<Dictionary<string, strin
 
 var apiKey = builder.Configuration.GetValue<string>("API_KEY");
 
+
 services.AddSingleton(new FirebaseAuthClient(new FirebaseAuthConfig
 {
     ApiKey = apiKey,
@@ -287,6 +289,10 @@ app.UseSession().UseCaptchaImage(options =>
 // });
 
 app.UseContentSecurityPolicy();
+
+app.UseHangfireDashboard();
+
+app.UseHangfireServer();
 
 app.MapControllerRoute(
     name: "default",

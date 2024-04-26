@@ -17,4 +17,6 @@ public interface IStudentService
     Task InsertStudentScore(List<StudentScoreRequestDTO> studentScores);
 
     Task<StudentExamResponseDTO> GetStudentExamSubjects(string secureToken);
+
+    Task UploadStudentScores(string ssoid, string dateOfBirth);
 }

@@ -20,12 +20,17 @@ public class AuthenticationService : IAuthenticationService
     private readonly JwtSettings _jwtSettings;
     private readonly RsosSettings _rsosSettings;
     private readonly IGenericRepository _genericRepository;
+    private readonly AuthenticationSettings _authenticationSettings;
 
-    public AuthenticationService(IOptions<JwtSettings> jwtSettings, IOptions<RsosSettings> rsosSettings, IGenericRepository genericRepository)
+    public AuthenticationService(IGenericRepository genericRepository, 
+        IOptions<JwtSettings> jwtSettings, 
+        IOptions<RsosSettings> rsosSettings, 
+        IOptions<AuthenticationSettings> authenticationSettings)
     {
         _genericRepository = genericRepository;
         _jwtSettings = jwtSettings.Value;
-        _rsosSettings = rsosSettings.Value;   
+        _rsosSettings = rsosSettings.Value;
+        _authenticationSettings = authenticationSettings.Value;
     }
 
     public async Task<AuthenticationResponseDTO> Authenticate(AuthenticationRequestDTO authenticationRequest)
@@ -65,16 +70,7 @@ public class AuthenticationService : IAuthenticationService
             {
                 var studentResponseData = JsonConvert.DeserializeObject<LoginResponseDTO>(responseData);
 
-                var studentLoginData = studentResponseData.Data.Student;
-
-                var studentEntity = new tblStudentLoginDetail
-                {
-                    LoginTime = DateTime.Now,
-                    SSOID = studentLoginData.SsoId,
-                    DeviceRegistrationToken = authenticationRequest.DeviceRegistrationToken ?? ""
-                };
-                
-                await _genericRepository.InsertAsync(studentEntity);
+                var studentLoginData = studentResponseData!.Data.Student;
 
                 var existingStudentLoginHistory =
                     await _genericRepository.GetFirstOrDefaultAsync<tblStudentLoginHistory>(x =>
@@ -86,9 +82,14 @@ public class AuthenticationService : IAuthenticationService
                     {
                         SSOID = studentLoginData.SsoId,
                         AttemptCount = 0,
-                        LastAccessedTime = DateTime.Now
+                        LastAccessedTime = DateTime.Now,
+                        StudentId = studentLoginData.Id,
+                        Enrollment = studentLoginData.Enrollment,
+                        DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd")
                     };
 
+                    await InsertStudentLoginDetails(studentLoginData.SsoId, authenticationRequest.DeviceRegistrationToken);
+                    
                     await _genericRepository.InsertAsync(studentLoginHistoryModel);
                 }
                 
@@ -98,7 +99,7 @@ public class AuthenticationService : IAuthenticationService
 
                 if (studentLoginHistory is { AttemptCount: >= 5 })
                 {
-                    if (studentLoginHistory.LastAccessedTime.AddMinutes(5) <= DateTime.Now)
+                    if (studentLoginHistory.LastAccessedTime.AddMinutes(_authenticationSettings.DurationInMinutes) <= DateTime.Now)
                     {
                         var pcpDates =  await _genericRepository.GetAsync<tblPCPDate>(x => x.IsActive);
 
@@ -119,9 +120,14 @@ public class AuthenticationService : IAuthenticationService
                         };
 
                         studentLoginHistory.AttemptCount = 0;
+                        studentLoginHistory.StudentId = studentLoginData.Id;
                         studentLoginHistory.LastAccessedTime = DateTime.Now;
+                        studentLoginHistory.Enrollment = studentLoginData.Enrollment;
+                        studentLoginHistory.DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd");
 
                         await _genericRepository.UpdateAsync(studentLoginHistory);
+                        
+                        await InsertStudentLoginDetails(studentLoginData.SsoId, authenticationRequest.DeviceRegistrationToken);
                         
                         return authenticationResponse;
                     }
@@ -129,7 +135,7 @@ public class AuthenticationService : IAuthenticationService
                     return new AuthenticationResponseDTO()
                     {
                         Id = -1,
-                        ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(5).ToString("dd-MM-yyyy hh:mm:ss tt")
+                        ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(_authenticationSettings.DurationInMinutes).ToString("dd-MM-yyyy hh:mm:ss tt")
                     };
                 }
                 else
@@ -156,9 +162,14 @@ public class AuthenticationService : IAuthenticationService
                     {
                         studentLoginHistory.AttemptCount = 0;
                         studentLoginHistory.LastAccessedTime = DateTime.Now;
+                        studentLoginHistory.StudentId = studentLoginData.Id;
+                        studentLoginHistory.Enrollment = studentLoginData.Enrollment;
+                        studentLoginHistory.DateOfBirth = studentLoginData.Dob.ToString("yyyy-MM-dd");
 
                         await _genericRepository.UpdateAsync(studentLoginHistory);
                     }
+
+                    await InsertStudentLoginDetails(studentLoginData.SsoId, authenticationRequest.DeviceRegistrationToken);
                     
                     return authenticationResponse;
                 }
@@ -175,7 +186,9 @@ public class AuthenticationService : IAuthenticationService
                     {
                         SSOID = authenticationRequest.SSOID,
                         AttemptCount = 1,
-                        LastAccessedTime = DateTime.Now
+                        LastAccessedTime = DateTime.Now,
+                        Enrollment = "",
+                        DateOfBirth = ""
                     };
 
                     await _genericRepository.InsertAsync(studentLoginHistoryModel);
@@ -189,7 +202,7 @@ public class AuthenticationService : IAuthenticationService
                     {
                         if (studentLoginHistory.AttemptCount == 5)
                         {
-                            if (studentLoginHistory.LastAccessedTime.AddMinutes(5) <= DateTime.Now)
+                            if (studentLoginHistory.LastAccessedTime.AddMinutes(_authenticationSettings.DurationInMinutes) <= DateTime.Now)
                             {
                                 studentLoginHistory.AttemptCount = 1;
                                 studentLoginHistory.LastAccessedTime = DateTime.Now;
@@ -198,21 +211,17 @@ public class AuthenticationService : IAuthenticationService
 
                                 return new AuthenticationResponseDTO();
                             }
-                            else
+
+                            return new AuthenticationResponseDTO()
                             {
-                                return new AuthenticationResponseDTO()
-                                {
-                                    Id = -1,
-                                    ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(5).ToString("dd-MM-yyyy hh:mm:ss tt")
-                                };
-                            }
+                                Id = -1,
+                                ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(_authenticationSettings.DurationInMinutes).ToString("dd-MM-yyyy hh:mm:ss tt")
+                            };
                         }
-                        else
-                        {
-                            studentLoginHistory.AttemptCount++; 
-                            studentLoginHistory.LastAccessedTime = DateTime.Now;
-                        }
-                        
+
+                        studentLoginHistory.AttemptCount++; 
+                        studentLoginHistory.LastAccessedTime = DateTime.Now;
+
                         await _genericRepository.UpdateAsync(studentLoginHistory);
                         
                         if (studentLoginHistory.AttemptCount == 5)
@@ -220,7 +229,7 @@ public class AuthenticationService : IAuthenticationService
                             return new AuthenticationResponseDTO()
                             {
                                 Id = -1,
-                                ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(5).ToString("dd-MM-yyyy hh:mm:ss tt")
+                                ValidTill =  studentLoginHistory.LastAccessedTime.AddMinutes(_authenticationSettings.DurationInMinutes).ToString("dd-MM-yyyy hh:mm:ss tt")
                             };
                         }
                     }
@@ -229,10 +238,9 @@ public class AuthenticationService : IAuthenticationService
                 return new AuthenticationResponseDTO();
                 
             }
-        } else
-        {
-            return new AuthenticationResponseDTO();
         }
+
+        return new AuthenticationResponseDTO();
     }
 
     private string GenerateJwtToken(StudentInfoDTO studentInfo)
@@ -271,5 +279,17 @@ public class AuthenticationService : IAuthenticationService
         var token = new JwtSecurityTokenHandler().WriteToken(accessToken);
 
         return token;
+    }
+
+    private async Task InsertStudentLoginDetails(string ssoid, string? deviceRegistrationToken)
+    {
+        var studentEntity = new tblStudentLoginDetail
+        {
+            LoginTime = DateTime.Now,
+            SSOID = ssoid,
+            DeviceRegistrationToken = deviceRegistrationToken ?? ""
+        };
+                
+        await _genericRepository.InsertAsync(studentEntity);
     }
 }

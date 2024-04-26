@@ -182,4 +182,20 @@ public class StudentController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPost("upload-student-scores")]
+    public async Task<IActionResult> UploadStudentScores(string ssoid, string dateOfBirth)
+    {
+        await _studentService.UploadStudentScores(ssoid, dateOfBirth);
+
+        var result = new ResponseDTO<object>()
+        {
+            Status = "Success",
+            Message = "Successfully Uploaded",
+            StatusCode = HttpStatusCode.OK,
+            Result = true
+        };
+
+        return Ok(result);
+    }
 }

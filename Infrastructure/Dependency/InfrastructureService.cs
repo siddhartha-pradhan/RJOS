@@ -8,6 +8,8 @@ using Data.Implementation.Services;
 using Data.Persistence.Seed;
 using Microsoft.Extensions.DependencyInjection;
 using Common.Utilities;
+using Hangfire;
+using Microsoft.Extensions.Hosting;
 
 namespace Data.Dependency;
 
@@ -23,7 +25,11 @@ public static class InfrastructureService
 
         services.Configure<JwtSettings>(configuration.GetSection("JWT"));
         services.Configure<RsosSettings>(configuration.GetSection("RSOS"));
+        services.Configure<HangfireSettings>(configuration.GetSection("Hangfire"));
+        services.Configure<AuthenticationSettings>(configuration.GetSection("Authentication"));
 
+        services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
+        
         services.AddTransient<IGenericRepository, GenericRepository>();
 
         services.AddTransient<IAuthenticationService, AuthenticationService>();
@@ -44,6 +50,8 @@ public static class InfrastructureService
         services.AddTransient<IStudentService, StudentService>();
         services.AddTransient<IStudentVideoTrackingService, StudentVideoResponseService>();
         services.AddTransient<IUserService, UserService>();
+
+        services.AddHostedService<HangfireService>();
 
         services.AddMemoryCache();
 
