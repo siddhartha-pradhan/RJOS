@@ -33,116 +33,125 @@ public class HangfireService : IHostedService
             MisfireHandling = MisfireHandlingMode.Strict
         };
         
-        RecurringJob.AddOrUpdate("ePCP", () => InsertData(), Cron.Daily(_hangfireSettings.DurationInHours, _hangfireSettings.DurationInMinutes), jobOptions);
+        RecurringJob.AddOrUpdate("ePCP", () => InsertData(), Cron.Daily(15, 3), jobOptions);
         
         return Task.CompletedTask;
     }
 
     public async Task InsertData()
     {
-        using var scope = _scopeFactory.CreateScope();
-        
-        var genericRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository>();
-        
-        var pcpStudentScores = 
-            await genericRepository.GetAsync<tblStudentScore>(x => 
-                x.TopicId == 0 && !x.IsUploaded);
-
-        var studentScores = pcpStudentScores as tblStudentScore[] ?? pcpStudentScores.ToArray();
-
-        var students = 
-            await genericRepository.GetAsync<tblStudentLoginHistory>(x => 
-                studentScores.Select(z => z.StudentId).Contains(x.StudentId ?? 0));
-
-        foreach (var student in students)
+        try
         {
-            if (student.SSOID == null || student.DateOfBirth == null || student.StudentId == null) continue;
+            using var scope = _scopeFactory.CreateScope();
+        
+            var genericRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository>();
             
-            var httpClient = new HttpClient();
+            var pcpStudentScores = 
+                await genericRepository.GetAsync<tblStudentScore>(x => 
+                    x.TopicId == 0 && !x.IsUploaded);
 
-            var rsosToken = _rsosSettings.Token;
+            var studentScores = pcpStudentScores as tblStudentScore[] ?? pcpStudentScores.ToArray();
 
-            var rsosUrl = _rsosSettings.URL;
+            var students = 
+                await genericRepository.GetAsync<tblStudentLoginHistory>(x => 
+                    studentScores.Select(z => z.StudentId).Contains(x.StudentId ?? 0));
 
-            var loginBaseUrl = $"{rsosUrl}/new_api_student_login";
-
-            var loginQueryParams = new System.Collections.Specialized.NameValueCollection
+            foreach (var student in students)
             {
-                { "ssoid", student.SSOID },
-                { "dob", student.DateOfBirth },
-                { "token", rsosToken }
-            };
+                if (student.SSOID == null || student.DateOfBirth == null || student.StudentId == null) continue;
+                
+                var httpClient = new HttpClient();
 
-            var loginUriBuilder = new UriBuilder(loginBaseUrl)
-            {
-                Query = string.Join("&", Array.ConvertAll(loginQueryParams.AllKeys,
-                    key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(loginQueryParams[key]!)}"))
-            };
+                var rsosToken = _rsosSettings.Token;
 
-            var loginPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+                var rsosUrl = _rsosSettings.URL;
 
-            var loginResponse = await httpClient.PostAsync(loginUriBuilder.Uri, loginPostData);
+                var loginBaseUrl = $"{rsosUrl}/new_api_student_login";
 
-            if (loginResponse.IsSuccessStatusCode)
-            {
-                var loginResponseData = await loginResponse.Content.ReadAsStringAsync();
-
-                var loginApiResponse = JsonConvert.DeserializeObject<RSOSLoginResponse>(loginResponseData);
-
-                if (loginApiResponse is { Status: true })
+                var loginQueryParams = new System.Collections.Specialized.NameValueCollection
                 {
-                    var studentResponseData = JsonConvert.DeserializeObject<LoginResponseDTO>(loginResponseData);
+                    { "ssoid", student.SSOID },
+                    { "dob", student.DateOfBirth },
+                    { "token", rsosToken }
+                };
 
-                    var studentLoginData = studentResponseData!.Data.Student;
+                var loginUriBuilder = new UriBuilder(loginBaseUrl)
+                {
+                    Query = string.Join("&", Array.ConvertAll(loginQueryParams.AllKeys,
+                        key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(loginQueryParams[key]!)}"))
+                };
 
-                    var secureToken = studentResponseData.secure_token;
-                    
-                    var pcpBaseUrl = $"{rsosUrl}/new_api_set_student_sessional_exam_subject_marks";
+                var loginPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
 
-                    foreach (var score in studentScores)
+                var loginResponse = await httpClient.PostAsync(loginUriBuilder.Uri, loginPostData);
+
+                if (loginResponse.IsSuccessStatusCode)
+                {
+                    var loginResponseData = await loginResponse.Content.ReadAsStringAsync();
+
+                    var loginApiResponse = JsonConvert.DeserializeObject<RSOSLoginResponse>(loginResponseData);
+
+                    if (loginApiResponse is { Status: true })
                     {
-                        if (decimal.TryParse(score.Score, out var result))
-                        {
-                            var studentScore = result / 10;
-                            
-                            var pcpQueryParams = new System.Collections.Specialized.NameValueCollection
-                            {
-                                { "token", rsosToken },
-                                { "secure_token", secureToken},
-                                { "enrollment", studentLoginData.Enrollment },
-                                { "ssoid", student.SSOID },
-                                { "subject_id", score.SubjectId.ToString() },
-                                { "obtained_marks", studentScore.ToString(CultureInfo.InvariantCulture) }
-                            };
+                        var studentResponseData = JsonConvert.DeserializeObject<LoginResponseDTO>(loginResponseData);
+
+                        var studentLoginData = studentResponseData!.Data.Student;
+
+                        var secureToken = studentResponseData.secure_token;
                         
-                            var pcpUriBuilder = new UriBuilder(pcpBaseUrl)
+                        var pcpBaseUrl = $"{rsosUrl}/new_api_set_student_sessional_exam_subject_marks";
+
+                        foreach (var score in studentScores)
+                        {
+                            if(DateTime.Now.Hour == 6) return;
+                            
+                            if (decimal.TryParse(score.Score, out var result))
                             {
-                                Query = string.Join("&", Array.ConvertAll(pcpQueryParams.AllKeys,
-                                    key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(pcpQueryParams[key]!)}"))
-                            };
-
-                            var pcpPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
-
-                            var pcpResponse = await httpClient.PostAsync(pcpUriBuilder.Uri, pcpPostData);
-
-                            if (pcpResponse.IsSuccessStatusCode)
-                            {
-                                var pcpResponseData = await pcpResponse.Content.ReadAsStringAsync();
-
-                                var pcpApiResponse = JsonConvert.DeserializeObject<StudentSessionalMarksDTO>(pcpResponseData);
-
-                                if (pcpApiResponse is { Status: true })
+                                var studentScore = result / 10;
+                                
+                                var pcpQueryParams = new System.Collections.Specialized.NameValueCollection
                                 {
-                                    score.LastUpdatedOn = DateTime.Now;
-                                    score.IsUploaded = true;
-                                    
-                                    await genericRepository.UpdateAsync(score);   
+                                    { "token", rsosToken },
+                                    { "secure_token", secureToken},
+                                    { "enrollment", studentLoginData.Enrollment },
+                                    { "ssoid", student.SSOID },
+                                    { "subject_id", score.SubjectId.ToString() },
+                                    { "obtained_marks", studentScore.ToString(CultureInfo.InvariantCulture) }
+                                };
+                            
+                                var pcpUriBuilder = new UriBuilder(pcpBaseUrl)
+                                {
+                                    Query = string.Join("&", Array.ConvertAll(pcpQueryParams.AllKeys,
+                                        key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(pcpQueryParams[key]!)}"))
+                                };
+
+                                var pcpPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+
+                                var pcpResponse = await httpClient.PostAsync(pcpUriBuilder.Uri, pcpPostData);
+
+                                if (pcpResponse.IsSuccessStatusCode)
+                                {
+                                    var pcpResponseData = await pcpResponse.Content.ReadAsStringAsync();
+
+                                    var pcpApiResponse = JsonConvert.DeserializeObject<StudentSessionalMarksDTO>(pcpResponseData);
+
+                                    if (pcpApiResponse is { Status: true })
+                                    {
+                                        score.IsUploaded = true;
+                                        score.LastUpdatedOn = DateTime.Now;
+                                        
+                                        await genericRepository.UpdateAsync(score);   
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+        catch (Exception e)
+        {
+            await InsertData();
         }
     }
 
