@@ -44,7 +44,7 @@ public static class InfrastructureService
         services.AddTransient<INotificationService, NotificationService>();
         services.AddTransient<IPcpDatesService, PcpDatesService>();
         services.AddTransient<IPCPService, PCPService>();
-        services.AddTransient<IPdfService, PdfService>();
+        services.AddTransient<IPdfService, PDFService>();
         services.AddTransient<IQuestionService, QuestionService>();
         services.AddTransient<ISubjectService, SubjectService>();
         services.AddTransient<IStudentService, StudentService>();

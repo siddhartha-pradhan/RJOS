@@ -40,12 +40,12 @@ public class HangfireService : IHostedService
 
     public async Task InsertData()
     {
+        using var scope = _scopeFactory.CreateScope();
+    
+        var genericRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository>();
+        
         try
         {
-            using var scope = _scopeFactory.CreateScope();
-        
-            var genericRepository = scope.ServiceProvider.GetRequiredService<IGenericRepository>();
-            
             var pcpStudentScores = 
                 await genericRepository.GetAsync<tblStudentScore>(x => 
                     x.TopicId == 0 && !x.IsUploaded);
@@ -151,6 +151,13 @@ public class HangfireService : IHostedService
         }
         catch (Exception e)
         {
+            var exception = new tblExceptionLog()
+            {
+                DateTime = DateTime.Now,
+                ErrorLog = e.Message
+            };
+
+            await genericRepository.InsertAsync(exception);
             await InsertData();
         }
     }

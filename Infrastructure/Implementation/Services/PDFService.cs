@@ -6,12 +6,12 @@ using Microsoft.Extensions.FileProviders.Physical;
 
 namespace Data.Implementation.Services;
 
-public class PdfService : IPdfService
+public class PDFService : IPdfService
 {
     private readonly IMemoryCache _cache;
     private readonly IWebHostEnvironment _env;
 
-    public PdfService(IMemoryCache cache, IWebHostEnvironment env)
+    public PDFService(IMemoryCache cache, IWebHostEnvironment env)
     {
         _cache = cache;
         _env = env;
