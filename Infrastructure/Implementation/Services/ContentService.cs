@@ -439,7 +439,7 @@ public class ContentService : IContentService
                         Sequence = contentModule.ChapterNo * 1000 + contentModule.PartNo,
                         Description = $"RSOS Class {contentModule.ClassId} {subject.Title}",
                         Faculty = contentModule.Faculty,
-                        PartName = $"Part {contentModule.PartNo}",
+                        PartName = contentModule.PartName,
                         TimeInSeconds = contentModule.TimeInSeconds,
                         YouTubeLink = contentModule.YouTubeLink
                     };

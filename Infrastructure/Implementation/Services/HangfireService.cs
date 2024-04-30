@@ -33,7 +33,7 @@ public class HangfireService : IHostedService
             MisfireHandling = MisfireHandlingMode.Strict
         };
         
-        RecurringJob.AddOrUpdate("ePCP", () => InsertData(), Cron.Daily(15, 3), jobOptions);
+        RecurringJob.AddOrUpdate("ePCP", () => InsertData(), Cron.Daily(_hangfireSettings.DurationInHours, _hangfireSettings.DurationInMinutes), jobOptions);
         
         return Task.CompletedTask;
     }
