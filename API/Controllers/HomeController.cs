@@ -16,12 +16,14 @@ public class HomeController : BaseController<HomeController>
     private readonly IUserService _userService;
     private readonly IMemoryCache _memoryCache;
     private readonly ISessionBasedCaptcha _captcha;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public HomeController(IUserService userService, IMemoryCache memoryCache, ISessionBasedCaptcha captcha)
+    public HomeController(IUserService userService, IMemoryCache memoryCache, ISessionBasedCaptcha captcha, IWebHostEnvironment webHostEnvironment)
     {
         _captcha = captcha;
         _userService = userService;
         _memoryCache = memoryCache;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     [HttpGet]
@@ -150,5 +152,18 @@ public class HomeController : BaseController<HomeController>
         var captcha = _captcha.GenerateCaptchaImageFileStream(HttpContext.Session);
         
         return captcha;
+    }
+    
+    public IActionResult DownloadApkFile()
+    {
+        var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "documents", "apk", "pcp.apk");
+        
+        if (!System.IO.File.Exists(filePath)) return NotFound();
+        
+        var fileBytes = System.IO.File.ReadAllBytes(filePath);
+        
+        const string fileName = "pcp.apk";
+        
+        return File(fileBytes, "application/vnd.android.package-archive", fileName);
     }
 }

@@ -53,16 +53,4 @@
         <DependentUpon>appsettings.json</DependentUpon>
       </Content>
     </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Views\PrivacyPolicy\Index.cshtml" />
-      <_ContentIncludedByDefault Remove="Views\EBook\Index.cshtml" />
-      <_ContentIncludedByDefault Remove="Views\EBook\_AddUpdateEBook.cshtml" />
-      <_ContentIncludedByDefault Remove="Views\EBook\_EBookList.cshtml" />
-      <_ContentIncludedByDefault Remove="Views\EBook\_Filter.cshtml" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Views\Ebook\Index.cshtml" />
-    </ItemGroup>
 </Project>
