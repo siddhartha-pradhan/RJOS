@@ -156,13 +156,13 @@ public class HomeController : BaseController<HomeController>
     
     public IActionResult DownloadApkFile()
     {
-        var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "documents", "apk", "pcp.apk");
+        var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "documents", "apk", "rsos.apk");
         
         if (!System.IO.File.Exists(filePath)) return NotFound();
         
         var fileBytes = System.IO.File.ReadAllBytes(filePath);
         
-        const string fileName = "pcp.apk";
+        const string fileName = "RSOS_App.apk";
         
         return File(fileBytes, "application/vnd.android.package-archive", fileName);
     }

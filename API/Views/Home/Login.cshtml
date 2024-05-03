@@ -24,6 +24,11 @@
 
 <partial name="_Notification"/>
 
+<div class="row">
+    <div class="col-md-12 mb-3">
+        <a class="text-primary float-end" asp-controller="Home" asp-action="DownloadApkFile">Download APK</a>
+    </div>
+</div>
 <div class="row section">
     <form method="post" asp-controller="Home" asp-action="Login" autocomplete="off">
         @Html.AntiForgeryToken()
