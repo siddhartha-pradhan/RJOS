@@ -40,6 +40,7 @@ public static class InfrastructureService
         services.AddTransient<IEBookService, EBookService>();
         services.AddTransient<IEnrollmentService, EnrollmentService>();
         services.AddTransient<IFAQService, FAQService>();
+        services.AddTransient<IModelService, ModelService>();
         services.AddTransient<INewsAndAlertService, NewsAndAlertService>();
         services.AddTransient<INotificationService, NotificationService>();
         services.AddTransient<IPcpDatesService, PcpDatesService>();

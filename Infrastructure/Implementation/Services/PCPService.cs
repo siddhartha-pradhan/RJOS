@@ -140,7 +140,6 @@ public class PCPService : IPCPService
 
                     var content = await _genericRepository.GetFirstOrDefaultAsync<tblContent>(x =>
                         x.ChapterName == item.ChapterName && x.PartNo == item.PartNumber);
-
                     
                     if (content == null)
                     {
@@ -170,7 +169,7 @@ public class PCPService : IPCPService
                             CreatedOn = DateTime.Now,
                             IsActive = true,
                             Class = question.Class,
-                            Sequence = (maxChapterNumber + 1) * 5 + item.PartNumber,
+                            Sequence = (maxChapterNumber + 1) * 1000 + item.PartNumber,
                             Description = $"RSOS Class {question.Class} {subject.Title} Chapter {maxChapterNumber + 1} | Rajasthan State Open School Class {question.Class} {subject.Title}",
                             Faculty = "",
                             PartName = $"Part {item.PartNumber}",

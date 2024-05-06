@@ -6,3 +6,10 @@ public class SelectListModel
     
     public string Value { get; set; }
 }
+
+public class SelectItemModel
+{
+    public string Id { get; set; }
+    
+    public string Value { get; set; }
+}

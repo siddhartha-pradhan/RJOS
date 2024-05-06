@@ -208,7 +208,7 @@ public class ContentService : IContentService
                 CreatedOn = DateTime.Now,
                 SubjectId = content.SubjectId,
                 Class = content.Class,
-                Sequence = content.ChapterNo * 5 + content.PartNo,
+                Sequence = content.ChapterNo * 1000 + content.PartNo,
                 IsActive = true,
             };
 
