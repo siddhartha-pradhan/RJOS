@@ -184,9 +184,9 @@ public class StudentController : ControllerBase
     }
 
     [HttpPost("upload-student-scores")]
-    public async Task<IActionResult> UploadStudentScores(string ssoid, string dateOfBirth)
+    public async Task<IActionResult> UploadStudentScores()
     {
-        await _studentService.UploadStudentScores(ssoid, dateOfBirth);
+        await _studentService.UploadStudentScores();
 
         var result = new ResponseDTO<object>()
         {

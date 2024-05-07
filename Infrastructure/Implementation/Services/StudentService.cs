@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using System.Text;
 using Application.DTOs.Authentication;
 using Application.DTOs.Student;
@@ -295,89 +296,138 @@ public class StudentService : IStudentService
         };
     }
 
-    public async Task UploadStudentScores(string ssoid, string dateOfBirth)
+    public async Task UploadStudentScores()
     {
-        var students = await _genericRepository.GetAsync<tblStudentLoginHistory>(x => x.AttemptCount == 0);
-
-        foreach (var student in students)
+        try
         {
-            if (student.SSOID == null || student.DateOfBirth == null) continue;
-            
-            var httpClient = new HttpClient();
+            var pcpStudentScores = 
+                await _genericRepository.GetAsync<tblStudentScore>(x => 
+                    x.TopicId == 0 && !x.IsUploaded);
 
-            var rsosToken = _rsosSettings.Token;
+            var studentScores = pcpStudentScores as tblStudentScore[] ?? pcpStudentScores.ToArray();
 
-            var rsosUrl = _rsosSettings.URL;
+            var students = 
+                await _genericRepository.GetAsync<tblStudentLoginHistory>(x => 
+                    studentScores.Select(z => z.StudentId).Contains(x.StudentId ?? 0));
 
-            var loginBaseUrl = $"{rsosUrl}/new_api_student_login";
-
-            var loginQueryParams = new System.Collections.Specialized.NameValueCollection
+            foreach (var student in students)
             {
-                { "ssoid", student.SSOID },
-                { "dob", student.DateOfBirth },
-                { "token", rsosToken }
-            };
+                if (student.SSOID == null || student.DateOfBirth == null || student.StudentId == null) continue;
+                
+                var httpClient = new HttpClient();
 
-            var loginUriBuilder = new UriBuilder(loginBaseUrl)
-            {
-                Query = string.Join("&", Array.ConvertAll(loginQueryParams.AllKeys,
-                    key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(loginQueryParams[key]!)}"))
-            };
+                var rsosToken = _rsosSettings.Token;
 
-            var loginPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+                var rsosUrl = _rsosSettings.URL;
 
-            var loginResponse = await httpClient.PostAsync(loginUriBuilder.Uri, loginPostData);
+                var loginBaseUrl = $"{rsosUrl}/new_api_student_login";
 
-            if (loginResponse.IsSuccessStatusCode)
-            {
-                var loginResponseData = await loginResponse.Content.ReadAsStringAsync();
-
-                var loginApiResponse = JsonConvert.DeserializeObject<RSOSLoginResponse>(loginResponseData);
-
-                if (loginApiResponse is { Status: true })
+                var loginQueryParams = new System.Collections.Specialized.NameValueCollection
                 {
-                    var studentResponseData = JsonConvert.DeserializeObject<LoginResponseDTO>(loginResponseData);
+                    { "ssoid", student.SSOID },
+                    { "dob", student.DateOfBirth },
+                    { "token", rsosToken }
+                };
 
-                    var studentLoginData = studentResponseData!.Data.Student;
+                var loginUriBuilder = new UriBuilder(loginBaseUrl)
+                {
+                    Query = string.Join("&", Array.ConvertAll(loginQueryParams.AllKeys,
+                        key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(loginQueryParams[key]!)}"))
+                };
 
-                    var secureToken = studentResponseData.secure_token;
-                    
-                    var pcpBaseUrl = $"{rsosUrl}/new_api_set_student_sessional_exam_subject_marks";
+                var loginPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
 
-                    var pcpStudentScores = await _genericRepository.GetAsync<tblStudentScore>(x =>
-                        x.StudentId == studentLoginData.Id && x.TopicId == 0 && !x.IsUploaded);
+                var loginResponse = await httpClient.PostAsync(loginUriBuilder.Uri, loginPostData);
 
-                    foreach (var score in pcpStudentScores)
+                if (loginResponse.IsSuccessStatusCode)
+                {
+                    var loginResponseData = await loginResponse.Content.ReadAsStringAsync();
+
+                    var loginApiResponse = JsonConvert.DeserializeObject<RSOSLoginResponse>(loginResponseData);
+
+                    if (loginApiResponse is { Status: true })
                     {
-                        var pcpQueryParams = new System.Collections.Specialized.NameValueCollection
-                        {
-                            { "token", rsosToken },
-                            { "secure_token", secureToken},
-                            { "enrollment", studentLoginData.Enrollment },
-                            { "ssoid", student.SSOID },
-                            { "subject_id", score.SubjectId.ToString() },
-                            { "obtained_marks", score.Score }
-                        };
+                        var studentResponseData = JsonConvert.DeserializeObject<LoginResponseDTO>(loginResponseData);
+
+                        var studentLoginData = studentResponseData!.Data.Student;
+
+                        var secureToken = studentResponseData.secure_token;
                         
-                        var pcpUriBuilder = new UriBuilder(pcpBaseUrl)
+                        var pcpBaseUrl = $"{rsosUrl}/new_api_set_student_sessional_exam_subject_marks";
+
+                        var scoreAttribute = studentScores.Where(x => x.StudentId == studentLoginData.Id);
+                        
+                        foreach (var score in scoreAttribute)
                         {
-                            Query = string.Join("&", Array.ConvertAll(pcpQueryParams.AllKeys,
-                                key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(pcpQueryParams[key]!)}"))
-                        };
+                            if(DateTime.Now.Hour == 7) return;
+                            
+                            if (decimal.TryParse(score.Score, out var result))
+                            {
+                                var studentScore = result / 10;
+                                
+                                var pcpQueryParams = new System.Collections.Specialized.NameValueCollection
+                                {
+                                    { "token", rsosToken },
+                                    { "secure_token", secureToken},
+                                    { "enrollment", studentLoginData.Enrollment },
+                                    { "ssoid", student.SSOID },
+                                    { "subject_id", score.SubjectId.ToString() },
+                                    { "obtained_marks", studentScore.ToString(CultureInfo.InvariantCulture) }
+                                };
+                            
+                                var pcpUriBuilder = new UriBuilder(pcpBaseUrl)
+                                {
+                                    Query = string.Join("&", Array.ConvertAll(pcpQueryParams.AllKeys,
+                                        key => $"{Uri.EscapeDataString(key!)}={Uri.EscapeDataString(pcpQueryParams[key]!)}"))
+                                };
 
-                        var pcpPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
+                                var pcpPostData = new StringContent("{\"key\": \"value\"}", Encoding.UTF8, "application/json");
 
-                        var pcpResponse = await httpClient.PostAsync(pcpUriBuilder.Uri, pcpPostData);
+                                var pcpResponse = await httpClient.PostAsync(pcpUriBuilder.Uri, pcpPostData);
 
-                        score.LastUpdatedOn = DateTime.Now;
-                        score.IsUploaded = pcpResponse.IsSuccessStatusCode;
+                                if (pcpResponse.IsSuccessStatusCode)
+                                {
+                                    var pcpResponseData = await pcpResponse.Content.ReadAsStringAsync();
 
-                        await _genericRepository.UpdateAsync(score);
+                                    var pcpApiResponse = JsonConvert.DeserializeObject<StudentSessionalMarksDTO>(pcpResponseData);
+
+                                    if (pcpApiResponse is { Status: true })
+                                    {
+                                        score.IsUploaded = true;
+                                        score.LastUpdatedOn = DateTime.Now;
+                                        
+                                        await _genericRepository.UpdateAsync(score);   
+                                    }
+                                    else
+                                    {
+                                        var errorLog =
+                                            $"DOIT Exception - Student SSOID: {student.SSOID}, Subject Id: {score.SubjectId.ToString()}, Error: {pcpApiResponse?.Error.ToString()}";
+                                        
+                                        var exception = new tblExceptionLog()
+                                        {
+                                            DateTime = DateTime.Now,
+                                            ErrorLog = errorLog
+                                        };
+
+                                        await _genericRepository.InsertAsync(exception);
+                                    }
+                                }
+                            }
+                        }
                     }
-
                 }
-
             }
+        }
+        catch (Exception e)
+        {
+            var exception = new tblExceptionLog()
+            {
+                DateTime = DateTime.Now,
+                ErrorLog = $"Hangfire Service - {e.Message}"
+            };
+
+            await _genericRepository.InsertAsync(exception);
+            await UploadStudentScores();
         }
     }
 }

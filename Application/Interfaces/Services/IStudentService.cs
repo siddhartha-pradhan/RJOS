@@ -18,5 +18,5 @@ public interface IStudentService
 
     Task<StudentExamResponseDTO> GetStudentExamSubjects(string secureToken);
 
-    Task UploadStudentScores(string ssoid, string dateOfBirth);
+    Task UploadStudentScores();
 }

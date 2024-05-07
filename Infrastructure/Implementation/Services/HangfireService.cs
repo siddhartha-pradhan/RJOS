@@ -101,9 +101,11 @@ public class HangfireService : IHostedService
                         
                         var pcpBaseUrl = $"{rsosUrl}/new_api_set_student_sessional_exam_subject_marks";
 
-                        foreach (var score in studentScores)
+                        var scoreAttribute = studentScores.Where(x => x.StudentId == studentLoginData.Id);
+
+                        foreach (var score in scoreAttribute)
                         {
-                            if(DateTime.Now.Hour == 6) return;
+                            if(DateTime.Now.Hour == 7) return;
                             
                             if (decimal.TryParse(score.Score, out var result))
                             {
@@ -142,6 +144,19 @@ public class HangfireService : IHostedService
                                         
                                         await genericRepository.UpdateAsync(score);   
                                     }
+                                    else
+                                    {
+                                        var errorLog =
+                                            $"DOIT Exception - Student SSOID: {student.SSOID}, Subject Id: {score.SubjectId.ToString()}, Error: {pcpApiResponse?.Error.ToString()}";
+                                        
+                                        var exception = new tblExceptionLog()
+                                        {
+                                            DateTime = DateTime.Now,
+                                            ErrorLog = errorLog
+                                        };
+
+                                        await genericRepository.InsertAsync(exception);
+                                    }
                                 }
                             }
                         }
@@ -154,7 +169,7 @@ public class HangfireService : IHostedService
             var exception = new tblExceptionLog()
             {
                 DateTime = DateTime.Now,
-                ErrorLog = e.Message
+                ErrorLog = $"Hangfire Service - {e.Message}"
             };
 
             await genericRepository.InsertAsync(exception);
