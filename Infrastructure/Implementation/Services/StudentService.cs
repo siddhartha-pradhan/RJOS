@@ -359,7 +359,7 @@ public class StudentService : IStudentService
                         
                         foreach (var score in scoreAttribute)
                         {
-                            if(DateTime.Now.Hour == 7) return;
+                            if(DateTime.Now.Hour >= 7 && DateTime.Now.Hour <= 22) return;
                             
                             if (decimal.TryParse(score.Score, out var result))
                             {

@@ -141,8 +141,13 @@ public class StudentController : ControllerBase
             var studentResponses = JsonSerializer.Deserialize<List<StudentResponseRequestDTO>>(studentResponse);
             var studentScores = JsonSerializer.Deserialize<List<StudentScoreRequestDTO>>(studentScore);
 
-            await _studentService.InsertStudentResponse(studentResponses);
-            await _studentService.InsertStudentScore(studentScores);
+            await _studentService.InsertStudentResponse(studentResponses!);
+            await _studentService.InsertStudentScore(studentScores!);
+
+            if (DateTime.Now.Hour <= 7 && DateTime.Now.Hour >= 22)
+            {
+                await _studentService.UploadStudentScores();
+            }
 
             var successResponse = new ResponseDTO<object>()
             {
