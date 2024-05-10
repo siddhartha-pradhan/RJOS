@@ -24,4 +24,6 @@ public partial class tblSubject
     public string? TitleInHindi { get; set; }
 
     public int? Class { get; set; }
+    
+    public int? MaximumMarks { get; set; }
 }

@@ -33,7 +33,7 @@ public class HangfireService : IHostedService
             MisfireHandling = MisfireHandlingMode.Strict
         };
         
-        RecurringJob.AddOrUpdate("ePCP", () => InsertData(), Cron.Daily(_hangfireSettings.DurationInHours, _hangfireSettings.DurationInMinutes), jobOptions);
+        RecurringJob.AddOrUpdate("ePCP", () => InsertData(), Cron.Daily(_hangfireSettings.StartingHours, _hangfireSettings.StartingMinutes), jobOptions);
         
         return Task.CompletedTask;
     }
@@ -58,6 +58,8 @@ public class HangfireService : IHostedService
 
             foreach (var student in students)
             {
+                if(DateTime.Now.Hour >= _hangfireSettings.EndingHour && DateTime.Now.Hour <= _hangfireSettings.StartingHours) return;
+
                 if (student.SSOID == null || student.DateOfBirth == null || student.StudentId == null) continue;
                 
                 var httpClient = new HttpClient();
@@ -105,11 +107,13 @@ public class HangfireService : IHostedService
 
                         foreach (var score in scoreAttribute)
                         {
-                            if(DateTime.Now.Hour >= 7 && DateTime.Now.Hour <= 22) return;
-                            
-                            if (decimal.TryParse(score.Score, out var result))
+                            if (double.TryParse(score.Score, out var result))
                             {
-                                var studentScore = result / 10;
+                                var subject = await genericRepository.GetByIdAsync<tblSubject>(score.SubjectId);
+                                
+                                var studentScore = result / 100.0 * (subject?.MaximumMarks ?? 0);
+                                
+                                studentScore = Math.Round(studentScore * 2) / 2;
                                 
                                 var pcpQueryParams = new System.Collections.Specialized.NameValueCollection
                                 {
@@ -143,6 +147,17 @@ public class HangfireService : IHostedService
                                         score.LastUpdatedOn = DateTime.Now;
                                         
                                         await genericRepository.UpdateAsync(score);   
+                                        
+                                        var successLog =
+                                            $"DOIT Success - Student SSOID: {student.SSOID}, Subject Id: {score.SubjectId.ToString()}, Score: {studentScore}";
+                                        
+                                        var exception = new tblExceptionLog()
+                                        {
+                                            DateTime = DateTime.Now,
+                                            ErrorLog = successLog
+                                        };
+
+                                        await genericRepository.InsertAsync(exception);
                                     }
                                     else
                                     {

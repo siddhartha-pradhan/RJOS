@@ -2,7 +2,9 @@
 
 public class HangfireSettings
 {
-    public int DurationInHours { get; set; }
+    public int StartingHours { get; set; }
     
-    public int DurationInMinutes { get; set; }
+    public int StartingMinutes { get; set; }
+
+    public int EndingHour { get; set; }
 }

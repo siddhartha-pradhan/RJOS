@@ -316,13 +316,15 @@ public class PCPService : IPCPService
                         "D" => 3,
                         _ => 0
                     };
+
+                    var score = subject.MaximumMarks > 5 ? 1m : 0.5m;
                     
                     for (var i = 0; i < item.Commons.Count; i++)
                     {
                         var commonModel = new tblCommon()
                         {
                             Flag = questionId,
-                            Score = 1,
+                            Score = score,
                             LanguageId = item.Language,
                             Value = item.Commons[i],
                             CommonId = i + 1,

@@ -17,12 +17,14 @@ public class StudentService : IStudentService
     private readonly RsosSettings _rsosSettings;
     private readonly IGenericRepository _genericRepository;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly HangfireSettings _hangfireSettings;
 
-    public StudentService(IGenericRepository genericRepository, IHttpContextAccessor contextAccessor, IOptions<RsosSettings> rsosSettings)
+    public StudentService(IGenericRepository genericRepository, IHttpContextAccessor contextAccessor, IOptions<RsosSettings> rsosSettings, IOptions<HangfireSettings> hangfireSettings)
     {
         _genericRepository = genericRepository;
         _contextAccessor = contextAccessor;
         _rsosSettings = rsosSettings.Value;   
+        _hangfireSettings = hangfireSettings.Value;
     }
 
     public int StudentId
@@ -312,6 +314,8 @@ public class StudentService : IStudentService
 
             foreach (var student in students)
             {
+                if(DateTime.Now.Hour >= _hangfireSettings.EndingHour && DateTime.Now.Hour <= _hangfireSettings.StartingHours) return;
+
                 if (student.SSOID == null || student.DateOfBirth == null || student.StudentId == null) continue;
                 
                 var httpClient = new HttpClient();
@@ -359,11 +363,13 @@ public class StudentService : IStudentService
                         
                         foreach (var score in scoreAttribute)
                         {
-                            if(DateTime.Now.Hour >= 7 && DateTime.Now.Hour <= 22) return;
-                            
-                            if (decimal.TryParse(score.Score, out var result))
+                            if (double.TryParse(score.Score, out var result))
                             {
-                                var studentScore = result / 10;
+                                var subject = await _genericRepository.GetByIdAsync<tblSubject>(score.SubjectId);
+
+                                var studentScore = result / 100.0 * (subject?.MaximumMarks ?? 0);
+                                
+                                studentScore = Math.Round(studentScore * 2) / 2;
                                 
                                 var pcpQueryParams = new System.Collections.Specialized.NameValueCollection
                                 {
@@ -395,6 +401,17 @@ public class StudentService : IStudentService
                                     {
                                         score.IsUploaded = true;
                                         score.LastUpdatedOn = DateTime.Now;
+                                        
+                                        var successLog =
+                                            $"DOIT Success - Student SSOID: {student.SSOID}, Subject Id: {score.SubjectId.ToString()}, Score: {studentScore}";
+                                        
+                                        var exception = new tblExceptionLog()
+                                        {
+                                            DateTime = DateTime.Now,
+                                            ErrorLog = successLog
+                                        };
+
+                                        await _genericRepository.InsertAsync(exception);
                                         
                                         await _genericRepository.UpdateAsync(score);   
                                     }
